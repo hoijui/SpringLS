@@ -124,7 +124,7 @@ public class FSAccountsService extends AbstractAccountsService {
 	 * Only change this if you know what you are doing!
 	 */
 	public static String toPersistentString(final Account account) {
-		return String.format("%s %s %s %d %d %s %d %s",
+		return String.format("%s %s %s %d %d %s %d %s %d",
 				account.getName(),
 				account.getPassword(),
 				Integer.toString(account.getAccessBitField(), 2),
@@ -132,7 +132,8 @@ public class FSAccountsService extends AbstractAccountsService {
 				account.getLastLogin(),
 				account.getLastIpAsString(),
 				account.getRegistrationDate(),
-				account.getLastCountry());
+				account.getLastCountry(),
+				account.getId());
 	}
 	/**
 	 * Used to load a persistent Account from file storage.
@@ -142,7 +143,7 @@ public class FSAccountsService extends AbstractAccountsService {
 
 		final String[] actParts = actStr.split(" ");
 		int accountId = Account.NEW_ACCOUNT_ID;
-		if (actParts.length >= 9) {
+		if (actParts.length > 8) {
 			accountId = Integer.parseInt(actParts[8]);
 		}
 		// input is of the form "1100110"

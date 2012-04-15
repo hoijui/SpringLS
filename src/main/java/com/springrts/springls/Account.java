@@ -146,7 +146,7 @@ public class Account implements Serializable, Cloneable {
 
 	/**
 	 * Unique account identification number.
-	 * This is different to the <code>lastUserId</code>, because it
+	 * This is different to the <code>lastUserId</code>, because it ... TODO
 	 * @see #lastUserId
 	 */
 	private int id;
@@ -557,7 +557,7 @@ public class Account implements Serializable, Cloneable {
 
 	/**
 	 * Unique account identification number.
-	 * This is different to the <code>lastUserId</code>, because it
+	 * This is different to the <code>lastUserId</code>, because it ... TODO
 	 * @see #getLastUserId()
 	 * @return the id
 	 */
@@ -576,7 +576,7 @@ public class Account implements Serializable, Cloneable {
 
 	/**
 	 * Unique account identification number.
-	 * This is different to the <code>lastUserId</code>, because it
+	 * This is different to the <code>lastUserId</code>, because it ... TODO
 	 * @see #getLastUserId()
 	 * @param id the id to set
 	 */
