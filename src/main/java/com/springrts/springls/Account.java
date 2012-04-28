@@ -230,6 +230,12 @@ public class Account implements Serializable, Cloneable {
 	 */
 	private boolean agreementAccepted;
 
+	/**
+	 * The users E-Mail address, used for retrieving account info.
+	 * The email is optional, and may thus be <code>null</code>.
+	 */
+	private String email;
+
 	// END: User specific data (stored in the DB)
 
 
@@ -251,6 +257,7 @@ public class Account implements Serializable, Cloneable {
 		this.access            = Access.NONE;
 		this.bot               = false;
 		this.agreementAccepted = false;
+		this.email             = null;
 	}
 	/**
 	 * Only used by 'FSAccountsService'.
@@ -258,7 +265,7 @@ public class Account implements Serializable, Cloneable {
 	public Account(String name, String password, Access access, int lastUserId,
 			long lastLogin, InetAddress lastIp, long registrationDate,
 			String lastCountry, int id, boolean bot, long inGameTime,
-			boolean agreementAccepted)
+			boolean agreementAccepted, String email)
 	{
 		this.id                = id;
 		this.name              = name;
@@ -272,6 +279,7 @@ public class Account implements Serializable, Cloneable {
 		this.access            = access;
 		this.bot               = bot;
 		this.agreementAccepted = agreementAccepted;
+		this.email             = email;
 	}
 	/**
 	 * Used when a user registers a new account.
@@ -291,6 +299,7 @@ public class Account implements Serializable, Cloneable {
 		this.access            = Access.NORMAL;
 		this.bot               = false;
 		this.agreementAccepted = false;
+		this.email             = null;
 	}
 	/**
 	 * Used when logging in on a server in LAN mode.
@@ -313,11 +322,12 @@ public class Account implements Serializable, Cloneable {
 		this.bot               = acc.isBot();
 		this.inGameTime        = acc.getInGameTime();
 		this.agreementAccepted = acc.isAgreementAccepted();
+		this.email             = acc.getEmail();
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%s %s %s %d %d %s %d %s %d %s %d %s",
+		return String.format("%s %s %s %d %d %s %d %s %d %s %d %s %s",
 				getName(),
 				getPassword(),
 				getAccess().toString(),
@@ -329,7 +339,8 @@ public class Account implements Serializable, Cloneable {
 				getId(),
 				isBot(),
 				getInGameTime(),
-				isAgreementAccepted());
+				isAgreementAccepted(),
+				getEmail());
 	}
 
 
@@ -914,5 +925,30 @@ public class Account implements Serializable, Cloneable {
 	 */
 	public void setAgreementAccepted(boolean agreementAccepted) {
 		this.agreementAccepted = agreementAccepted;
+	}
+
+	/**
+	 * Returns the users E-Mail address.
+	 * @return E-Mail address or <code>null</code>,
+	 *   in case the E-Mail was not set
+	 */
+	@Column(
+		name       = "email",
+		unique     = false,
+		nullable   = true,
+		insertable = true,
+		updatable  = true
+		)
+	public String getEmail() {
+		return email;
+	}
+
+	/**
+	 * Sets the users E-Mail address.
+	 * @param email E-Mail address or <code>null</code>,
+	 *   in case the E-Mail is to be unset
+	 */
+	public void setEmail(String email) {
+		this.email = email;
 	}
 }
