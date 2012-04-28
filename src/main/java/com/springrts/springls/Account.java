@@ -945,10 +945,11 @@ public class Account implements Serializable, Cloneable {
 
 	/**
 	 * Sets the users E-Mail address.
+	 * To ignore case, we convert the email to lower-case.
 	 * @param email E-Mail address or <code>null</code>,
 	 *   in case the E-Mail is to be unset
 	 */
 	public void setEmail(String email) {
-		this.email = email;
+		this.email = email.toLowerCase();
 	}
 }
