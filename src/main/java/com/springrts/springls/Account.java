@@ -280,7 +280,7 @@ public class Account implements Serializable, Cloneable {
 		this.access            = access;
 		this.bot               = bot;
 		this.agreementAccepted = agreementAccepted;
-		this.email             = email;
+		this.email             = email.toLowerCase();
 	}
 	/**
 	 * Used when a user registers a new account.
