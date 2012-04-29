@@ -28,6 +28,7 @@ import java.io.Reader;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -63,7 +64,7 @@ public class FSAccountsService extends AbstractAccountsService {
 	 * (TreeMap class implements efficient Red-Black trees)
 	 * @see mapNoCase
 	 */
-	private static TreeMap<String, Account> map = new TreeMap<String, Account>(
+	private static SortedMap<String, Account> map = new TreeMap<String, Account>(
 			new java.util.Comparator<String>() {
 
 				public int compare(String s1, String s2) {
@@ -75,7 +76,7 @@ public class FSAccountsService extends AbstractAccountsService {
 	 * Same as 'map', only that this ignores case.
 	 * @see map
 	 */
-	private static TreeMap<String, Account> mapNoCase = new TreeMap<String, Account>(
+	private static SortedMap<String, Account> mapNoCase = new TreeMap<String, Account>(
 			new java.util.Comparator<String>() {
 
 				public int compare(String s1, String s2) {
@@ -328,10 +329,9 @@ public class FSAccountsService extends AbstractAccountsService {
 
 		for (int i = 0; i < getAccountsSize(); i++) {
 			Account actTmp = getAccount(i);
-			if (!ip.equals(actTmp.getLastIp())) {
-				continue;
+			if (ip.equals(actTmp.getLastIp())) {
+				account = actTmp;
 			}
-			account = actTmp;
 		}
 
 		return account;

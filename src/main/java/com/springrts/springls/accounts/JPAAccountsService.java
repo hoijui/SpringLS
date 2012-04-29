@@ -20,6 +20,7 @@ package com.springrts.springls.accounts;
 
 import com.springrts.springls.Account;
 import java.net.InetAddress;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -319,13 +320,12 @@ public class JPAAccountsService extends AbstractAccountsService {
 	@Override
 	public List<Account> fetchAllAccounts() {
 
-		List<Account> acts = null;
+		List<Account> acts = Collections.EMPTY_LIST;;
 
 		EntityManager em = null;
 		try {
 			em = open();
-			acts = (List<Account>) (em.createNamedQuery("acc_list")
-					.getResultList());
+			acts = em.createNamedQuery("acc_list").getResultList();
 		} catch (Exception ex) {
 			LOG.error("Failed fetching all accounts", ex);
 		} finally {
