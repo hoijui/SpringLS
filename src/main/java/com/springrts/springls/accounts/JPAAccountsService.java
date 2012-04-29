@@ -295,6 +295,27 @@ public class JPAAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
+	public List<Account> findAccountsByEmail(String email) {
+
+		List<Account> fittingAccounts = Collections.EMPTY_LIST;
+
+		EntityManager em = null;
+		try {
+			em = open();
+			Query fetchByEmailQuery = em.createNamedQuery("acc_fetchByEmail");
+			fetchByEmailQuery.setParameter("email", email.toLowerCase());
+			fittingAccounts = fetchByEmailQuery.getResultList();
+		} catch (Exception ex) {
+			LOG.trace("Failed fetching accounts by email", ex);
+		} finally {
+			close(em);
+			em = null;
+		}
+
+		return fittingAccounts;
+	}
+
+	@Override
 	public boolean mergeAccountChanges(Account account, String oldName) {
 
 		boolean replaced = false;

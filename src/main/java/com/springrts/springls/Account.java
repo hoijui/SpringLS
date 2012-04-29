@@ -56,7 +56,8 @@ import org.slf4j.LoggerFactory;
 	@NamedQuery(name = "acc_list",             query = "SELECT a FROM Account a"),
 	@NamedQuery(name = "acc_fetchByName",      query = "SELECT a FROM Account a WHERE a.name = :name"),
 	@NamedQuery(name = "acc_fetchByLowerName", query = "SELECT a FROM Account a WHERE (LOWER(a.name) = :lowerName)"),
-	@NamedQuery(name = "acc_fetchByLastIP",    query = "SELECT a FROM Account a WHERE a.lastIp = :ip")
+	@NamedQuery(name = "acc_fetchByLastIP",    query = "SELECT a FROM Account a WHERE a.lastIp = :ip"),
+	@NamedQuery(name = "acc_fetchByEmail",     query = "SELECT a FROM Account a WHERE a.email = :email")
 })
 public class Account implements Serializable, Cloneable {
 

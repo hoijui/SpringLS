@@ -104,6 +104,9 @@ public interface AccountsService extends ContextReceiver, LiveStateListener,
 	/** Returns 'null' if no account ever connected from this IP */
 	public Account findAccountByLastIP(InetAddress ip);
 
+	/** Returns an empty set if no account has the given email set. */
+	public List<Account> findAccountsByEmail(String email);
+
 	public boolean doesAccountExist(String userName);
 
 	/**

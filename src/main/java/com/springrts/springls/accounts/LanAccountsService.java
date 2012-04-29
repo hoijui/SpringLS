@@ -21,6 +21,7 @@ package com.springrts.springls.accounts;
 import com.springrts.springls.Account;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -153,6 +154,11 @@ public class LanAccountsService extends AbstractAccountsService {
 	@Override
 	public Account findAccountByLastIP(InetAddress ip) {
 		return null;
+	}
+
+	@Override
+	public List<Account> findAccountsByEmail(String email) {
+		return Collections.EMPTY_LIST;
 	}
 
 	@Override

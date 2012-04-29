@@ -338,6 +338,21 @@ public class FSAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
+	public List<Account> findAccountsByEmail(String email) {
+
+		List<Account> fittingAccounts = new ArrayList<Account>(3);
+
+		for (int i = 0; i < getAccountsSize(); i++) {
+			Account actTmp = getAccount(i);
+			if (email.toLowerCase().equals(actTmp.getEmail())) {
+				fittingAccounts.add(actTmp);
+			}
+		}
+
+		return fittingAccounts;
+	}
+
+	@Override
 	public boolean mergeAccountChanges(Account account, String oldName) {
 
 		final boolean isPersistentAccount = map.containsKey(oldName);
