@@ -196,7 +196,7 @@ public class Battles implements ContextReceiver {
 		}
 		String mapName = parsed2[0];
 		String title   = parsed2[1];
-		String modName = parsed2[2];
+		String gameName = parsed2[2];
 
 		String pass = args.get(2);
 		if (!pass.equals("*") && !pass.matches("^[A-Za-z0-9_]+$")) {
@@ -233,7 +233,7 @@ public class Battles implements ContextReceiver {
 		}
 
 		Battle battle = new Battle(type, natType, founder, pass, port,
-				maxPlayers, hash, rank, maphash, mapName, title, modName);
+				maxPlayers, hash, rank, maphash, mapName, title, gameName);
 
 		return battle;
 	}

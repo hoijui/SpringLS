@@ -1,7 +1,7 @@
 /*
 	Copyright (c) 2005 Robin Vobruba <hoijui.quaero@gmail.com>
 
-	This program is free software; you can redistribute it and/or modify
+	This program is free software; you can redistribute it and/or gameify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation; either version 2 of the License, or
 	(at your option) any later version.
@@ -48,16 +48,16 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Statistics file format:
- * <time> <#active-clients> <#active-battles> <#accounts> <#active-accounts> <list-of-mods>
+ * <time> <#active-clients> <#active-battles> <#accounts> <#active-accounts> <list-of-games>
  * where <time> is of form: "hhmmss"
  * and "active battles" are battles that are in-game and have 2 or more players
- * in it and <list-of-mods> is a list of first k mods (where k is 0 or greater)
- * with frequencies of active battles using these mods. Example: XTA 0.66 15.
- * Note that delimiter in <list-of-mods> is TAB and not SPACE! See code for more
+ * in it and <list-of-games> is a list of first k games (where k is 0 or greater)
+ * with frequencies of active battles using these games. Example: XTA 0.66 15.
+ * Note that delimiter in <list-of-games> is TAB and not SPACE! See code for more
  * info.
  *
  * Aggregated statistics file format:
- * <date> <time> <#active-clients> <#active-battles> <#accounts> <#active-accounts> <list-of-mods>
+ * <date> <time> <#active-clients> <#active-battles> <#accounts> <#active-accounts> <list-of-games>
  * where <date> is of form: "ddMMyy"
  * and all other fields are of same format as those from normal statistics file.
  *
@@ -171,7 +171,7 @@ public class Statistics implements ContextReceiver, Updateable {
 			}
 		}
 
-		String topMods = currentlyPopularModsList();
+		String topGames = currentlyPopularGamesList();
 
 		Writer outF = null;
 		Writer out = null;
@@ -185,7 +185,7 @@ public class Statistics implements ContextReceiver, Updateable {
 			out.write(" "); out.write("" + activeBattlesCount);
 			out.write(" "); out.write("" + accounts.getAccountsSize());
 			out.write(" "); out.write("" + accounts.getActiveAccountsSize());
-			out.write(" "); out.write(topMods);
+			out.write(" "); out.write(topGames);
 			out.write(Misc.EOL);
 		} catch (IOException ex) {
 			LOG.error("Unable to access file <" + fileName + ">. Skipping ...",
@@ -346,12 +346,12 @@ public class Statistics implements ContextReceiver, Updateable {
 					.append("statistics.dat");
 			Runtime.getRuntime().exec(cmd.toString()).waitFor();
 
-			// generate "popular mods chart":
-			String[] params = getPopularModsList(now("ddMMyy")).split("\t");
+			// generate "popular games chart":
+			String[] params = getPopularGamesList(now("ddMMyy")).split("\t");
 			cmd = new StringBuilder(PLOTICUS_FULLPATH)
 					.append(" -png ").append(STATISTICS_FOLDER)
-					.append("mods.pl -o ").append(STATISTICS_FOLDER)
-					.append("mods.png count=")
+					.append("games.pl -o ").append(STATISTICS_FOLDER)
+					.append("games.png count=")
 					.append(Integer.parseInt(params[0]))
 					.append(" enddate=").append(endDateString)
 					.append(" datafile=").append(STATISTICS_FOLDER)
@@ -359,11 +359,11 @@ public class Statistics implements ContextReceiver, Updateable {
 			for (int i = 1; i < params.length; i++) {
 				if ((i % 2) != 0) {
 					// odd index
-					cmd.append("mod").append((i + 1) / 2).append("=")
+					cmd.append("game").append((i + 1) / 2).append("=")
 							.append(params[i]);
 				} else {
 					// even index
-					cmd.append("modfreq").append(i / 2).append("=")
+					cmd.append("gamefreq").append(i / 2).append("=")
 							.append(params[i]);
 				}
 			}
@@ -382,47 +382,47 @@ public class Statistics implements ContextReceiver, Updateable {
 	}
 
 	/**
-	 * Returns the list of mods being played right now (top 5 mods only)
+	 * Returns the list of games being played right now (top 5 games only)
 	 * with frequencies (number of battles).
-	 * @return [list-len] "modname1" [numBattles1] "modname2" [numBattles2]" ...
+	 * @return [list-len] "gamename1" [numBattles1] "gamename2" [numBattles2]" ...
 	 *   Where delimiter is TAB (not SPACE).
 	 *   An empty list is denoted by 0 value for list-len.
 	 */
-	private String currentlyPopularModsList() {
+	private String currentlyPopularGamesList() {
 
-		List<ModBattles> modBattles = new ArrayList<ModBattles>();
+		List<GameBattles> gameBattles = new ArrayList<GameBattles>();
 
 		for (int i = 0; i < context.getBattles().getBattlesSize(); i++) {
 			Battle battle = context.getBattles().getBattleByIndex(i);
 			if (battle.inGame() && (battle.getClientsSize() >= 1)) {
 				// add to list or update in list:
 
-				int modIndex = modBattles.indexOf(battle.getModName());
-				if (modIndex == -1) {
-					modBattles.add(new ModBattles(battle.getModName(), 1));
+				int gameIndex = gameBattles.indexOf(battle.getGameName());
+				if (gameIndex == -1) {
+					gameBattles.add(new GameBattles(battle.getGameName(), 1));
 				} else {
-					modBattles.get(modIndex).addBattles(1);
+					gameBattles.get(gameIndex).addBattles(1);
 				}
 			}
 		}
 
-		return createModPopularityString(modBattles);
+		return createGamePopularityString(gameBattles);
 	}
 
-	private static class ModBattles implements Comparable<ModBattles> {
+	private static class GameBattles implements Comparable<GameBattles> {
 
-		public static final Comparator<ModBattles> BATTLES_COMPARATOR
-				= new Comparator<ModBattles>() {
+		public static final Comparator<GameBattles> BATTLES_COMPARATOR
+				= new Comparator<GameBattles>() {
 			@Override
-			public int compare(ModBattles modBattles1, ModBattles modBattles2) {
-				return modBattles1.getBattles() - modBattles2.getBattles();
+			public int compare(GameBattles gameBattles1, GameBattles gameBattles2) {
+				return gameBattles1.getBattles() - gameBattles2.getBattles();
 			}
 		};
 
 		private final String name;
 		private int battles = 0;
 
-		ModBattles(String name, int battles) {
+		GameBattles(String name, int battles) {
 
 			this.name = name;
 			this.battles = battles;
@@ -441,7 +441,7 @@ public class Statistics implements ContextReceiver, Updateable {
 		}
 
 		@Override
-		public int compareTo(ModBattles other) {
+		public int compareTo(GameBattles other) {
 			return getName().compareTo(other.getName());
 		}
 
@@ -450,8 +450,8 @@ public class Statistics implements ContextReceiver, Updateable {
 
 			if (other instanceof String) {
 				return getName().equals((String) other);
-			} else if (other instanceof ModBattles) {
-				return getName().equals(((ModBattles) other).getName());
+			} else if (other instanceof GameBattles) {
+				return getName().equals(((GameBattles) other).getName());
 			} else {
 				return false;
 			}
@@ -466,18 +466,18 @@ public class Statistics implements ContextReceiver, Updateable {
 	}
 
 	/**
-	 * Returns a list of the top 5 popular mods for a certain date.
+	 * Returns a list of the top 5 popular games for a certain date.
 	 * The date must be in the format "ddMMyy". It will take the first entry for
 	 * every new hour and add it to the list. Other entries for the same hour
 	 * will be ignored.
-	 * @return [list-len] "modname1" [numBattles1] "modname2" [numBattles2]" ...
+	 * @return [list-len] "gameName1" [numBattles1] "gameName2" [numBattles2]" ...
 	 *   Where delimiter is TAB (not SPACE).
 	 *   An empty list is denoted by 0 value for list-len.
-	 * @see #currentlyPopularModList()
+	 * @see #currentlyPopularGamesList()
 	 */
-	private String getPopularModsList(String date) {
+	private String getPopularGamesList(String date) {
 
-		String popularModsList;
+		String popularGamesList;
 
 		File file = new File(STATISTICS_FOLDER + date + ".dat");
 		Reader inF = null;
@@ -487,42 +487,42 @@ public class Statistics implements ContextReceiver, Updateable {
 			String line;
 			inF = new FileReader(file);
 			in = new BufferedReader(inF);
-			List<ModBattles> modBattles = new ArrayList<ModBattles>();
+			List<GameBattles> gameBattles = new ArrayList<GameBattles>();
 			while ((line = in.readLine()) != null) {
 				byte sHour = Byte.parseByte(line.substring(0, 2)); // 00 .. 23
 				if (lastHour == sHour) {
 					continue; // skip this input line
 				}
 				lastHour = sHour;
-				String modFrequencyStr = Misc.makeSentence(line.split(" "), 5);
-				String[] modFrequenciesRaw = modFrequencyStr.split("\t");
-				if ((modFrequenciesRaw.length % 2) != 1) {
+				String gameFrequencyStr = Misc.makeSentence(line.split(" "), 5);
+				String[] gameFrequenciesRaw = gameFrequencyStr.split("\t");
+				if ((gameFrequenciesRaw.length % 2) != 1) {
 					// the number of arguments must be odd
-					// -> numMods + (numMods * (modName + modFrequency))
-					throw new Exception("Bad mod list format");
+					// -> numGames + (numGames * (gameName + gameFrequency))
+					throw new Exception("Bad game list format");
 				}
-				int numMods = Integer.parseInt(modFrequenciesRaw[0]);
-				if (modFrequenciesRaw.length != (1 + (numMods * 2))) {
-					throw new Exception("Bad mod list format");
+				int numGames = Integer.parseInt(gameFrequenciesRaw[0]);
+				if (gameFrequenciesRaw.length != (1 + (numGames * 2))) {
+					throw new Exception("Bad game list format");
 				}
-				for (int i = 0; i < numMods; i++) {
+				for (int i = 0; i < numGames; i++) {
 					int i2 = i * 2;
-					String name = modFrequenciesRaw[i2 + 1];
-					int battles = Integer.parseInt(modFrequenciesRaw[i2 + 2]);
+					String name = gameFrequenciesRaw[i2 + 1];
+					int battles = Integer.parseInt(gameFrequenciesRaw[i2 + 2]);
 
-					int modIndex = modBattles.indexOf(name);
-					if (modIndex == -1) {
-						modBattles.add(new ModBattles(name, battles));
+					int gameIndex = gameBattles.indexOf(name);
+					if (gameIndex == -1) {
+						gameBattles.add(new GameBattles(name, battles));
 					} else {
-						modBattles.get(modIndex).addBattles(battles);
+						gameBattles.get(gameIndex).addBattles(battles);
 					}
 				}
 			}
 
-			popularModsList = createModPopularityString(modBattles);
+			popularGamesList = createGamePopularityString(gameBattles);
 		} catch (Exception ex) {
-			LOG.error("Error in getPopularModsList(). Skipping ...", ex);
-			popularModsList = "0";
+			LOG.error("Error in getPopularGamesList(). Skipping ...", ex);
+			popularGamesList = "0";
 		} finally {
 			try {
 				if (in != null) {
@@ -536,22 +536,22 @@ public class Statistics implements ContextReceiver, Updateable {
 			}
 		}
 
-		return popularModsList;
+		return popularGamesList;
 	}
 
-	private static String createModPopularityString(
-			List<ModBattles> modBattles)
+	private static String createGamePopularityString(
+			List<GameBattles> gameBattles)
 	{
-		// now generate a list of top 5 mods with frequencies:
+		// now generate a list of top 5 games with frequencies:
 		StringBuilder result = new StringBuilder(512);
-		int numMods = Math.min(5, modBattles.size()); // return 5 or less mods
-		result.append(numMods);
-		// Note: do not cut the array by numMods,
+		int numGames = Math.min(5, gameBattles.size()); // return 5 or less games
+		result.append(numGames);
+		// Note: do not cut the array by numGames,
 		//   or sorting will not have any effect!
-		Collections.sort(modBattles, ModBattles.BATTLES_COMPARATOR);
-		for (ModBattles mod : modBattles) {
-			result.append("\t").append(mod.getName());
-			result.append("\t").append(mod.getBattles());
+		Collections.sort(gameBattles, GameBattles.BATTLES_COMPARATOR);
+		for (GameBattles game : gameBattles) {
+			result.append("\t").append(game.getName());
+			result.append("\t").append(game.getBattles());
 		}
 
 		return result.toString();

@@ -62,7 +62,7 @@ public class Battle implements ContextReceiver {
 	/** bots added by clients participating in this battle */
 	private List<Bot> bots;
 	/** see protocol description for details */
-	private String modName;
+	private String gameName;
 	/** name of the map currently selected for this battle */
 	private String mapName;
 	/** see protocol description for details */
@@ -126,7 +126,7 @@ public class Battle implements ContextReceiver {
 
 	public Battle(int type, int natType, Client founder, String password,
 			int port, int maxPlayers, int hashCode, int rank, int mapHash,
-			String mapName, String title, String modName)
+			String mapName, String title, String gameName)
 	{
 		this.id = nextId++;
 		this.type = type;
@@ -142,7 +142,7 @@ public class Battle implements ContextReceiver {
 		this.hashCode = hashCode;
 		this.rank = rank;
 		this.mapHash = mapHash;
-		this.modName = modName;
+		this.gameName = gameName;
 		this.disabledUnits = new ArrayList<String>();
 		// we assume this by default. The client must make sure it is unlocked.
 		this.locked = false;
@@ -196,7 +196,7 @@ public class Battle implements ContextReceiver {
 				getMapHash(),
 				getMapName(),
 				getTitle(),
-				getModName());
+				getGameName());
 	}
 
 	private static class BattleStatusNotifyer implements Processor<Client> {
@@ -720,8 +720,8 @@ public class Battle implements ContextReceiver {
 	 * see protocol description for details
 	 * @return the modName
 	 */
-	public String getModName() {
-		return modName;
+	public String getGameName() {
+		return gameName;
 	}
 
 	/**
