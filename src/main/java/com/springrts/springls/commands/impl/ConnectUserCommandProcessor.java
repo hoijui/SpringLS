@@ -64,7 +64,7 @@ public class ConnectUserCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		boolean clientSupportsCmd = affectedClient.getCompatFlags().contains("cu");
+		boolean clientSupportsCmd = affectedClient.getCompatFlags().contains("cu"); // NOTE lobby protocol "0.35+ cu"
 		if (!clientSupportsCmd) {
 			client.sendLine(String.format(
 					"CONNECTUSERFAILED %s %s", userName,

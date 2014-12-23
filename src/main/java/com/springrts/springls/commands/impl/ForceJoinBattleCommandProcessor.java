@@ -111,7 +111,7 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			battlePassword = args.get(2);
 		}
 
-		boolean clientSupportsCmd = affectedClient.getCompatFlags().contains("m");
+		boolean clientSupportsCmd = affectedClient.getCompatFlags().contains("m"); // NOTE lobby protocol "0.35+ m"
 		if (clientSupportsCmd) {
 			String successResponseMessage = (battlePassword == null)
 					? String.format("FORCEJOINBATTLE %d", destinationBattleId)
