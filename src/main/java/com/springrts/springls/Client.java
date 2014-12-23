@@ -734,8 +734,8 @@ public class Client extends TeamController implements ContextReceiver {
 	 */
 	public void setStatus(int status, boolean priviledged) {
 
-		setInGame( (status & 0x1)        == 1);
-		setAway(  ((status & 0x2)  >> 1) == 1);
+		setInGame((status & 0x1)        == 1);
+		setAway( ((status & 0x2)  >> 1) == 1);
 
 		// This method is only used in MYSTATUS, which priviledged == false.
 		// Therefore, the following is never used, and only stays here for
