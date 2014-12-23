@@ -199,78 +199,28 @@
 			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.3</version>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.5.2</version>
 				<executions>
 					<execution>
 						<id>stand-alone</id>
 						<phase>package</phase>
 						<goals>
-							<goal>shade</goal>
+							<goal>single</goal>
 						</goals>
 						<configuration>
-							<shadedArtifactAttached>true</shadedArtifactAttached>
-							<shadedClassifierName>stand-alone</shadedClassifierName>
-							<artifactSet>
-								<!--
-									Include only the ones that are always needed,
-									like logging. Additional ones, like those required
-									for DB access for example (not used in LAN mode),
-									have to be added to the classpath
-									when executing the server.
-								-->
-								<excludes>
-									<exclude>commons-pool:commons-pool</exclude>
-									<exclude>commons-dbcp:commons-dbcp</exclude>
-									<exclude>javax.persistence:persistence-api</exclude>
-									<exclude>javax.transaction:jta</exclude>
-									<exclude>org.hibernate:*</exclude>
-									<exclude>org.apache.openjpa:*</exclude>
-									<exclude>mysql:*</exclude>
-									<exclude>postgresql:*</exclude>
-								</excludes>
-							</artifactSet>
-							<filters>
-								<filter>
-									<!--
-										Exclude files that sign a jar
-										(one or multiple of the dependencies).
-										One may not repack a signed jar without
-										this, or you will get a
-										SecurityException at program start.
-									-->
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-									</excludes>
-								</filter>
-							</filters>
-						</configuration>
-					</execution>
-
-					<execution>
-						<id>stand-alone-full</id>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<shadedArtifactAttached>true</shadedArtifactAttached>
-							<shadedClassifierName>stand-alone-full</shadedClassifierName>
-							<filters>
-								<filter>
-									<!--
-										Exclude files that sign a jar.
-										This prevents a SecurityException.
-									-->
-									<artifact>*:*</artifact>
-									<excludes>
-										<exclude>META-INF/*.SF</exclude>
-										<exclude>META-INF/*.RSA</exclude>
-									</excludes>
-								</filter>
-							</filters>
+							<descriptors>
+								<descriptor>src/main/assembly/minimal.xml</descriptor>
+								<descriptor>src/main/assembly/full.xml</descriptor>
+							</descriptors>
+							<archive>
+								<manifest>
+									<mainClass>${project.mainClass}</mainClass>
+									<!-- These allow us to easily find out the project version at runtime. -->
+									<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+									<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+								</manifest>
+							</archive>
 						</configuration>
 					</execution>
 				</executions>
