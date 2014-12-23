@@ -37,16 +37,16 @@ public class UpdateStatisticsCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		Statistics statistics = getService(Statistics.class);
-		int taken = statistics.saveStatisticsToDisk();
+		final Statistics statistics = getService(Statistics.class);
+		final int taken = statistics.saveStatisticsToDisk();
 		if (taken == -1) {
 			client.sendLine("SERVERMSG Unable to update statistics!");
 		} else {

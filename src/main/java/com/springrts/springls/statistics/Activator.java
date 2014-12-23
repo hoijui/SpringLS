@@ -37,11 +37,12 @@ public class Activator implements BundleActivator {
 	private final Logger log = LoggerFactory.getLogger(Activator.class);
 
 	@Override
-	public void start(BundleContext context) {
+	public void start(final BundleContext context) {
 
-		Context springLsContext = Context.getService(context, Context.class);
+		final Context springLsContext
+				= Context.getService(context, Context.class);
 
-		Statistics statistics = new Statistics();
+		final Statistics statistics = new Statistics();
 
 		statistics.receiveContext(springLsContext);
 		springLsContext.addContextReceiver(statistics);
@@ -53,14 +54,15 @@ public class Activator implements BundleActivator {
 				statistics, null);
 
 		try {
-			CommandProcessors.add(context, CommandProcessors.load(UpdateStatisticsCommandProcessor.class));
-		} catch (Exception ex) {
+			CommandProcessors.add(context, CommandProcessors.load(
+					UpdateStatisticsCommandProcessor.class));
+		} catch (final Exception ex) {
 			log.error("Failed to install the Statistics command-processors."
 					+ " These commands will not be available.", ex);
 		}
 	}
 
 	@Override
-	public void stop(BundleContext context) {
+	public void stop(final BundleContext context) {
 	}
 }

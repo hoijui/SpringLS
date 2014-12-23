@@ -77,30 +77,34 @@ public class Statistics implements ContextReceiver, Updateable {
 	private static final String PLOTICUS_FULLPATH = "./ploticus/bin/pl";
 	private static final String STATISTICS_FOLDER = "./stats/";
 
+	private static final long DAY = 1000L * 60L * 60L * 24L;
+	private static final String TODAY_FILTER_FORMAT = "ddMMyy";
+
 	/**
 	 * Time when we last updated statistics.
 	 * @see java.lang.System#currentTimeMillis()
 	 */
 	private long lastStatisticsUpdate;
 
-	private Context context = null;
+	private Context context;
 
 
 	public Statistics() {
 
 		lastStatisticsUpdate = System.currentTimeMillis();
+		context = null;
 	}
 
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 		this.context = context;
 	}
 
 	@Override
 	public void update() {
 
-		Configuration conf = context.getService(Configuration.class);
+		final Configuration conf = context.getService(Configuration.class);
 		boolean recording =
 				conf.getBoolean(ServerConfiguration.STATISTICS_STORE);
 		if (recording && ((System.currentTimeMillis() - lastStatisticsUpdate)
@@ -113,9 +117,9 @@ public class Statistics implements ContextReceiver, Updateable {
 	private void ensureStatsDirExists() {
 
 		// create statistics folder if it does not exist yet
-		File file = new File(STATISTICS_FOLDER);
+		final File file = new File(STATISTICS_FOLDER);
 		if (!file.exists()) {
-			boolean success = (file.mkdir());
+			final boolean success = (file.mkdir());
 			if (!success) {
 				LOG.error("Unable to create folder: {}", STATISTICS_FOLDER);
 			} else {
@@ -159,19 +163,19 @@ public class Statistics implements ContextReceiver, Updateable {
 	 */
 	private long autoUpdateStatisticsFile() {
 
-		String fileName = STATISTICS_FOLDER + now("ddMMyy") + ".dat";
-		long startTime = System.currentTimeMillis();
+		final String fileName = STATISTICS_FOLDER + now("ddMMyy") + ".dat";
+		final long startTime = System.currentTimeMillis();
 
 		int activeBattlesCount = 0;
 		for (int i = 0; i < context.getBattles().getBattlesSize(); i++) {
-			Battle battle = context.getBattles().getBattleByIndex(i);
+			final Battle battle = context.getBattles().getBattleByIndex(i);
 			// at least 1 client + founder == 2 players
 			if ((battle.getClientsSize() > 0) && battle.inGame()) {
 				activeBattlesCount++;
 			}
 		}
 
-		String topGames = currentlyPopularGamesList();
+		final String topGames = currentlyPopularGamesList();
 
 		Writer outF = null;
 		Writer out = null;
@@ -187,7 +191,7 @@ public class Statistics implements ContextReceiver, Updateable {
 			out.write(" "); out.write("" + accounts.getActiveAccountsSize());
 			out.write(" "); out.write(topGames);
 			out.write(Misc.EOL);
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			LOG.error("Unable to access file <" + fileName + ">. Skipping ...",
 					ex);
 			return -1;
@@ -198,13 +202,13 @@ public class Statistics implements ContextReceiver, Updateable {
 				} else if (outF != null) {
 					outF.close();
 				}
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				LOG.trace("Failed closing statistics file-writer for file: "
 						+ fileName, ex);
 			}
 		}
 
-		long updateTime = System.currentTimeMillis() - startTime;
+		final long updateTime = System.currentTimeMillis() - startTime;
 
 		LOG.info("Statistics have been updated and stored to disk in {} ms",
 				updateTime);
@@ -218,7 +222,7 @@ public class Statistics implements ContextReceiver, Updateable {
 	 */
 	private boolean createAggregateFile() {
 
-		String fileName = STATISTICS_FOLDER + "statistics.dat";
+		final String fileName = STATISTICS_FOLDER + "statistics.dat";
 
 		Writer outF = null;
 		Writer out = null;
@@ -228,15 +232,15 @@ public class Statistics implements ContextReceiver, Updateable {
 			out = new BufferedWriter(outF);
 			String line;
 
-			SimpleDateFormat formatter = new SimpleDateFormat("ddMMyy");
-			Date today = today();
+			final SimpleDateFormat formatter = new SimpleDateFormat("ddMMyy");
+			final Date today = today();
 			long msPerDay = 1000 * 60 * 60 * 24;
 			// get file names for last 7 days (that is today + previous 6 days)
 			for (int i = 7; i > 0; i--) {
-				Date day = new Date();
+				final Date day = new Date();
 				day.setTime(today.getTime() - (((long) i - 1) * msPerDay));
-				String dayStr = formatter.format(day);
-				File fileDay = new File(STATISTICS_FOLDER
+				final String dayStr = formatter.format(day);
+				final File fileDay = new File(STATISTICS_FOLDER
 						+ formatter.format(dayStr) + ".dat");
 				Reader inF = null;
 				BufferedReader in = null;
@@ -250,7 +254,7 @@ public class Statistics implements ContextReceiver, Updateable {
 						out.write(line);
 						out.write(Misc.EOL);
 					}
-				} catch (IOException ex) {
+				} catch (final IOException ex) {
 					LOG.trace("Skipped stats: <" + fileDay.getAbsolutePath()
 							+ ">", ex);
 				} finally {
@@ -261,7 +265,7 @@ public class Statistics implements ContextReceiver, Updateable {
 					}
 				}
 			}
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			LOG.error("Unable to access file <" + fileName + ">. Skipping ...",
 					ex);
 			return false;
@@ -272,7 +276,7 @@ public class Statistics implements ContextReceiver, Updateable {
 				} else if (outF != null) {
 					outF.close();
 				}
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				LOG.trace("Failed closing aggregate statistics file-writer for"
 						+ " file: " + fileName, ex);
 			}
@@ -281,30 +285,26 @@ public class Statistics implements ContextReceiver, Updateable {
 		return true;
 	}
 
-	private static final long DAY = 1000L * 60L * 60L * 24L;
 	private boolean generatePloticusImages() {
 
-		boolean ret = false;
+		boolean ret;
 
 		try {
-			StringBuilder cmd;
-			String[] cmds;
-
-			SimpleDateFormat dayFormatter = new SimpleDateFormat("ddMMyy");
+			final SimpleDateFormat dayFormatter = new SimpleDateFormat("ddMMyy");
 			// from (today_00:00 - 6 days) till today_00:00
-			Date endDate = today(); // today_00:00
-			Date startDate = new Date(endDate.getTime() - (6L * DAY));
-			String startDateString = dayFormatter.format(startDate);
-			String endDateString = dayFormatter.format(endDate);
+			final Date endDate = today(); // today_00:00
+			final Date startDate = new Date(endDate.getTime() - (6L * DAY));
+			final String startDateString = dayFormatter.format(startDate);
+			final String endDateString = dayFormatter.format(endDate);
 
-			SimpleDateFormat lastUpdateFormatter
+			final SimpleDateFormat lastUpdateFormatter
 					= new SimpleDateFormat("dd/MM/yyyy, HH:mm:ss (z)");
 
-			long upTime = System.currentTimeMillis()
+			final long upTime = System.currentTimeMillis()
 					- context.getServer().getStartTime();
 
 			// generate "server stats diagram":
-			cmds = new String[8];
+			final String[] cmds = new String[8];
 			cmds[0] = PLOTICUS_FULLPATH;
 			cmds[1] = "-png";
 			cmds[2] = STATISTICS_FOLDER + "info.pl";
@@ -316,7 +316,7 @@ public class Statistics implements ContextReceiver, Updateable {
 			Runtime.getRuntime().exec(cmds).waitFor();
 
 			// generate "online clients diagram":
-			cmd = new StringBuilder(PLOTICUS_FULLPATH)
+			StringBuilder cmd = new StringBuilder(PLOTICUS_FULLPATH)
 					.append(" -png ")
 					.append(STATISTICS_FOLDER)
 					.append("clients.pl -o ").append(STATISTICS_FOLDER)
@@ -347,7 +347,7 @@ public class Statistics implements ContextReceiver, Updateable {
 			Runtime.getRuntime().exec(cmd.toString()).waitFor();
 
 			// generate "popular games chart":
-			String[] params = getPopularGamesList(now("ddMMyy")).split("\t");
+			final String[] params = getPopularGamesList(now("ddMMyy")).split("\t");
 			cmd = new StringBuilder(PLOTICUS_FULLPATH)
 					.append(" -png ").append(STATISTICS_FOLDER)
 					.append("games.pl -o ").append(STATISTICS_FOLDER)
@@ -370,10 +370,10 @@ public class Statistics implements ContextReceiver, Updateable {
 			Runtime.getRuntime().exec(cmd.toString()).waitFor();
 
 			ret = true;
-		} catch (InterruptedException ex) {
+		} catch (final InterruptedException ex) {
 			LOG.error("Failed generating ploticus charts!", ex);
 			ret = false;
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			LOG.error("Failed generating ploticus charts!", ex);
 			ret = false;
 		}
@@ -390,10 +390,10 @@ public class Statistics implements ContextReceiver, Updateable {
 	 */
 	private String currentlyPopularGamesList() {
 
-		List<GameBattles> gameBattles = new ArrayList<GameBattles>();
+		final List<GameBattles> gameBattles = new ArrayList<GameBattles>();
 
 		for (int i = 0; i < context.getBattles().getBattlesSize(); i++) {
-			Battle battle = context.getBattles().getBattleByIndex(i);
+			final Battle battle = context.getBattles().getBattleByIndex(i);
 			if (battle.inGame() && (battle.getClientsSize() >= 1)) {
 				// add to list or update in list:
 
@@ -422,7 +422,7 @@ public class Statistics implements ContextReceiver, Updateable {
 		private final String name;
 		private int battles = 0;
 
-		GameBattles(String name, int battles) {
+		GameBattles(final String name, final int battles) {
 
 			this.name = name;
 			this.battles = battles;
@@ -436,17 +436,17 @@ public class Statistics implements ContextReceiver, Updateable {
 			return battles;
 		}
 
-		public void addBattles(int additionalBattles) {
+		public void addBattles(final int additionalBattles) {
 			this.battles += additionalBattles;
 		}
 
 		@Override
-		public int compareTo(GameBattles other) {
+		public int compareTo(final GameBattles other) {
 			return getName().compareTo(other.getName());
 		}
 
 		@Override
-		public boolean equals(Object other) {
+		public boolean equals(final Object other) {
 
 			if (other instanceof String) {
 				return getName().equals((String) other);
@@ -475,11 +475,11 @@ public class Statistics implements ContextReceiver, Updateable {
 	 *   An empty list is denoted by 0 value for list-len.
 	 * @see #currentlyPopularGamesList()
 	 */
-	private String getPopularGamesList(String date) {
+	private String getPopularGamesList(final String date) {
 
 		String popularGamesList;
 
-		File file = new File(STATISTICS_FOLDER + date + ".dat");
+		final File file = new File(STATISTICS_FOLDER + date + ".dat");
 		Reader inF = null;
 		BufferedReader in = null;
 		try {
@@ -487,30 +487,30 @@ public class Statistics implements ContextReceiver, Updateable {
 			String line;
 			inF = new FileReader(file);
 			in = new BufferedReader(inF);
-			List<GameBattles> gameBattles = new ArrayList<GameBattles>();
+			final List<GameBattles> gameBattles = new ArrayList<GameBattles>();
 			while ((line = in.readLine()) != null) {
-				byte sHour = Byte.parseByte(line.substring(0, 2)); // 00 .. 23
+				final byte sHour = Byte.parseByte(line.substring(0, 2)); // 00 .. 23
 				if (lastHour == sHour) {
 					continue; // skip this input line
 				}
 				lastHour = sHour;
-				String gameFrequencyStr = Misc.makeSentence(line.split(" "), 5);
-				String[] gameFrequenciesRaw = gameFrequencyStr.split("\t");
+				final String gameFrequencyStr = Misc.makeSentence(line.split(" "), 5);
+				final String[] gameFrequenciesRaw = gameFrequencyStr.split("\t");
 				if ((gameFrequenciesRaw.length % 2) != 1) {
 					// the number of arguments must be odd
 					// -> numGames + (numGames * (gameName + gameFrequency))
 					throw new Exception("Bad game list format");
 				}
-				int numGames = Integer.parseInt(gameFrequenciesRaw[0]);
+				final int numGames = Integer.parseInt(gameFrequenciesRaw[0]);
 				if (gameFrequenciesRaw.length != (1 + (numGames * 2))) {
 					throw new Exception("Bad game list format");
 				}
 				for (int i = 0; i < numGames; i++) {
-					int i2 = i * 2;
-					String name = gameFrequenciesRaw[i2 + 1];
-					int battles = Integer.parseInt(gameFrequenciesRaw[i2 + 2]);
+					final int i2 = i * 2;
+					final String name = gameFrequenciesRaw[i2 + 1];
+					final int battles = Integer.parseInt(gameFrequenciesRaw[i2 + 2]);
 
-					int gameIndex = gameBattles.indexOf(name);
+					final int gameIndex = gameBattles.indexOf(name);
 					if (gameIndex == -1) {
 						gameBattles.add(new GameBattles(name, battles));
 					} else {
@@ -520,7 +520,7 @@ public class Statistics implements ContextReceiver, Updateable {
 			}
 
 			popularGamesList = createGamePopularityString(gameBattles);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Error in getPopularGamesList(). Skipping ...", ex);
 			popularGamesList = "0";
 		} finally {
@@ -530,7 +530,7 @@ public class Statistics implements ContextReceiver, Updateable {
 				} else if (inF != null) {
 					inF.close();
 				}
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				LOG.trace("Failed closing statistics file-reader for file: "
 						+ file.getAbsolutePath(), ex);
 			}
@@ -540,16 +540,16 @@ public class Statistics implements ContextReceiver, Updateable {
 	}
 
 	private static String createGamePopularityString(
-			List<GameBattles> gameBattles)
+			final List<GameBattles> gameBattles)
 	{
 		// now generate a list of top 5 games with frequencies:
-		StringBuilder result = new StringBuilder(512);
-		int numGames = Math.min(5, gameBattles.size()); // return 5 or less games
+		final StringBuilder result = new StringBuilder(512);
+		final int numGames = Math.min(5, gameBattles.size()); // return 5 or less games
 		result.append(numGames);
 		// Note: do not cut the array by numGames,
 		//   or sorting will not have any effect!
 		Collections.sort(gameBattles, GameBattles.BATTLES_COMPARATOR);
-		for (GameBattles game : gameBattles) {
+		for (final GameBattles game : gameBattles) {
 			result.append("\t").append(game.getName());
 			result.append("\t").append(game.getBattles());
 		}
@@ -579,16 +579,15 @@ public class Statistics implements ContextReceiver, Updateable {
 	 * <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/text/SimpleDateFormat.html">
 	 * SimpleDateFormat JavaDoc</a> for more info.
 	 */
-	private static String now(String format) {
+	private static String now(final String format) {
 
-		Date now = new Date();
-		SimpleDateFormat formatter = new SimpleDateFormat(format);
-		String current = formatter.format(now);
+		final Date now = new Date();
+		final SimpleDateFormat formatter = new SimpleDateFormat(format);
+		final String current = formatter.format(now);
 
 		return current;
 	}
 
-	private static final String TODAY_FILTER_FORMAT = "ddMMyy";
 	private static Date today() {
 
 		Date today = null;
@@ -596,7 +595,7 @@ public class Statistics implements ContextReceiver, Updateable {
 		try {
 			today = new SimpleDateFormat(TODAY_FILTER_FORMAT)
 					.parse(now(TODAY_FILTER_FORMAT));
-		} catch (ParseException ex) {
+		} catch (final ParseException ex) {
 			// this could not possible ever happen!
 			LOG.error("Failed creating date string for 'today'", ex);
 		}
