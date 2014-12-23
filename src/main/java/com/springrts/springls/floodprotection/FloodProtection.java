@@ -70,7 +70,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 	 * XXX if lookups on this get too expensive, add it to a property list in
 	 *   Client its self: <tt>client.properties[receivedOverPeriodIndex]</tt>
 	 */
-	private Map<Client, Long> receivedTillLastCheck;
+	private final Map<Client, Long> receivedTillLastCheck;
 
 	private Context context = null;
 
@@ -95,7 +95,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 	}
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 		this.context = context;
 	}
 	protected Context getContext() {
@@ -106,7 +106,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 
 		if (hasFloodCheckPeriodPassed()) {
 			receivedTillLastCheck.clear();
-			Clients clients = getContext().getClients();
+			final Clients clients = getContext().getClients();
 			for (int c = 0; c < clients.getClientsSize(); c++) {
 				Client client = clients.getClient(c);
 				receivedTillLastCheck.put(client,
@@ -129,7 +129,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 	 * the client, in seconds.
 	 * @param receivedRecordPeriod the receivedRecordPeriod to set
 	 */
-	public void setReceivedRecordPeriod(int receivedRecordPeriod) {
+	public void setReceivedRecordPeriod(final int receivedRecordPeriod) {
 		this.receivedRecordPeriod = receivedRecordPeriod;
 	}
 
@@ -149,7 +149,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 	 * raise "flood alert".
 	 * @param maxBytesAlert the maxBytesAlert to set
 	 */
-	public void setMaxBytesAlert(int maxBytesAlert) {
+	public void setMaxBytesAlert(final int maxBytesAlert) {
 		this.maxBytesAlert = maxBytesAlert;
 	}
 
@@ -169,7 +169,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 	 * @see Account#isBot()
 	 * @param maxBytesAlertForBot the maxBytesAlertForBot to set
 	 */
-	public void setMaxBytesAlertForBot(int maxBytesAlertForBot) {
+	public void setMaxBytesAlertForBot(final int maxBytesAlertForBot) {
 		this.maxBytesAlertForBot = maxBytesAlertForBot;
 	}
 
@@ -182,7 +182,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 		return lastFloodCheckedTime;
 	}
 
-	private long getReceivedSinceLastCheck(Client client) {
+	private long getReceivedSinceLastCheck(final Client client) {
 
 		long receivedSinceLastCheck = 0L;
 
@@ -194,15 +194,16 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 		return receivedSinceLastCheck;
 	}
 
-	private boolean checkFlooding(Client client) {
+	private boolean checkFlooding(final Client client) {
 
 		boolean flooding = false;
 
 		if (client.getAccount().getAccess().isLessThen(Account.Access.ADMIN)) {
-			int maxBytes = client.getAccount().isBot()
+			final int maxBytes = client.getAccount().isBot()
 					? getMaxBytesAlertForBot()
 					: getMaxBytesAlert();
-			long receivedSinceLastCheck = getReceivedSinceLastCheck(client);
+			final long receivedSinceLastCheck
+					= getReceivedSinceLastCheck(client);
 			flooding = (receivedSinceLastCheck > maxBytes);
 		}
 
@@ -210,7 +211,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 	}
 
 	@Override
-	public boolean isFlooding(Client client) {
+	public boolean isFlooding(final Client client) {
 
 		boolean flooding = checkFlooding(client);
 
@@ -230,7 +231,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 					"Disconnected due to excessive flooding");
 
 			// add server notification:
-			ServerNotification sn = new ServerNotification(
+			final ServerNotification sn = new ServerNotification(
 					"Flooding detected");
 			sn.addLine(String.format(
 					"Flooding detected from %s (%s).",
@@ -251,7 +252,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 	 */
 	private boolean hasFloodCheckPeriodPassed() {
 
-		boolean passed = (System.currentTimeMillis()
+		final boolean passed = (System.currentTimeMillis()
 				- getLastFloodCheckedTime())
 				> (getReceivedRecordPeriod() * 1000L);
 

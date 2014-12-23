@@ -36,11 +36,12 @@ public class Activator implements BundleActivator {
 	private final Logger log = LoggerFactory.getLogger(Activator.class);
 
 	@Override
-	public void start(BundleContext context) {
+	public void start(final BundleContext context) {
 
-		Context springLsContext = Context.getService(context, Context.class);
+		final Context springLsContext
+				= Context.getService(context, Context.class);
 
-		FloodProtection floodProtection = new FloodProtection();
+		final FloodProtection floodProtection = new FloodProtection();
 		floodProtection.receiveContext(springLsContext);
 
 		context.registerService(new String[] {
@@ -53,7 +54,7 @@ public class Activator implements BundleActivator {
 		try {
 			CommandProcessors.add(context, CommandProcessors.load(
 					FloodLevelCommandProcessor.class));
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			log.error("Failed to install the FloodProtection"
 					+ " command-processors. These commands will not be"
 					+ " available.", ex);
@@ -61,6 +62,6 @@ public class Activator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext context) {
+	public void stop(final BundleContext context) {
 	}
 }

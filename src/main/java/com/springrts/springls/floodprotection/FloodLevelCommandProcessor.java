@@ -36,35 +36,35 @@ public class FloodLevelCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String type = args.get(0).toUpperCase();
+		final String type = args.get(0).toUpperCase();
 
-		FloodProtection floodProtection
+		final FloodProtection floodProtection
 				= getContext().getService(FloodProtection.class);
 		if (floodProtection == null) {
 			client.sendLine("SERVERMSG The anti-flood service is not running.");
 		} else {
 			if (type.equals("PERIOD")) {
-				int seconds = Integer.parseInt(args.get(1));
+				final int seconds = Integer.parseInt(args.get(1));
 				floodProtection.setReceivedRecordPeriod(seconds);
 				client.sendLine(String.format(
 						"SERVERMSG The anti-flood period is now %d seconds.",
 						seconds));
 			} else if (type.equals("USER")) {
-				int bytes = Integer.parseInt(args.get(1));
+				final int bytes = Integer.parseInt(args.get(1));
 				floodProtection.setMaxBytesAlert(bytes);
 				client.sendLine(String.format(
 						"SERVERMSG The anti-flood amount for a normal user is"
 						+ " now %d bytes.", bytes));
 			} else if (type.equals("BOT")) {
-				int bytes = Integer.parseInt(args.get(1));
+				final int bytes = Integer.parseInt(args.get(1));
 				floodProtection.setMaxBytesAlertForBot(bytes);
 				client.sendLine(String.format(
 						"SERVERMSG The anti-flood amount for a bot is now %d"
