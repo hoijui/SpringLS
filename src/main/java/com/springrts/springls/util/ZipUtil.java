@@ -41,7 +41,7 @@ public final class ZipUtil {
 	 * <a href="http://www.rgagnon.com/javadetails/java-0067.html">here</a>,
 	 * and slightly modified.
 	 */
-	public static void unzip(File archive) throws IOException {
+	public static void unzip(final File archive) throws IOException {
 		unzip(archive, null);
 	}
 
@@ -51,13 +51,13 @@ public final class ZipUtil {
 	 * If no file is found inside the archive, no file is created, and no error
 	 * reported.
 	 */
-	public static void unzipSingleFile(File archive, File toFile)
+	public static void unzipSingleFile(final File archive, final File toFile)
 			throws IOException
 	{
 		unzip(archive, toFile);
 	}
 
-	private static void unzip(File archive, File singleOutputFile)
+	private static void unzip(final File archive, final File singleOutputFile)
 			throws IOException
 	{
 		InputStream fin = null;
@@ -70,7 +70,7 @@ public final class ZipUtil {
 
 			ZipEntry zEntry = zin.getNextEntry();
 			do {
-				File toFile = (singleOutputFile == null)
+				final File toFile = (singleOutputFile == null)
 						? new File(zEntry.getName())
 						: singleOutputFile;
 				unzipSingleEntry(zin, toFile);
@@ -90,19 +90,21 @@ public final class ZipUtil {
 	/**
 	 * Will unzip next entry from given ZipInputStream
 	 */
-	private static void unzipSingleEntry(ZipInputStream zin, File toFile)
+	private static void unzipSingleEntry(final ZipInputStream zin, final File toFile)
 			throws IOException
 	{
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(toFile);
 			byte[] b = new byte[512];
-			int len = 0;
+			int len;
 			while ((len = zin.read(b)) != -1) {
 				out.write(b, 0, len);
 			}
 		} finally {
-			out.close();
+			if (out != null) {
+				out.close();
+			}
 		}
 	}
 }

@@ -47,7 +47,7 @@ public final class ProtocolUtil {
 	 *   <tt>false</tt> otherwise
 	 * @see #numberToBool(byte)
 	 */
-	public static byte boolToNumber(boolean aBoolean) {
+	public static byte boolToNumber(final boolean aBoolean) {
 		return (aBoolean ? ((byte) 1) : ((byte) 0));
 	}
 
@@ -57,7 +57,7 @@ public final class ProtocolUtil {
 	 * @return <tt>true</tt> if <tt>aNumber == 1</tt>, <tt>false</tt> otherwise
 	 * @see #boolToNumber(boolean)
 	 */
-	public static boolean numberToBool(byte aNumber) {
+	public static boolean numberToBool(final byte aNumber) {
 		return (aNumber == 1);
 	}
 
@@ -68,11 +68,11 @@ public final class ProtocolUtil {
 	 * @param ip an IP v4 (<tt>Inet4Address</tt>)
 	 * @return a 64 bit number representing the supplied IP
 	 */
-	public static long ip2Long(InetAddress ip) {
+	public static long ip2Long(final InetAddress ip) {
 
 		long res;
 
-		byte[] addr = ip.getAddress();
+		final byte[] addr = ip.getAddress();
 		final long f1 = (long) addr[0] << 24;
 		final long f2 = (long) addr[1] << 16;
 		final long f3 = (long) addr[2] << 8;
@@ -86,17 +86,17 @@ public final class ProtocolUtil {
 	 * This method encodes plain-text passwords to MD5 hashed ones in base-64
 	 * form.
 	 */
-	public static String encodePassword(String plainPassword) {
+	public static String encodePassword(final String plainPassword) {
 
-		String encodedPassword = null;
+		String encodedPassword;
 
-		byte[] md5Digest = null;
 		try {
-			md5Digest = Misc.getMD5(plainPassword);
-		} catch (NoSuchAlgorithmException ex) {
+			final byte[] md5Digest = Misc.getMD5(plainPassword);
+			encodedPassword = Base64.encodeBytes(md5Digest);
+		} catch (final NoSuchAlgorithmException ex) {
 			LOG.error("Failed to encode password", ex);
+			encodedPassword = null;
 		}
-		encodedPassword = Base64.encodeBytes(md5Digest);
 
 		return encodedPassword;
 	}
@@ -104,13 +104,13 @@ public final class ProtocolUtil {
 	/**
 	 * @see #colorSpringToJava(int)
 	 */
-	public static Color colorSpringStringToJava(String springColor) {
+	public static Color colorSpringStringToJava(final String springColor) {
 
 		Color color = null;
 
 		try {
 			color = colorSpringToJava(Integer.parseInt(springColor));
-		} catch (NumberFormatException ex) {
+		} catch (final NumberFormatException ex) {
 			LOG.debug("Invalid Spring color format number", ex);
 		}
 
@@ -127,15 +127,13 @@ public final class ProtocolUtil {
 	 * Example: 255 stands for "000000FF".
 	 * @see #colorJavaToSpring(Color)
 	 */
-	public static Color colorSpringToJava(int springColor) {
-
-		Color color = null;
+	public static Color colorSpringToJava(final int springColor) {
 
 		int red   = springColor       & 255;
 		int green = springColor >> 8  & 255;
 		int blue  = springColor >> 16 & 255;
 //		int alpha = springColor >> 24 & 255;
-		color = new Color(red, green, blue/*, alpha*/);
+		final Color color = new Color(red, green, blue/*, alpha*/);
 
 		return color;
 	}
@@ -144,7 +142,7 @@ public final class ProtocolUtil {
 	 * This can be used for converting a java color into a lobby protocol color.
 	 * @see #colorSpringToJava(int)
 	 */
-	public static int colorJavaToSpring(Color color) {
+	public static int colorJavaToSpring(final Color color) {
 
 		int springColor = 0;
 
@@ -156,9 +154,10 @@ public final class ProtocolUtil {
 		return springColor;
 	}
 
-	public static Locale countryToLocale(String country) {
+	public static Locale countryToLocale(final String country) {
 
-		String isoCountry = country.equals(COUNTRY_UNKNOWN) ? "" : country;
+		final String isoCountry = country.equals(COUNTRY_UNKNOWN) ? ""
+				: country;
 		return new Locale("", isoCountry);
 	}
 }
