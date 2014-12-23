@@ -369,6 +369,25 @@
 		</dependency>
 
 		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>javax.mail-api</artifactId>
+			<version>1.5.2</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>9.3.0.M1</version>
+			<scope>compile</scope>
+		</dependency>
+		<!--<dependency>
+			<groupId>net.sourceforge.winstone</groupId>
+			<artifactId>winstone-lite</artifactId>
+			<version>0.9.10</version>
+		</dependency>-->
+
+		<dependency>
 			<groupId>javax.persistence</groupId>
 			<artifactId>persistence-api</artifactId>
 			<version>1.0.2</version>

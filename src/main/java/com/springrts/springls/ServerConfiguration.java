@@ -81,6 +81,28 @@ public final class ServerConfiguration {
 	 * This is only relevant if {@link #LAN_MODE} is <code>false</code>.
 	 */
 	public static final String USE_DATABASE = "database";
+	/**
+	 * This email address is used to send E-Mails in behalf of the server,
+	 * for example when recovering the username and/or password of an account.
+	 * @see #MAIL_SERVER
+	 */
+	public static final String MAIL_ADDRESS = "mail.address";
+	/**
+	 * This SMTP server address is used to send E-Mails in behalf of the server.
+	 * @see #MAIL_ADDRESS
+	 */
+	public static final String MAIL_SERVER = "mail.server";
+	/**
+	 * The external SMTP server address is used to send E-Mails
+	 * in behalf of the server.
+	 * @see #SMTP_PORT
+	 */
+	public static final String SMTP_URL = "smtp.url";
+	/**
+	 * The external SMTP server port is used to send E-Mails in behalf of the server.
+	 * @see #SMTP_URL
+	 */
+	public static final String SMTP_PORT = "smtp.port";
 
 	private static final Configuration DEFAULTS = createDefaults();
 
@@ -105,6 +127,10 @@ public final class ServerConfiguration {
 		configuration.setProperty(ENGINE_VERSION, "*"); // all versions
 		configuration.setProperty(LOBBY_PROTOCOL_VERSION, "0.35");
 		configuration.setProperty(USE_DATABASE, false);
+		configuration.setProperty(MAIL_ADDRESS, "noreply@localhost");
+		configuration.setProperty(MAIL_SERVER, "localhost");
+		configuration.setProperty(SMTP_URL, "localhost");
+		configuration.setProperty(SMTP_PORT, 8218);
 
 		return configuration;
 	}
