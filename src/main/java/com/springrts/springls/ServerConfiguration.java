@@ -71,7 +71,7 @@ public final class ServerConfiguration {
 	 * server.
 	 * This is sent via the welcome message whenever a client connects to the
 	 * server.
-	 * It is stored in hte configuration, because it may change depending on
+	 * It is stored in the configuration, because it may change depending on
 	 * which OSGi modules are installed.
 	 */
 	public static final String LOBBY_PROTOCOL_VERSION = "lobby.protocol.version";
