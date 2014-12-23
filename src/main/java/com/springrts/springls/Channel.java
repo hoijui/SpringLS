@@ -157,6 +157,10 @@ public class Channel implements ContextReceiver, LiveStateListener {
 		return topicAuthor;
 	}
 
+	/**
+	 * Returns the time when the topic was last changed.
+	 * @return time the topic was last changed (in ms since Jan 1, 1970 UTC)
+	 */
 	public long getTopicChangedTime() {
 		return topicChangedTime;
 	}
