@@ -208,11 +208,19 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 
 		// send the topic
 		if (chan.isTopicSet()) {
+			long topicChangedTime = chan.getTopicChangedTime();
+			if (client.getCompatFlags().contains("et")) { // NOTE lobby protocol "0.36+ et"
+				// the new way is to denote it in unix time format;
+				// seconds instead of milliseconds)
+				topicChangedTime /= 1000;
+			}
 			client.sendLine(String.format("CHANNELTOPIC %s %s %d %s",
 					chan.getName(),
 					chan.getTopicAuthor(),
-					chan.getTopicChangedTime(),
+					topicChangedTime,
 					chan.getTopic()));
+		} else if (client.getCompatFlags().contains("et")) { // NOTE lobby protocol "0.36+ et"
+			client.sendLine(String.format("NOCHANNELTOPIC %s", chan.getName()));
 		}
 
 		client.endFastWrite();
