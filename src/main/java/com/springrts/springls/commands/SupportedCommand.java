@@ -35,5 +35,5 @@ import java.lang.annotation.ElementType;
 @Target({ElementType.TYPE})
 public @interface SupportedCommand {
 	/** Name of the supported command */
-	public String value();
+	String value();
 }

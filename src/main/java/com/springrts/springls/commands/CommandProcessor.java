@@ -32,7 +32,7 @@ public interface CommandProcessor extends ContextReceiver {
 	/**
 	 * A property for the name of the shape.
 	 */
-	public static final String NAME_PROPERTY = "Command-Name";
+	String NAME_PROPERTY = "Command-Name";
 
 	/**
 	 * Process one call of the command.
@@ -42,6 +42,6 @@ public interface CommandProcessor extends ContextReceiver {
 	 *   name its self
 	 * @return true, if the command was valid and successfully executed
 	 */
-	public boolean process(Client client, List<String> args)
+	boolean process(Client client, List<String> args)
 			throws CommandProcessingException;
 }

@@ -42,12 +42,12 @@ public interface AccountsService extends ContextReceiver, LiveStateListener,
 	 * storage file not available, or a DB system not running.
 	 * @return true if this service is ready to be initialize, false otherwise.
 	 */
-	public boolean isReadyToOperate();
+	boolean isReadyToOperate();
 
 	/**
 	 * Returns the number of all accounts.
 	 */
-	public int getAccountsSize();
+	int getAccountsSize();
 
 	/**
 	 * Returns the number of all active accounts.
@@ -55,13 +55,13 @@ public interface AccountsService extends ContextReceiver, LiveStateListener,
 	 * - last login is not more then 1 week ago
 	 * - rank is higher then Newbie/Rank 1
 	 */
-	public int getActiveAccountsSize();
+	int getActiveAccountsSize();
 
 	/**
 	 * (Re-)Loads accounts from disk.
 	 * @return false if loading failed, true otherwise
 	 */
-	public boolean loadAccounts();
+	boolean loadAccounts();
 
 	/**
 	 * Saves accounts to permanent storage.
@@ -69,45 +69,45 @@ public interface AccountsService extends ContextReceiver, LiveStateListener,
 	 *   method can return immediately (non-blocking mode). If true, it will not
 	 *   return until the accounts have been saved.
 	 */
-	public void saveAccounts(boolean block);
+	void saveAccounts(boolean block);
 
 	/**
 	 * Saves accounts only if they have not been saved for some time.
 	 * This method should be called periodically!
 	 * @see #saveAccounts(boolean block)
 	 */
-	public void saveAccountsIfNeeded();
+	void saveAccountsIfNeeded();
 
 	/**
 	 * Add an account to be persisted.
 	 * Note: The caller has to check if username/password is valid etc.!
 	 */
-	public void addAccount(Account acc);
+	void addAccount(Account acc);
 
 	/**
 	 * Add accounts to be persisted.
 	 * Note: The caller has to check if usernames/passwords are valid etc.!
 	 */
-	public void addAccounts(Iterable<Account> accs);
+	void addAccounts(Iterable<Account> accs);
 
-	public boolean addAccountWithCheck(Account acc);
+	boolean addAccountWithCheck(Account acc);
 
-	public boolean removeAccount(Account acc);
+	boolean removeAccount(Account acc);
 
-	public boolean removeAccount(String userName);
+	boolean removeAccount(String userName);
 
 	/** Returns null if account is not found */
-	public Account getAccount(String userName);
+	Account getAccount(String userName);
 
-	public Account findAccountNoCase(String userName);
+	Account findAccountNoCase(String userName);
 
 	/** Returns 'null' if no account ever connected from this IP */
-	public Account findAccountByLastIP(InetAddress ip);
+	Account findAccountByLastIP(InetAddress ip);
 
 	/** Returns an empty set if no account has the given email set. */
-	public List<Account> findAccountsByEmail(String email);
+	List<Account> findAccountsByEmail(String email);
 
-	public boolean doesAccountExist(String userName);
+	boolean doesAccountExist(String userName);
 
 	/**
 	 * Save changes to an account to permanent storage.
@@ -116,25 +116,25 @@ public interface AccountsService extends ContextReceiver, LiveStateListener,
 	 *   is only used by the 'FSAccountsService'
 	 * @return 'true' if changes were saved successfully
 	 */
-	public boolean mergeAccountChanges(Account account, String oldName);
+	boolean mergeAccountChanges(Account account, String oldName);
 
 	/**
 	 * Loads all accounts from the persistent storage into memory.
 	 * This should only be used for maintenance task, and not during general
 	 * server up-time.
 	 */
-	public List<Account> fetchAllAccounts();
+	List<Account> fetchAllAccounts();
 
 	/**
 	 * Indicates whether or not it is possible to register new accounts.
 	 */
-	public boolean isRegistrationEnabled();
+	boolean isRegistrationEnabled();
 
 	/**
 	 * Sets whether or not it is possible to register new accounts.
 	 * @return true if new value was successfully set
 	 */
-	public boolean setRegistrationEnabled(boolean registrationEnabled);
+	boolean setRegistrationEnabled(boolean registrationEnabled);
 
 	/**
 	 * Checks if a pair of login credentials are valid.
@@ -145,5 +145,5 @@ public interface AccountsService extends ContextReceiver, LiveStateListener,
 	 * @return the account that fits to the login credentials,
 	 *   or <code>null</code>, in case they are not valid
 	 */
-	public Account verifyLogin(String username, String password);
+	Account verifyLogin(String username, String password);
 }

@@ -25,5 +25,5 @@ public interface Updateable {
 	/**
 	 * Gets called once every update loop run-through.
 	 */
-	public void update();
+	void update();
 }

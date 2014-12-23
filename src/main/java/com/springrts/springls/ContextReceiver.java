@@ -22,5 +22,5 @@ package com.springrts.springls;
  */
 public interface ContextReceiver {
 
-	public void receiveContext(Context context);
+	void receiveContext(Context context);
 }

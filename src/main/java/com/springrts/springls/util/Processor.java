@@ -22,5 +22,5 @@ package com.springrts.springls.util;
  */
 public interface Processor<T> {
 
-	public void process(T curClient);
+	void process(T curClient);
 }

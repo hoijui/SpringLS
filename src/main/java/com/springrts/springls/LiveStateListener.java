@@ -22,9 +22,9 @@ package com.springrts.springls;
  */
 public interface LiveStateListener {
 
-	public void starting();
-	public void started();
+	void starting();
+	void started();
 
-	public void stopping();
-	public void stopped();
+	void stopping();
+	void stopped();
 }
