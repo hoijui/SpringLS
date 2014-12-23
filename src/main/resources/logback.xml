@@ -1,5 +1,5 @@
 <!--
-	Se for reference:
+	See for reference:
 	http://logback.qos.ch/manual/configuration.html
 -->
 <configuration scan="true">
