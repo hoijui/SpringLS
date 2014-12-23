@@ -518,6 +518,42 @@
 			</dependencies>
 		</profile>
 
+		<profile>
+			<id>compileWithOldJava</id>
+			<!--
+				NOTE
+				Make sure to set the environment variable JAVA${VERSION}_HOME
+				to your old JDK HOME when using this profile.
+				For example: JAVA6_HOME=.../jdk1.6.0_00
+				Also set the Maven properties:
+				* 'java.version' (for example: '6')
+				* 'java.old.home' (for example: '${env.JAVA6_HOME}')
+			-->
+			<properties>
+				<java.old.libs>${java.old.home}/jre/lib</java.old.libs>
+				<java.old.bootclasspath>${java.old.libs}/rt.jar${path.separator}${java.old.libs}/jce.jar</java.old.bootclasspath>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<source>1.${java.version}</source>
+							<target>1.${java.version}</target>
+							<encoding>${project.build.sourceEncoding}</encoding>
+							<showDeprecation>true</showDeprecation>
+							<showWarnings>true</showWarnings>
+							<compilerArguments>
+								<Xlint:unchecked/>
+								<bootclasspath>${java.old.bootclasspath}</bootclasspath>
+							</compilerArguments>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
 	</profiles>
 
 </project>
