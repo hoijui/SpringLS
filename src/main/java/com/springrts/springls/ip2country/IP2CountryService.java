@@ -27,93 +27,17 @@ import java.util.Locale;
  */
 public interface IP2CountryService {
 
-//	public static final String COUNTRY_UNKNOWN = "XX";
-
-//	public File getDataFile() {
-//		return dataFile;
-//	}
-//
-//	public void setDataFile(File dataFile) {
-//		this.dataFile = dataFile;
-//	}
-
-//	public boolean updateInProgress() {
-//		return ((updater != null) && updater.inProgress());
-//	}
-//
-//	public boolean initializeAll() {
-//
-//		try {
-//			buildDatabase(dataFile, resolveTable, countries);
-//			LOG.info("Using IP2Country info from file '{}'.",
-//					dataFile.getAbsolutePath());
-//		} catch (IOException ex) {
-//			LOG.warn("Could not find or read from file '{}'; reason: {}."
-//					+ " -> Not using any IP2Country info.",
-//					dataFile.getAbsolutePath(), ex.getMessage());
-//			return false;
-//		}
-//
-//		return true;
-//	}
-//
-//	/**
-//	 * Will download appropriate IP2COUNTRY database from the Internet
-//	 * and update local database. Returns immediately (updating is done
-//	 * in a background thread).
-//	 */
-//	public void updateDatabase() {
-//
-//		if (updateInProgress()) {
-//			// update already in progress. Let's just skip it ...
-//			return;
-//		}
-//
-//		updater = new UpdateIP2CountryThread(this);
-//		updateThread = new Thread(updater);
-//		updateThread.setPriority(Thread.NORM_PRIORITY - 2);
-//		updateThread.start();
-//	}
-
-//	/**
-//	 * Will build IP2Country database from a custom format IP2Country file which
-//	 * is produced by the UpdateIP2CountryThread class.
-//	 * Results are saved into 'resolveTable' and 'countries' objects.
-//	 */
-//	public void buildDatabase(File from, TreeMap<IPRange, IPRange> resolveTable,
-//			TreeSet<String> countries) throws IOException;
-//
-//	/**
-//	 * Same as buildDatabase() except that it uses several check for consistency
-//	 * and automatic merging / filtering of duplicate entries,
-//	 * which makes it much slower.
-//	 * Should be called only from a separate thread when updating the database.
-//	 */
-//	public void buildDatabaseSafe(String fromFile,
-//			TreeMap<IPRange, IPRange> resolveTable, TreeSet<String> countries)
-//			throws IOException;
-
-//	/** Will save given IP2County table to disk */
-//	public void saveDatabase(TreeMap<IPRange, IPRange> resolveTable,
-//			String fileName) throws IOException;
-
-//	/** Will replace current "resolve" and "countries" tables with new ones */
-//	public void assignDatabase(TreeMap<IPRange, IPRange> newResolveTable,
-//			TreeSet<String> newCountries);
-
-//	public Locale countryToLocale(String country);
-
 	/**
 	 * Converts an IP address into the corresponding country code in the
 	 * lobby protocol standard.
 	 * @return 2-chars wide country code, as defined in ISO 3166-1 alpha-2,
 	 *   or "XX" if the country is unknown.
 	 */
-	public String getCountryCode(InetAddress ip);
+	String getCountryCode(InetAddress ip);
 
 	/**
 	 * Converts an IP address into a Locale, with the language unspecified.
 	 * @see #getCountryCode(InetAddress)
 	 */
-	public Locale getLocale(InetAddress ip);
+	Locale getLocale(InetAddress ip);
 }
