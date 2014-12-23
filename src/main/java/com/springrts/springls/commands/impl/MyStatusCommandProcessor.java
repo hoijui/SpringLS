@@ -72,7 +72,7 @@ public class MyStatusCommandProcessor extends AbstractCommandProcessor {
 			if (!oldInGame) { // client just entered game
 				Battle battle = getBattle(client);
 				if ((battle != null) && (battle.getClientsSize() > 0)) {
-					client.setInGameTime(System.currentTimeMillis());
+					client.setInGameTime(System.currentTimeMillis()); // FIXME ... that looks wrong! should be now - joinTime. also: change name of the inGameTime property in Client, as it is misnamed (shoudl rather be split in two: joinTime & inGameTime)
 				} else {
 					// we will not update clients that play by themselves
 					// (or with bots), since some try to exploit the system by
