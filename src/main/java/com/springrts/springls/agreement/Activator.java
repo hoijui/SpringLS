@@ -37,14 +37,15 @@ public class Activator implements BundleActivator {
 	private final Logger log = LoggerFactory.getLogger(Activator.class);
 
 	@Override
-	public void start(BundleContext context) {
+	public void start(final BundleContext context) {
 
-		Context springLsContext = Context.getService(context, Context.class);
+		final Context springLsContext
+				= Context.getService(context, Context.class);
 
-		Agreement agreement = new Agreement();
+		final Agreement agreement = new Agreement();
 		boolean contentAvailable = false;
 
-		Configuration conf = springLsContext.getService(Configuration.class);
+		final Configuration conf = springLsContext.getService(Configuration.class);
 		// TODO needs adjusting due to new LAN mode accounts service
 		if (!conf.getBoolean(ServerConfiguration.LAN_MODE)) {
 			contentAvailable = agreement.read();
@@ -59,6 +60,6 @@ public class Activator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext context) {
+	public void stop(final BundleContext context) {
 	}
 }

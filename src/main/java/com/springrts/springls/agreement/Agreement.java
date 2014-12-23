@@ -61,7 +61,7 @@ public class Agreement {
 				LOG.warn("Agreement in file '{}' is too short.",
 						DEFAULT_FILE_NAME);
 			}
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			LOG.warn("Could not find or read from file '{}'; reason: {}."
 					+ " -> Using no agreement.",
 					DEFAULT_FILE_NAME, ex.getMessage());
@@ -70,12 +70,12 @@ public class Agreement {
 		return success;
 	}
 
-	public void sendToClient(Client client) {
+	public void sendToClient(final Client client) {
 
 		client.beginFastWrite();
-		String[] sl = content.split(Misc.EOL);
-		for (int i = 0; i < sl.length; i++) {
-			client.sendLine("AGREEMENT " + sl[i]);
+		final String[] lines = content.split(Misc.EOL);
+		for (final String line : lines) {
+			client.sendLine("AGREEMENT " + line);
 		}
 		client.sendLine("AGREEMENTEND");
 		client.endFastWrite();
