@@ -18,23 +18,8 @@
 package com.springrts.springls.ip2country;
 
 
-import com.springrts.springls.util.ProtocolUtil;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
 import java.net.InetAddress;
 import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Betalord
