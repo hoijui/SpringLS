@@ -52,7 +52,7 @@ public class NatHelpServer implements Runnable, ContextReceiver,
 	private static final int RECEIVE_BUFFER_SIZE = 256;
 
 	/** Has to be thread-safe */
-	private List<DatagramPacket> msgList;
+	private final List<DatagramPacket> msgList;
 	private DatagramSocket socket;
 	private Thread myThread;
 
@@ -68,7 +68,7 @@ public class NatHelpServer implements Runnable, ContextReceiver,
 	}
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 		this.context = context;
 	}
 	private Context getContext() {
@@ -87,13 +87,13 @@ public class NatHelpServer implements Runnable, ContextReceiver,
 
 		DatagramPacket packet;
 		while ((packet = fetchNextPackage()) != null) {
-			InetAddress address = packet.getAddress();
-			int clientPort = packet.getPort();
-			String data = new String(packet.getData(), packet.getOffset(),
+			final InetAddress address = packet.getAddress();
+			final int clientPort = packet.getPort();
+			final String data = new String(packet.getData(), packet.getOffset(),
 					packet.getLength());
 			LOG.trace("*** UDP packet received from {} from port {}",
 					address.getHostAddress(), clientPort);
-			Client client = getContext().getClients().getClient(data);
+			final Client client = getContext().getClients().getClient(data);
 			if (client == null) {
 				continue;
 			}
@@ -121,11 +121,11 @@ public class NatHelpServer implements Runnable, ContextReceiver,
 	@Override
 	public void run() {
 
-		Configuration conf = getContext().getService(Configuration.class);
+		final Configuration conf = getContext().getService(Configuration.class);
 		int port = conf.getInt(ServerConfiguration.NAT_PORT);
 		try {
 			socket = new DatagramSocket(port);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.warn("Unable to start UDP server on port " + port
 					+ ". Ignoring ...", ex);
 			return;
@@ -133,7 +133,7 @@ public class NatHelpServer implements Runnable, ContextReceiver,
 
 		LOG.info("Listening for connections on UDP port {} ...", port);
 
-		byte[] buffer = new byte[RECEIVE_BUFFER_SIZE];
+		final byte[] buffer = new byte[RECEIVE_BUFFER_SIZE];
 		while (true) {
 			try {
 				if (myThread.isInterrupted()) {
@@ -141,13 +141,13 @@ public class NatHelpServer implements Runnable, ContextReceiver,
 				}
 
 				// receive packet
-				DatagramPacket packet = new DatagramPacket(buffer,
+				final DatagramPacket packet = new DatagramPacket(buffer,
 						RECEIVE_BUFFER_SIZE);
 				socket.receive(packet);
 				msgList.add(packet);
-			} catch (InterruptedIOException e) {
+			} catch (final InterruptedIOException e) {
 				break;
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				if (!ex.getMessage().equalsIgnoreCase("socket closed")) {
 					LOG.error("Error in UDP server", ex);
 				}
@@ -188,7 +188,7 @@ public class NatHelpServer implements Runnable, ContextReceiver,
 			// give it 1 second to shut down gracefully
 			myThread.join(1000);
 			myThread = null;
-		} catch (InterruptedException ex) {
+		} catch (final InterruptedException ex) {
 			LOG.error("NAT help server interrupted while shutting down", ex);
 		}
 		socket.close();
