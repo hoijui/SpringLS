@@ -37,10 +37,11 @@ public class Activator implements BundleActivator {
 	private final Logger log = LoggerFactory.getLogger(Activator.class);
 
 	@Override
-	public void start(BundleContext context) {
+	public void start(final BundleContext context) {
 
-		Context springLsContext = Context.getService(context, Context.class);
-		BanService banService = createBanService(springLsContext);
+		final Context springLsContext
+				= Context.getService(context, Context.class);
+		final BanService banService = createBanService(springLsContext);
 		context.registerService(BanService.class.getName(), banService, null);
 	}
 
@@ -48,13 +49,13 @@ public class Activator implements BundleActivator {
 
 		BanService banService = null;
 
-		Configuration conf = context.getService(Configuration.class);
-		boolean lanMode = conf.getBoolean(ServerConfiguration.LAN_MODE);
+		final Configuration conf = context.getService(Configuration.class);
+		final boolean lanMode = conf.getBoolean(ServerConfiguration.LAN_MODE);
 
 		if (!lanMode) {
 			try {
 				banService = new JPABanService();
-			} catch (Exception pex) {
+			} catch (final Exception pex) {
 				log.warn("Failed to access database for ban entries,"
 						+ " bans are not supported!", pex);
 			}
@@ -68,6 +69,6 @@ public class Activator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext context) {
+	public void stop(final BundleContext context) {
 	}
 }

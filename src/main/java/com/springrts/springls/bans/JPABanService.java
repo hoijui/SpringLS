@@ -42,7 +42,7 @@ public class JPABanService implements BanService {
 	private static final Logger LOG
 			= LoggerFactory.getLogger(JPABanService.class);
 
-	private EntityManagerFactory emf;
+	private final EntityManagerFactory emf;
 
 	public JPABanService() {
 		emf = Persistence.createEntityManagerFactory("springls");
@@ -50,16 +50,16 @@ public class JPABanService implements BanService {
 
 	private EntityManager open() {
 
-		EntityManager em = emf.createEntityManager();
+		final EntityManager em = emf.createEntityManager();
 		return em;
 	}
-	private void begin(EntityManager em) {
+	private void begin(final EntityManager em) {
 		em.getTransaction().begin();
 	}
-	private void commit(EntityManager em) {
+	private void commit(final EntityManager em) {
 		em.getTransaction().commit();
 	}
-	private void rollback(EntityManager em) {
+	private void rollback(final EntityManager em) {
 
 		if (em == null) {
 			LOG.error("Failed to create an entity manager");
@@ -71,12 +71,12 @@ public class JPABanService implements BanService {
 					LOG.error("Failed to rollback a transaction: no active"
 							+ " connection or transaction");
 				}
-			} catch (PersistenceException ex) {
+			} catch (final PersistenceException ex) {
 				LOG.error("Failed to rollback a transaction", ex);
 			}
 		}
 	}
-	private void close(EntityManager em) {
+	private void close(final EntityManager em) {
 
 		if (em == null) {
 			LOG.error("Failed to create an entity manager");
@@ -85,7 +85,7 @@ public class JPABanService implements BanService {
 				if (em.isOpen()) {
 					em.close();
 				}
-			} catch (IllegalStateException ex) {
+			} catch (final IllegalStateException ex) {
 				LOG.error("Failed to close an entity manager", ex);
 			}
 		}
@@ -97,14 +97,13 @@ public class JPABanService implements BanService {
 		EntityManager em = null;
 		try {
 			em = open();
-			long numBans = (Long) (em.createNamedQuery("ban_size")
+			final long numBans = (Long) (em.createNamedQuery("ban_size")
 					.getSingleResult());
 			return (int)numBans;
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed fetching number of bans", ex);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return -1;
@@ -118,21 +117,20 @@ public class JPABanService implements BanService {
 		EntityManager em = null;
 		try {
 			em = open();
-			long numBans = (Long) (em.createNamedQuery("ban_size_active")
+			final long numBans = (Long) (em.createNamedQuery("ban_size_active")
 					.getSingleResult());
 			activeBans = (int) numBans;
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed fetching number of bans", ex);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return activeBans;
 	}
 
 	@Override
-	public void addBanEntry(BanEntry ban) {
+	public void addBanEntry(final BanEntry ban) {
 
 		EntityManager em = null;
 		try {
@@ -140,17 +138,16 @@ public class JPABanService implements BanService {
 			begin(em);
 			em.persist(ban);
 			commit(em);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed adding a ban", ex);
 			rollback(em);
 		} finally {
 			close(em);
-			em = null;
 		}
 	}
 
 	@Override
-	public boolean removeBanEntry(BanEntry ban) {
+	public boolean removeBanEntry(final BanEntry ban) {
 
 		boolean removed = false;
 
@@ -161,20 +158,22 @@ public class JPABanService implements BanService {
 			em.remove(ban);
 			commit(em);
 			removed = true;
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed removing a ban", ex);
 			rollback(em);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return removed;
 	}
 
 	@Override
-	public BanEntry getBanEntry(String username, InetAddress ip, int userId) {
-
+	public BanEntry getBanEntry(
+			final String username,
+			final InetAddress ip,
+			final int userId)
+	{
 		BanEntry ban = null;
 
 		EntityManager em = null;
@@ -185,19 +184,18 @@ public class JPABanService implements BanService {
 			fetchQuery.setParameter("ip", ProtocolUtil.ip2Long(ip));
 			fetchQuery.setParameter("userId", userId);
 			ban = (BanEntry) fetchQuery.getSingleResult();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.trace("Failed fetching a ban", ex);
 			ban = null;
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return ban;
 	}
 
 	@Override
-	public boolean mergeBanEntryChanges(BanEntry ban) {
+	public boolean mergeBanEntryChanges(final BanEntry ban) {
 
 		boolean replaced = false;
 
@@ -208,12 +206,11 @@ public class JPABanService implements BanService {
 			em.merge(ban);
 			commit(em);
 			replaced = true;
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed replacing a ban", ex);
 			rollback(em);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return replaced;
@@ -229,12 +226,11 @@ public class JPABanService implements BanService {
 			em = open();
 			bans = (List<BanEntry>) (em.createNamedQuery("ban_list")
 					.getResultList());
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed fetching all bans", ex);
 			bans = null;
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return bans;
@@ -250,12 +246,11 @@ public class JPABanService implements BanService {
 			em = open();
 			bans = (List<BanEntry>) (em.createNamedQuery("ban_list_active")
 					.getResultList());
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed fetching all bans", ex);
 			bans = null;
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return bans;

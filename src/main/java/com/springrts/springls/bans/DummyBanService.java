@@ -19,7 +19,7 @@ package com.springrts.springls.bans;
 
 
 import java.net.InetAddress;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,30 +40,34 @@ public class DummyBanService implements BanService{
 	}
 
 	@Override
-	public void addBanEntry(BanEntry ban) {}
+	public void addBanEntry(final BanEntry ban) {}
 
 	@Override
-	public boolean removeBanEntry(BanEntry ban) {
+	public boolean removeBanEntry(final BanEntry ban) {
 		return true;
 	}
 
 	@Override
-	public BanEntry getBanEntry(String username, InetAddress ip, int userId) {
+	public BanEntry getBanEntry(
+			final String username,
+			final InetAddress ip,
+			final int userId)
+	{
 		return null;
 	}
 
 	@Override
-	public boolean mergeBanEntryChanges(BanEntry ban) {
+	public boolean mergeBanEntryChanges(final BanEntry ban) {
 		return true;
 	}
 
 	@Override
 	public List<BanEntry> fetchAllBanEntries() {
-		return new ArrayList<BanEntry>(0);
+		return Collections.EMPTY_LIST;
 	}
 
 	@Override
 	public List<BanEntry> fetchActiveBanEntries() {
-		return new ArrayList<BanEntry>(0);
+		return Collections.EMPTY_LIST;
 	}
 }

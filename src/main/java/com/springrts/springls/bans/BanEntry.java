@@ -133,8 +133,13 @@ public class BanEntry implements Serializable {
 
 	/** Used by JPA */
 	public BanEntry() {}
-	public BanEntry(long expireDate, String userName, long ipStart, long ipEnd,
-			int userId, String publicReason)
+	public BanEntry(
+			final long expireDate,
+			final String userName,
+			final long ipStart,
+			final long ipEnd,
+			final int userId,
+			final String publicReason)
 	{
 		this.expireDate   = expireDate;
 		this.username     = userName;
@@ -200,7 +205,7 @@ public class BanEntry implements Serializable {
 	public boolean isEnabled() {
 		return enabled;
 	}
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(final boolean enabled) {
 		this.enabled = enabled;
 	}
 
@@ -208,7 +213,7 @@ public class BanEntry implements Serializable {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(final Long id) {
 		this.id = id;
 	}
 
