@@ -52,7 +52,7 @@ public class MessageOfTheDay implements ContextReceiver {
 	}
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 		this.context = context;
 	}
 	protected Context getContext() {
@@ -72,13 +72,13 @@ public class MessageOfTheDay implements ContextReceiver {
 	 */
 	public boolean read(String fileName) {
 
-		boolean success = false;
+		boolean success;
 
 		try {
 			message = Misc.readTextFile(new File(fileName));
 			success = true;
 			LOG.info("Using MOTD from file '{}'.", fileName);
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			LOG.warn("Could not find or read from file '{}'; reason: {}."
 					+ " -> Using the default MOTD.", fileName, ex.getMessage());
 			success = false;
@@ -91,7 +91,7 @@ public class MessageOfTheDay implements ContextReceiver {
 	 * Sends MOTD to a client.
 	 * @return true if sent successfully
 	 */
-	public boolean sendTo(Client client) {
+	public boolean sendTo(final Client client) {
 
 		client.beginFastWrite();
 		client.sendLine(String.format("MOTD Welcome, %s!",
@@ -109,9 +109,9 @@ public class MessageOfTheDay implements ContextReceiver {
 		client.sendLine(String.format("MOTD Server's uptime is %s.",
 				Misc.timeToDHM(context.getServer().getUpTime())));
 		client.sendLine("MOTD");
-		String[] sl = message.split(Misc.EOL);
-		for (int i = 0; i < sl.length; i++) {
-			client.sendLine(String.format("MOTD %s", sl[i]));
+		final String[] lines = message.split(Misc.EOL);
+		for(final String line : lines){
+			client.sendLine(String.format("MOTD %s", line));
 		}
 		client.endFastWrite();
 

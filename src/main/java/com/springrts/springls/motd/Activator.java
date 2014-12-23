@@ -34,14 +34,15 @@ public class Activator implements BundleActivator {
 	private final Logger log = LoggerFactory.getLogger(Activator.class);
 
 	@Override
-	public void start(BundleContext context) {
+	public void start(final BundleContext context) {
 
-		Context springLsContext = Context.getService(context, Context.class);
+		final Context springLsContext
+				= Context.getService(context, Context.class);
 
-		MessageOfTheDay messageOfTheDay = new MessageOfTheDay();
+		final MessageOfTheDay messageOfTheDay = new MessageOfTheDay();
 		messageOfTheDay.receiveContext(springLsContext);
 
-		boolean contentAvailable = messageOfTheDay.read();
+		final boolean contentAvailable = messageOfTheDay.read();
 
 		if (contentAvailable) {
 			context.registerService(MessageOfTheDay.class.getName(),
@@ -49,14 +50,15 @@ public class Activator implements BundleActivator {
 		}
 
 		try {
-			CommandProcessors.add(context, CommandProcessors.load(UpdateMotdCommandProcessor.class));
-		} catch (Exception ex) {
+			CommandProcessors.add(context, CommandProcessors.load(
+					UpdateMotdCommandProcessor.class));
+		} catch (final Exception ex) {
 			log.error("Failed to install the IP2Country command-processors."
 					+ " These commands will not be available.", ex);
 		}
 	}
 
 	@Override
-	public void stop(BundleContext context) {
+	public void stop(final BundleContext context) {
 	}
 }
