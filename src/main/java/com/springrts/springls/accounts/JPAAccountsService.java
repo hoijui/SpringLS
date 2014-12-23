@@ -59,16 +59,16 @@ public class JPAAccountsService extends AbstractAccountsService {
 
 	private EntityManager open() {
 
-		EntityManager em = emf.createEntityManager();
+		final EntityManager em = emf.createEntityManager();
 		return em;
 	}
-	private void begin(EntityManager em) {
+	private void begin(final EntityManager em) {
 		em.getTransaction().begin();
 	}
-	private void commit(EntityManager em) {
+	private void commit(final EntityManager em) {
 		em.getTransaction().commit();
 	}
-	private void rollback(EntityManager em) {
+	private void rollback(final EntityManager em) {
 
 		if (em == null) {
 			LOG.error("Failed to create an entity manager");
@@ -80,12 +80,12 @@ public class JPAAccountsService extends AbstractAccountsService {
 					LOG.error("Failed to rollback a transaction: no active"
 							+ " connection or transaction");
 				}
-			} catch (PersistenceException ex) {
+			} catch (final PersistenceException ex) {
 				LOG.error("Failed to rollback a transaction", ex);
 			}
 		}
 	}
-	private void close(EntityManager em) {
+	private void close(final EntityManager em) {
 
 		if (em == null) {
 			LOG.error("Failed to create an entity manager");
@@ -94,7 +94,7 @@ public class JPAAccountsService extends AbstractAccountsService {
 				if (em.isOpen()) {
 					em.close();
 				}
-			} catch (IllegalStateException ex) {
+			} catch (final IllegalStateException ex) {
 				LOG.error("Failed to close an entity manager", ex);
 			}
 		}
@@ -114,14 +114,13 @@ public class JPAAccountsService extends AbstractAccountsService {
 		EntityManager em = null;
 		try {
 			em = open();
-			long numAccounts = (Long) (em.createNamedQuery("acc_size")
+			final long numAccounts = (Long) (em.createNamedQuery("acc_size")
 					.getSingleResult());
 			accounts = (int) numAccounts;
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed fetching number of accounts", ex);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return accounts;
@@ -135,17 +134,16 @@ public class JPAAccountsService extends AbstractAccountsService {
 		EntityManager em = null;
 		try {
 			em = open();
-			Query activeSizeQuery = em.createNamedQuery("acc_size_active");
+			final Query activeSizeQuery = em.createNamedQuery("acc_size_active");
 			final long oneWeekAgo = System.currentTimeMillis() - (DAY * 7);
 			activeSizeQuery.setParameter("oneWeekAgo", oneWeekAgo);
 			activeAccounts = (int) (long) (Long)
 					activeSizeQuery.getSingleResult();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed fetching active accounts", ex);
 			activeAccounts = -1;
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return activeAccounts;
@@ -157,13 +155,13 @@ public class JPAAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
-	public void saveAccounts(boolean block) {}
+	public void saveAccounts(final boolean block) {}
 
 	@Override
 	public void saveAccountsIfNeeded() {}
 
 	@Override
-	public void addAccount(Account acc) {
+	public void addAccount(final Account acc) {
 
 		EntityManager em = null;
 		try {
@@ -171,39 +169,37 @@ public class JPAAccountsService extends AbstractAccountsService {
 			begin(em);
 			em.persist(acc);
 			commit(em);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed adding an account", ex);
 			rollback(em);
 		} finally {
 			close(em);
-			em = null;
 		}
 	}
 
 	@Override
-	public void addAccounts(Iterable<Account> accs) {
+	public void addAccounts(final Iterable<Account> accs) {
 
 		EntityManager em = null;
 		try {
 			em = open();
 			begin(em);
 
-			for (Account acc : accs) {
+			for (final Account acc : accs) {
 				em.merge(acc);
 			}
 
 			commit(em);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed adding an account", ex);
 			rollback(em);
 		} finally {
 			close(em);
-			em = null;
 		}
 	}
 
 	@Override
-	public boolean removeAccount(Account acc) {
+	public boolean removeAccount(final Account acc) {
 
 		boolean removed = false;
 
@@ -214,43 +210,41 @@ public class JPAAccountsService extends AbstractAccountsService {
 			em.remove(acc);
 			commit(em);
 			removed = true;
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed removing an account", ex);
 			rollback(em);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return removed;
 	}
 
 	@Override
-	public Account getAccount(String username) {
+	public Account getAccount(final String username) {
 
 		Account act = null;
 
 		EntityManager em = null;
 		try {
 			em = open();
-			Query fetchByNameQuery = em.createNamedQuery("acc_fetchByName");
+			final Query fetchByNameQuery = em.createNamedQuery("acc_fetchByName");
 			fetchByNameQuery.setParameter("name", username);
 			act = (Account) fetchByNameQuery.getSingleResult();
-		} catch (NoResultException ex) {
+		} catch (final NoResultException ex) {
 			LOG.trace("Failed fetching an account by name: " + username
 					+ " (user not found)", ex);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.trace("Failed fetching an account by name: " + username, ex);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return act;
 	}
 
 	@Override
-	public Account findAccountNoCase(String username) {
+	public Account findAccountNoCase(final String username) {
 
 		Account act = null;
 
@@ -262,40 +256,38 @@ public class JPAAccountsService extends AbstractAccountsService {
 			fetchByLowerNameQuery.setParameter("lowerName",
 					username.toLowerCase());
 			act = (Account) fetchByLowerNameQuery.getSingleResult();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.trace("Failed fetching an account by name (case-insensitive)",
 					ex);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return act;
 	}
 
 	@Override
-	public Account findAccountByLastIP(InetAddress ip) {
+	public Account findAccountByLastIP(final InetAddress ip) {
 
 		Account act = null;
 
 		EntityManager em = null;
 		try {
 			em = open();
-			Query fetchByLastIpQuery = em.createNamedQuery("acc_fetchByLastIP");
+			final Query fetchByLastIpQuery = em.createNamedQuery("acc_fetchByLastIP");
 			fetchByLastIpQuery.setParameter("ip", ip.getHostAddress());
 			act = (Account) fetchByLastIpQuery.getSingleResult();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.trace("Failed fetching an account by last IP", ex);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return act;
 	}
 
 	@Override
-	public List<Account> findAccountsByEmail(String email) {
+	public List<Account> findAccountsByEmail(final String email) {
 
 		List<Account> fittingAccounts = Collections.EMPTY_LIST;
 
@@ -305,18 +297,17 @@ public class JPAAccountsService extends AbstractAccountsService {
 			Query fetchByEmailQuery = em.createNamedQuery("acc_fetchByEmail");
 			fetchByEmailQuery.setParameter("email", email.toLowerCase());
 			fittingAccounts = fetchByEmailQuery.getResultList();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.trace("Failed fetching accounts by email", ex);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return fittingAccounts;
 	}
 
 	@Override
-	public boolean mergeAccountChanges(Account account, String oldName) {
+	public boolean mergeAccountChanges(final Account account, final String oldName) {
 
 		boolean replaced = false;
 
@@ -327,12 +318,11 @@ public class JPAAccountsService extends AbstractAccountsService {
 			em.merge(account);
 			commit(em);
 			replaced = true;
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed replacing an account", ex);
 			rollback(em);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return replaced;
@@ -341,17 +331,16 @@ public class JPAAccountsService extends AbstractAccountsService {
 	@Override
 	public List<Account> fetchAllAccounts() {
 
-		List<Account> acts = Collections.EMPTY_LIST;;
+		List<Account> acts = Collections.EMPTY_LIST;
 
 		EntityManager em = null;
 		try {
 			em = open();
 			acts = em.createNamedQuery("acc_list").getResultList();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed fetching all accounts", ex);
 		} finally {
 			close(em);
-			em = null;
 		}
 
 		return acts;

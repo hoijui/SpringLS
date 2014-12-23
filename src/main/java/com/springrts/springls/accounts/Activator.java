@@ -38,15 +38,16 @@ public class Activator implements BundleActivator {
 	private final Logger log = LoggerFactory.getLogger(Activator.class);
 
 	@Override
-	public void start(BundleContext context) {
+	public void start(final BundleContext context) {
 
-		Context springLsContext = Context.getService(context, Context.class);
+		final Context springLsContext 
+				= Context.getService(context, Context.class);
 
-		AccountsService accounts = createAccountsService(springLsContext);
+		final AccountsService accounts = createAccountsService(springLsContext);
 
 		// switch to LAN mode if user accounts information is not present
 		if (!accounts.isReadyToOperate()) {
-			Configuration conf = springLsContext.getService(Configuration.class);
+			final Configuration conf = springLsContext.getService(Configuration.class);
 			assert(conf.getBoolean(ServerConfiguration.LAN_MODE));
 			log.error("Accounts service is not ready, shutting down the server");
 			springLsContext.getServerThread().closeServerAndExit();
@@ -63,14 +64,14 @@ public class Activator implements BundleActivator {
 				accounts, null);
 	}
 
-	private static AccountsService createAccountsService(Context context) {
+	private static AccountsService createAccountsService(final Context context) {
 
-		AccountsService accountsService = null;
 
-		Configuration conf = context.getService(Configuration.class);
-		boolean lanMode = conf.getBoolean(ServerConfiguration.LAN_MODE);
-		boolean useDatabase = conf.getBoolean(ServerConfiguration.USE_DATABASE);
+		final Configuration conf = context.getService(Configuration.class);
+		final boolean lanMode = conf.getBoolean(ServerConfiguration.LAN_MODE);
+		final boolean useDatabase = conf.getBoolean(ServerConfiguration.USE_DATABASE);
 
+		final AccountsService accountsService;
 		if (lanMode) {
 			accountsService = new LanAccountsService();
 		} else if (useDatabase) {
@@ -83,6 +84,6 @@ public class Activator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext context) {
+	public void stop(final BundleContext context) {
 	}
 }

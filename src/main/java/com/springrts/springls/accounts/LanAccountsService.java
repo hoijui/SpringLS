@@ -32,7 +32,7 @@ import java.util.TreeMap;
  */
 public class LanAccountsService extends AbstractAccountsService {
 
-	private List<Account> accounts;
+	private final List<Account> accounts;
 	private int biggestAccountId;
 
 	/**
@@ -40,10 +40,12 @@ public class LanAccountsService extends AbstractAccountsService {
 	 * (TreeMap class implements efficient Red-Black trees)
 	 * @see mapNoCase
 	 */
-	private static TreeMap<String, Account> map = new TreeMap<String, Account>(
+	private static final TreeMap<String, Account> map
+			= new TreeMap<String, Account>(
 			new java.util.Comparator<String>() {
 
-				public int compare(String s1, String s2) {
+				@Override
+				public int compare(final String s1, final String s2) {
 					return s1.compareTo(s2);
 				}
 			});
@@ -52,10 +54,11 @@ public class LanAccountsService extends AbstractAccountsService {
 	 * Same as 'map', only that this ignores case.
 	 * @see map
 	 */
-	private static TreeMap<String, Account> mapNoCase
+	private static final TreeMap<String, Account> mapNoCase
 			= new TreeMap<String, Account>(
 			new java.util.Comparator<String>() {
 
+				@Override
 				public int compare(String s1, String s2) {
 					return s1.compareToIgnoreCase(s2);
 				}
@@ -93,13 +96,13 @@ public class LanAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
-	public void saveAccounts(boolean block) {}
+	public void saveAccounts(final boolean block) {}
 
 	@Override
 	public void saveAccountsIfNeeded() {}
 
 	@Override
-	public void addAccount(Account acc) {
+	public void addAccount(final Account acc) {
 
 		if (acc.getId() == Account.NEW_ACCOUNT_ID) {
 			acc.setId(++biggestAccountId);
@@ -112,7 +115,7 @@ public class LanAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
-	public void addAccounts(Iterable<Account> accs) {
+	public void addAccounts(final Iterable<Account> accs) {
 
 		for (Account acc : accs) {
 			addAccount(acc);
@@ -120,9 +123,9 @@ public class LanAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
-	public boolean removeAccount(Account acc) {
+	public boolean removeAccount(final Account acc) {
 
-		boolean result = accounts.remove(acc);
+		final boolean result = accounts.remove(acc);
 
 		map.remove(acc.getName());
 		mapNoCase.remove(acc.getName());
@@ -132,38 +135,40 @@ public class LanAccountsService extends AbstractAccountsService {
 
 	/** Returns null if account is not found */
 	@Override
-	public Account getAccount(String username) {
+	public Account getAccount(final String username) {
 		return map.get(username);
 	}
 
 	/** Returns 'null' if index is out of bounds */
-	public Account getAccount(int index) {
+	public Account getAccount(final int index) {
 
 		try {
 			return accounts.get(index);
-		} catch (IndexOutOfBoundsException ex) {
+		} catch (final IndexOutOfBoundsException ex) {
 			return null;
 		}
 	}
 
 	@Override
-	public Account findAccountNoCase(String username) {
+	public Account findAccountNoCase(final String username) {
 		return mapNoCase.get(username);
 	}
 
 	@Override
-	public Account findAccountByLastIP(InetAddress ip) {
+	public Account findAccountByLastIP(final InetAddress ip) {
 		return null;
 	}
 
 	@Override
-	public List<Account> findAccountsByEmail(String email) {
+	public List<Account> findAccountsByEmail(final String email) {
 		return Collections.EMPTY_LIST;
 	}
 
 	@Override
-	public boolean mergeAccountChanges(Account account, String oldName) {
-
+	public boolean mergeAccountChanges(
+			final Account account,
+			final String oldName)
+	{
 		// persistent here only means, that someone is currently logged in with
 		// this name
 		final boolean isPersistentAccount = map.containsKey(oldName);

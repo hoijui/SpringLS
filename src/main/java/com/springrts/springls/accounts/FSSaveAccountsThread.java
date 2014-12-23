@@ -61,7 +61,7 @@ public class FSSaveAccountsThread extends Thread implements ContextReceiver {
 	/**
 	 * Where to save the accounts to.
 	 */
-	private File saveFile;
+	private final File saveFile;
 
 	/**
 	 * Duplicated accounts.
@@ -70,7 +70,7 @@ public class FSSaveAccountsThread extends Thread implements ContextReceiver {
 	private List<Account> dupAccounts;
 
 
-	public FSSaveAccountsThread(File saveFile, List<Account> dupAccounts) {
+	public FSSaveAccountsThread(final File saveFile, final List<Account> dupAccounts) {
 
 		this.saveFile = saveFile;
 		this.dupAccounts = dupAccounts;
@@ -78,7 +78,7 @@ public class FSSaveAccountsThread extends Thread implements ContextReceiver {
 
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 		this.context = context;
 	}
 
@@ -86,7 +86,7 @@ public class FSSaveAccountsThread extends Thread implements ContextReceiver {
 	public void run() {
 
 		LOG.info("Dumping accounts to disk in a separate thread ...");
-		long time = System.currentTimeMillis();
+		final long time = System.currentTimeMillis();
 
 		Writer outF = null;
 		Writer outB = null;
@@ -96,16 +96,15 @@ public class FSSaveAccountsThread extends Thread implements ContextReceiver {
 			outB = new BufferedWriter(outF);
 			out = new PrintWriter(outB);
 
-			for (int i = 0; i < dupAccounts.size(); i++) {
-				out.println(FSAccountsService.toPersistentString(
-						dupAccounts.get(i)));
+			for (final Account dupAccount : dupAccounts) {
+				out.println(FSAccountsService.toPersistentString(dupAccount));
 			}
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			LOG.error("Failed writing accounts info to "
 					+ saveFile.getAbsolutePath() + "!", ex);
 
 			// add server notification:
-			ServerNotification sn = new ServerNotification(
+			final ServerNotification sn = new ServerNotification(
 					"Error saving accounts");
 			sn.addLine("Serious error: accounts info could not be saved to"
 					+ " disk. Exception trace:");
@@ -122,7 +121,7 @@ public class FSSaveAccountsThread extends Thread implements ContextReceiver {
 				} else if (outF != null) {
 					outF.close();
 				}
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				LOG.trace("Failed closing file writer to accounts file '{}';"
 						+ " reason: {}."
 						, saveFile.getAbsolutePath(), ex.getMessage());

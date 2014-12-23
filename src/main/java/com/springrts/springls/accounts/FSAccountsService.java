@@ -49,7 +49,7 @@ public class FSAccountsService extends AbstractAccountsService {
 	// note: ArrayList is not synchronized!
 	// Use Collections.synchronizedList(...) instead,
 	// if multiple threads are going to access it
-	private List<Account> accounts = new ArrayList<Account>();
+	private final List<Account> accounts = new ArrayList<Account>();
 	private FSSaveAccountsThread saveAccountsThread = null;
 	private int biggestAccountId = 1000;
 
@@ -64,9 +64,10 @@ public class FSAccountsService extends AbstractAccountsService {
 	 * (TreeMap class implements efficient Red-Black trees)
 	 * @see mapNoCase
 	 */
-	private static SortedMap<String, Account> map = new TreeMap<String, Account>(
+	private static final SortedMap<String, Account> map = new TreeMap<String, Account>(
 			new java.util.Comparator<String>() {
 
+				@Override
 				public int compare(String s1, String s2) {
 					return s1.compareTo(s2);
 				}
@@ -76,9 +77,10 @@ public class FSAccountsService extends AbstractAccountsService {
 	 * Same as 'map', only that this ignores case.
 	 * @see map
 	 */
-	private static SortedMap<String, Account> mapNoCase = new TreeMap<String, Account>(
+	private static final SortedMap<String, Account> mapNoCase = new TreeMap<String, Account>(
 			new java.util.Comparator<String>() {
 
+				@Override
 				public int compare(String s1, String s2) {
 					return s1.compareToIgnoreCase(s2);
 				}
@@ -154,7 +156,7 @@ public class FSAccountsService extends AbstractAccountsService {
 		}
 		// input is of the form "1100110"
 		final int accessBitField = Integer.parseInt(actParts[2], 2);
-		Account act = new Account(
+		final Account act = new Account(
 				actParts[0],
 				actParts[1],
 				Account.extractAccess(accessBitField),
@@ -179,7 +181,7 @@ public class FSAccountsService extends AbstractAccountsService {
 	@Override
 	public boolean loadAccounts() {
 
-		long time = System.currentTimeMillis();
+		final long time = System.currentTimeMillis();
 
 		Reader fIn = null;
 		BufferedReader in = null;
@@ -194,10 +196,10 @@ public class FSAccountsService extends AbstractAccountsService {
 				if (line.isEmpty()) {
 					continue;
 				}
-				Account act = FSAccountsService.parsePersistenString(line);
+				final Account act = FSAccountsService.parsePersistenString(line);
 				addAccount(act);
 			}
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			// catch possible io errors from readLine()
 			LOG.error("Failed updating accounts info from "
 					+ ACCOUNTS_INFO_FILEPATH + "! Skipping ...", ex);
@@ -206,14 +208,14 @@ public class FSAccountsService extends AbstractAccountsService {
 			if (in != null) {
 				try {
 					in.close();
-				} catch (IOException ex) {
+				} catch (final IOException ex) {
 					LOG.warn("Failed closing stream from "
 							+ ACCOUNTS_INFO_FILEPATH, ex);
 				}
 			} else if (fIn != null) {
 				try {
 					fIn.close();
-				} catch (IOException ex) {
+				} catch (final IOException ex) {
 					LOG.warn("Failed closing file stream from "
 							+ ACCOUNTS_INFO_FILEPATH, ex);
 				}
@@ -237,14 +239,14 @@ public class FSAccountsService extends AbstractAccountsService {
 	 *   If 'true', it will not return until the accounts have been saved.
 	 */
 	@Override
-	public void saveAccounts(boolean block) {
+	public void saveAccounts(final boolean block) {
 
 		if ((saveAccountsThread != null) && (saveAccountsThread.isAlive())) {
 			return; // already in progress. Let's just skip it ...
 		}
 		lastSaveAccountsTime = System.currentTimeMillis();
-		List<Account> accountsCopy = new ArrayList<Account>(accounts);
-		File accsFile = new File(ACCOUNTS_INFO_FILEPATH);
+		final List<Account> accountsCopy = new ArrayList<Account>(accounts);
+		final File accsFile = new File(ACCOUNTS_INFO_FILEPATH);
 		saveAccountsThread = new FSSaveAccountsThread(accsFile, accountsCopy);
 		saveAccountsThread.receiveContext(getContext());
 		saveAccountsThread.start();
@@ -268,14 +270,15 @@ public class FSAccountsService extends AbstractAccountsService {
 	public void saveAccountsIfNeeded() {
 
 		// note: lastSaveAccountsTime will get updated in saveAccounts() method!
-		long timeSinceLastSave = System.currentTimeMillis() - lastSaveAccountsTime;
+		final long timeSinceLastSave = System.currentTimeMillis() - lastSaveAccountsTime;
 		if (timeSinceLastSave > SAVE_ACCOUNT_INFO_INTERVAL) {
 			saveAccounts(false);
 		}
 	}
 
 	@Override
-	public void addAccount(Account acc) {
+	public void addAccount(final Account acc) {
+
 		if (acc.getId() == Account.NEW_ACCOUNT_ID) {
 			acc.setId(++biggestAccountId);
 		} else if (acc.getId() > biggestAccountId) {
@@ -287,16 +290,17 @@ public class FSAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
-	public void addAccounts(Iterable<Account> accs) {
+	public void addAccounts(final Iterable<Account> accs) {
 
-		for (Account acc : accs) {
+		for (final Account acc : accs) {
 			addAccount(acc);
 		}
 	}
 
 	@Override
-	public boolean removeAccount(Account acc) {
-		boolean result = accounts.remove(acc);
+	public boolean removeAccount(final Account acc) {
+
+		final boolean result = accounts.remove(acc);
 		map.remove(acc.getName());
 		mapNoCase.remove(acc.getName());
 		return result;
@@ -304,31 +308,32 @@ public class FSAccountsService extends AbstractAccountsService {
 
 	/** Returns null if account is not found */
 	@Override
-	public Account getAccount(String username) {
+	public Account getAccount(final String username) {
 		return map.get(username);
 	}
 
 	/** Returns 'null' if index is out of bounds */
-	public Account getAccount(int index) {
+	public Account getAccount(final int index) {
+
 		try {
 			return accounts.get(index);
-		} catch (IndexOutOfBoundsException e) {
+		} catch (final IndexOutOfBoundsException e) {
 			return null;
 		}
 	}
 
 	@Override
-	public Account findAccountNoCase(String username) {
+	public Account findAccountNoCase(final String username) {
 		return mapNoCase.get(username);
 	}
 
 	@Override
-	public Account findAccountByLastIP(InetAddress ip) {
+	public Account findAccountByLastIP(final InetAddress ip) {
 
 		Account account = null;
 
 		for (int i = 0; i < getAccountsSize(); i++) {
-			Account actTmp = getAccount(i);
+			final Account actTmp = getAccount(i);
 			if (ip.equals(actTmp.getLastIp())) {
 				account = actTmp;
 			}
@@ -338,12 +343,12 @@ public class FSAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
-	public List<Account> findAccountsByEmail(String email) {
+	public List<Account> findAccountsByEmail(final String email) {
 
-		List<Account> fittingAccounts = new ArrayList<Account>(3);
+		final List<Account> fittingAccounts = new ArrayList<Account>(3);
 
 		for (int i = 0; i < getAccountsSize(); i++) {
-			Account actTmp = getAccount(i);
+			final Account actTmp = getAccount(i);
 			if (email.toLowerCase().equals(actTmp.getEmail())) {
 				fittingAccounts.add(actTmp);
 			}
@@ -353,7 +358,7 @@ public class FSAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
-	public boolean mergeAccountChanges(Account account, String oldName) {
+	public boolean mergeAccountChanges(final Account account, final String oldName) {
 
 		final boolean isPersistentAccount = map.containsKey(oldName);
 		if (!isPersistentAccount) {

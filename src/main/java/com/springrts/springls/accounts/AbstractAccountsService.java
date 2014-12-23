@@ -30,7 +30,6 @@ public abstract class AbstractAccountsService implements AccountsService {
 	private boolean started;
 	private boolean registrationEnabled;
 
-
 	protected AbstractAccountsService() {
 
 		this.context = null;
@@ -38,9 +37,8 @@ public abstract class AbstractAccountsService implements AccountsService {
 		this.registrationEnabled = false;
 	}
 
-
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 		this.context = context;
 	}
 	protected Context getContext() {
@@ -75,7 +73,7 @@ public abstract class AbstractAccountsService implements AccountsService {
 	}
 
 	@Override
-	public boolean addAccountWithCheck(Account acc) {
+	public boolean addAccountWithCheck(final Account acc) {
 
 		if (Account.isUsernameValid(acc.getName()) != null) {
 			return false;
@@ -92,9 +90,9 @@ public abstract class AbstractAccountsService implements AccountsService {
 	}
 
 	@Override
-	public boolean removeAccount(String username) {
+	public boolean removeAccount(final String username) {
 
-		Account acc = getAccount(username);
+		final Account acc = getAccount(username);
 		if (acc == null) {
 			return false;
 		}
@@ -102,7 +100,7 @@ public abstract class AbstractAccountsService implements AccountsService {
 	}
 
 	@Override
-	public boolean doesAccountExist(String username) {
+	public boolean doesAccountExist(final String username) {
 		return getAccount(username) != null;
 	}
 
@@ -112,17 +110,15 @@ public abstract class AbstractAccountsService implements AccountsService {
 	}
 
 	@Override
-	public boolean setRegistrationEnabled(boolean registrationEnabled) {
+	public boolean setRegistrationEnabled(final boolean registrationEnabled) {
 		this.registrationEnabled = registrationEnabled;
 		return true;
 	}
 
 	@Override
-	public Account verifyLogin(String username, String password) {
+	public Account verifyLogin(final String username, final String password) {
 
-		Account account = null;
-
-		account = getAccount(username);
+		Account account = getAccount(username);
 		if ((account != null) && !account.getPassword().equals(password)) {
 			account = null;
 		}

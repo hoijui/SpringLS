@@ -40,39 +40,41 @@ public final class AccountUtils {
 
 	public static void moveAccountsFromFStoDB() {
 
-		AccountsService from = new FSAccountsService();
-		AccountsService to   = new JPAAccountsService();
+		final AccountsService from = new FSAccountsService();
+		final AccountsService to   = new JPAAccountsService();
 		moveAccounts(from, to);
 	}
 
 	public static void moveAccountsFromDBtoFS() {
 
-		AccountsService from = new JPAAccountsService();
-		AccountsService to   = new FSAccountsService();
+		final AccountsService from = new JPAAccountsService();
+		final AccountsService to   = new FSAccountsService();
 		moveAccounts(from, to);
 	}
 
-	private static void moveAccounts(AccountsService from, AccountsService to) {
+	private static void moveAccounts(final AccountsService from, final AccountsService to) {
 
 		System.out.println("Copy all accounts from one storage to the other ...");
 
 		System.out.println("Loading ...");
 		long begin = System.currentTimeMillis();
 		from.loadAccounts();
-		List<Account> accounts = from.fetchAllAccounts();
+		final List<Account> accounts = from.fetchAllAccounts();
 		long time = System.currentTimeMillis() - begin;
-		System.out.println("Loading of " + accounts.size() + " accounts done in " + time + "ms.");
+		System.out.println("Loading of " + accounts.size() +
+				" accounts done in " + time + "ms.");
 
 		System.out.println("Saving ...");
 		begin = System.currentTimeMillis();
 		to.addAccounts(accounts);
 		time = System.currentTimeMillis() - begin;
-		System.out.println("Saving of " + accounts.size() + " accounts done in " + time + "ms.");
+		System.out.println("Saving of " + accounts.size() +
+				" accounts done in " + time + "ms.");
 
 		System.out.println("done.");
 	}
 
-	private static Account createTestAccount(String userName) {
+	private static Account createTestAccount(final String userName) {
 
 		final String countryCode2L = java.util.Locale.getDefault().getCountry();
 		InetAddress localIp;
@@ -82,23 +84,23 @@ public final class AccountUtils {
 			localIp = null;
 		}
 
-		String userPasswd = ProtocolUtil.encodePassword(userName);
+		final String userPasswd = ProtocolUtil.encodePassword(userName);
 		return new Account(userName, userPasswd, localIp, countryCode2L);
 	}
 
-	public static void createAliBaba(AccountsService actSrvc) {
+	public static void createAliBaba(final AccountsService actSrvc) {
 
 		System.out.println("Accounts: " + actSrvc.getAccountsSize());
 		System.out.println("Creating Ali Baba ...");
 
-		Account admin = createTestAccount("admin");
+		final Account admin = createTestAccount("admin");
 		admin.setAccess(Account.Access.ADMIN);
 		admin.setAgreementAccepted(true);
 		actSrvc.addAccount(admin);
 
 		System.out.println("and the 40 thievs ...");
 		for (int i = 0; i < 40; i++) {
-			Account userX = createTestAccount("user_" + i);
+			final Account userX = createTestAccount("user_" + i);
 			userX.setAgreementAccepted(true);
 			actSrvc.addAccount(userX);
 		}
@@ -106,24 +108,24 @@ public final class AccountUtils {
 		System.out.println("Accounts: " + actSrvc.getAccountsSize());
 	}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 
 		String toDo = (args.length > 0 ? args[0] : "");
 		if (toDo.isEmpty()) {
-			BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+			final BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 			try {
 				toDo = console.readLine();
 				if (toDo == null) {
 					// makes FindBugs happy, even though we will never get here
 					toDo = "";
 				}
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				System.err.println("Failed reading from the command-line");
 			}
 		}
 
 		if (toDo.toUpperCase().equals("alibaba")) {
-			AccountsService actSrvc = null;
+			final AccountsService actSrvc;
 			if ((args.length > 1) && (args[1].toUpperCase().equals("fs"))) {
 				actSrvc = new FSAccountsService();
 			} else {
