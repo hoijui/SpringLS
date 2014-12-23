@@ -153,7 +153,7 @@ final class IP2Country implements IP2CountryService {
 	 * is produced by the UpdateIP2CountryThread class.
 	 * Results are saved into 'resolveTable' and 'countries' objects.
 	 */
-	public void buildDatabase(File from, TreeMap<IPRange, IPRange> resolveTable,
+	private static void buildDatabase(File from, TreeMap<IPRange, IPRange> resolveTable,
 			TreeSet<String> countries) throws IOException
 	{
 		BufferedReader in = null;
