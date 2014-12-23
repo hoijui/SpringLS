@@ -383,6 +383,7 @@ final class IP2Country implements IP2CountryService {
 	 * @return 2-chars wide country code, as defined in ISO 3166-1 alpha-2,
 	 *   or "XX" if the country is unknown.
 	 */
+	@Override
 	public String getCountryCode(InetAddress ip) {
 
 		String result = ProtocolUtil.COUNTRY_UNKNOWN;
@@ -420,6 +421,7 @@ final class IP2Country implements IP2CountryService {
 	 * Converts an IP address into a Locale, with the language unspecified.
 	 * @see #getCountryCode(InetAddress)
 	 */
+	@Override
 	public Locale getLocale(InetAddress ip) {
 		return ProtocolUtil.countryToLocale(getCountryCode(ip));
 	}
