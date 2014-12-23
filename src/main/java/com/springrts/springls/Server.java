@@ -39,7 +39,7 @@ public class Server {
 	private long startTime;
 
 	private CharsetDecoder asciiDecoder;
- 	private CharsetEncoder asciiEncoder;
+	private CharsetEncoder asciiEncoder;
 
 	private boolean loginEnabled;
 	/**

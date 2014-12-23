@@ -245,7 +245,7 @@ public class Battle implements ContextReceiver {
 		client.setBattleID(getId());
 		client.setRequestedBattleID(Battle.NO_BATTLE_ID);
 		addClient(client);
-	 	// notify client that he has successfully joined the battle
+		// notify client that he has successfully joined the battle
 		client.sendLine(String.format("JOINBATTLE %d %d", getId(),
 				getHashCode()));
 		context.getClients().notifyClientsOfNewClientInBattle(this, client);
