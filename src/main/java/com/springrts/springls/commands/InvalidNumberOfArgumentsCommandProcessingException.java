@@ -26,7 +26,7 @@ public class InvalidNumberOfArgumentsCommandProcessingException
 		extends CommandProcessingException
 {
 	public InvalidNumberOfArgumentsCommandProcessingException(
-			String commandName, String message)
+			final String commandName, final String message)
 	{
 		super(commandName, message);
 	}

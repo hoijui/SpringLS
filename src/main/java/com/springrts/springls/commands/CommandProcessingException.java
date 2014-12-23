@@ -23,14 +23,19 @@ package com.springrts.springls.commands;
  */
 public class CommandProcessingException extends Exception {
 
-	public CommandProcessingException(String commandName, String message) {
+	public CommandProcessingException(
+			final String commandName,
+			final String message)
+	{
 		this(commandName, message, null);
 	}
 
-	public CommandProcessingException(String commandName, String message,
-			Throwable t)
+	public CommandProcessingException(
+			final String commandName,
+			final String message,
+			final Throwable throwable)
 	{
 		super(String.format("Failed processing command \"%s\": %s", commandName,
-				message), t);
+				message), throwable);
 	}
 }

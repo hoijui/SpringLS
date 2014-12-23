@@ -43,9 +43,12 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	private final boolean battleRequired;
 	private final boolean battleFounderRequired;
 
-	protected AbstractCommandProcessor(int argsMin, int argsMax,
-			Account.Access accessMin, boolean battleRequired,
-			boolean battleFounderRequired)
+	protected AbstractCommandProcessor(
+			final int argsMin,
+			final int argsMax,
+			final Account.Access accessMin,
+			final boolean battleRequired,
+			final boolean battleFounderRequired)
 	{
 		this.commandName
 				= CommandProcessors.extractCommandName(this.getClass());
@@ -59,25 +62,31 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 					+ " of a battle but not in a battle");
 		}
 	}
-	protected AbstractCommandProcessor(int argsMin, int argsMax,
-			Account.Access accessMin, boolean battleRequired)
+	protected AbstractCommandProcessor(
+			final int argsMin,
+			final int argsMax,
+			final Account.Access accessMin,
+			final boolean battleRequired)
 	{
 		this(argsMin, argsMax, accessMin, battleRequired, false);
 	}
-	protected AbstractCommandProcessor(int argsMin, int argsMax,
-			Account.Access accessMin)
+	protected AbstractCommandProcessor(
+			final int argsMin,
+			final int argsMax,
+			final Account.Access accessMin)
 	{
 		this(argsMin, argsMax, accessMin, false);
 	}
-	protected AbstractCommandProcessor(Account.Access accessMin,
-			boolean battleRequired)
+	protected AbstractCommandProcessor(
+			final Account.Access accessMin,
+			final boolean battleRequired)
 	{
 		this(ARGS_MIN_NOCHECK, ARGS_MAX_NOCHECK, accessMin, battleRequired);
 	}
-	protected AbstractCommandProcessor(int argsMin, int argsMax) {
+	protected AbstractCommandProcessor(final int argsMin, final int argsMax) {
 		this(argsMin, argsMax, ACCESS_NOCHECK);
 	}
-	protected AbstractCommandProcessor(Account.Access accessMin) {
+	protected AbstractCommandProcessor(final Account.Access accessMin) {
 		this(ARGS_MIN_NOCHECK, ARGS_MAX_NOCHECK, accessMin);
 	}
 	protected AbstractCommandProcessor() {
@@ -85,7 +94,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	}
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 		this.context = context;
 	}
 	protected Context getContext() {
@@ -97,7 +106,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	protected BundleContext getBundleContext() {
 		return context.getFramework().getBundleContext();
 	}
-	public <T> T getService(Class<T> serviceClass) {
+	public <T> T getService(final Class<T> serviceClass) {
 		return Context.getService(getBundleContext(), serviceClass);
 	}
 
@@ -113,11 +122,11 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	 * Returns the command as it was given to the server.
 	 * @return command-name + " " + arg0 + " " + arg1 ...
 	 */
-	public String reconstructFullCommand(List<String> args) {
+	public String reconstructFullCommand(final List<String> args) {
 
-		StringBuilder fullCommand = new StringBuilder(getCommandName());
+		final StringBuilder fullCommand = new StringBuilder(getCommandName());
 
-		for (String arg : args) {
+		for (final String arg : args) {
 			fullCommand.append(" ").append(arg);
 		}
 
@@ -165,7 +174,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	 * Returns whether the client is currently in a battle.
 	 * @return true if the client is currently in a battle.
 	 */
-	protected Battle getBattle(Client client) {
+	protected Battle getBattle(final Client client) {
 		return getContext().getBattles().getBattleByID(client.getBattleID());
 	}
 
@@ -173,7 +182,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	 * Returns whether the client is currently in a battle.
 	 * @return true if the client is currently in a battle.
 	 */
-	protected boolean isInBattle(Client client) {
+	protected boolean isInBattle(final Client client) {
 		return (getBattle(client) != null);
 	}
 
@@ -181,9 +190,9 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	 * Returns whether the client is currently founder of a battle.
 	 * @return true if the client is currently founder of a battle.
 	 */
-	protected boolean isBattleFounder(Client client) {
+	protected boolean isBattleFounder(final Client client) {
 
-		Battle battle = getContext().getBattles()
+		final Battle battle = getContext().getBattles()
 					.getBattleByID(client.getBattleID());
 		return ((battle != null) && (battle.getFounder() == client));
 	}
@@ -192,10 +201,9 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	 * Perform common checks.
 	 */
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-
 		if ((getAccessMin() != ACCESS_NOCHECK)
 				&& client.getAccount().getAccess().isLessThen(getAccessMin()))
 		{

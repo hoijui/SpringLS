@@ -27,8 +27,10 @@ import com.springrts.springls.Account;
 public class InsufficientAccessCommandProcessingException
 		extends CommandProcessingException
 {
-	public InsufficientAccessCommandProcessingException(String commandName,
-			Account.Access required, Account.Access present)
+	public InsufficientAccessCommandProcessingException(
+			final String commandName,
+			final Account.Access required,
+			final Account.Access present)
 	{
 		super(commandName, String.format(
 				"Insufficient access rights; the minimum required is %s, but"

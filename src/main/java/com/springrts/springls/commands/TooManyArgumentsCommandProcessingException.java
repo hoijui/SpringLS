@@ -25,8 +25,8 @@ package com.springrts.springls.commands;
 public class TooManyArgumentsCommandProcessingException
 		extends InvalidNumberOfArgumentsCommandProcessingException
 {
-	public TooManyArgumentsCommandProcessingException(String commandName,
-			int required, int present)
+	public TooManyArgumentsCommandProcessingException(final String commandName,
+			final int required, final int present)
 	{
 		super(commandName, String.format(
 				"Too many arguments given; the minimum required are %d, but the"

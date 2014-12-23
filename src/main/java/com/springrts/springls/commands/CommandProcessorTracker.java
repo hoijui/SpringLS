@@ -42,7 +42,7 @@ public class CommandProcessorTracker extends ServiceTracker {
 	 * changes.
 	 * @param context The bundle context to be used by the tracker.
 	 */
-	public CommandProcessorTracker(BundleContext context) {
+	public CommandProcessorTracker(final BundleContext context) {
 		super(context, CommandProcessor.class.getName(), null);
 	}
 
@@ -53,10 +53,10 @@ public class CommandProcessorTracker extends ServiceTracker {
 	 * @return The service object to be used by the tracker.
 	 */
 	@Override
-	public Object addingService(ServiceReference ref) {
+	public Object addingService(final ServiceReference ref) {
 
-		String commandName = (String) ref.getProperty(CommandProcessor.NAME_PROPERTY);
-		CommandProcessor commandProcessor = (CommandProcessor) context.getService(ref);
+		final String commandName = (String) ref.getProperty(CommandProcessor.NAME_PROPERTY);
+		final CommandProcessor commandProcessor = (CommandProcessor) context.getService(ref);
 		Context.getService(context, Context.class).getCommandProcessors().add(commandName, commandProcessor);
 		return commandProcessor;
 	}
@@ -68,7 +68,7 @@ public class CommandProcessorTracker extends ServiceTracker {
 //	 * @param svc The service object of the modified service.
 //	 */
 //	@Override
-//	public void modifiedService(ServiceReference ref, Object svc) {
+//	public void modifiedService(final ServiceReference ref, final Object svc) {
 //		// do nothing
 //	}
 
@@ -79,9 +79,9 @@ public class CommandProcessorTracker extends ServiceTracker {
 	 * @param svc The service object of the removed service.
 	 */
 	@Override
-	public void removedService(ServiceReference ref, Object svc) {
+	public void removedService(final ServiceReference ref, final Object svc) {
 
-		String commandName = (String) ref.getProperty(CommandProcessor.NAME_PROPERTY);
+		final String commandName = (String) ref.getProperty(CommandProcessor.NAME_PROPERTY);
 		Context.getService(context, Context.class).getCommandProcessors().remove(commandName);
 	}
 }

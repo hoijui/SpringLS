@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class CommandProcessors implements ContextReceiver {
 
 	private final Logger log  = LoggerFactory.getLogger(CommandProcessors.class);
-	private Map<String, CommandProcessor> cmdNameToProcessor;
+	private final Map<String, CommandProcessor> cmdNameToProcessor;
 	private Context context;
 	private CommandProcessorTracker commandProcessorTracker;
 
@@ -46,11 +46,9 @@ public class CommandProcessors implements ContextReceiver {
 	 * Extracts the name of the command supported by a command processor
 	 * from its {@link SupportedCommand} annotation.
 	 */
-	public static String extractCommandName(Class<? extends CommandProcessor> cmdProcCls) {
+	public static String extractCommandName(final Class<? extends CommandProcessor> cmdProcCls) {
 
-		String name = null;
-
-		SupportedCommand supCmd = cmdProcCls.getAnnotation(SupportedCommand.class);
+		final SupportedCommand supCmd = cmdProcCls.getAnnotation(SupportedCommand.class);
 		if (supCmd == null) {
 			throw new IllegalArgumentException(cmdProcCls.getCanonicalName()
 					+ " is not a valid "
@@ -64,7 +62,7 @@ public class CommandProcessors implements ContextReceiver {
 					+ CommandProcessor.class.getCanonicalName()
 					+ "; The command name has to be upper-case only.");
 		}
-		name = supCmd.value();
+		final String name = supCmd.value();
 
 		return name;
 	}
@@ -79,7 +77,7 @@ public class CommandProcessors implements ContextReceiver {
 
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 		this.context = context;
 	}
 
@@ -104,7 +102,7 @@ public class CommandProcessors implements ContextReceiver {
 	 *   processor
 	 * @param commandProcessor the processor to handle the given command-name
 	 */
-	public void add(String commandName, CommandProcessor commandProcessor) {
+	public void add(final String commandName, final CommandProcessor commandProcessor) {
 		cmdNameToProcessor.put(commandName, commandProcessor);
 	}
 
@@ -113,7 +111,7 @@ public class CommandProcessors implements ContextReceiver {
 	 * command-name.
 	 * @param commandName the name for which to remove the command processor
 	 */
-	public void remove(String commandName) {
+	public void remove(final String commandName) {
 		cmdNameToProcessor.remove(commandName);
 	}
 
@@ -132,21 +130,21 @@ public class CommandProcessors implements ContextReceiver {
 	 * @param cpc the class to instantiate
 	 * @throws Exception if loading failed, for whatever reason
 	 */
-	public static CommandProcessor load(Class<? extends CommandProcessor> cpc) throws Exception {
+	public static CommandProcessor load(final Class<? extends CommandProcessor> cpc) throws Exception {
 
 		CommandProcessor cp = null;
 
 		Constructor<? extends CommandProcessor> noArgsCtor = null;
 		try {
 			noArgsCtor = cpc.getConstructor();
-		} catch (NoSuchMethodException ex) {
+		} catch (final NoSuchMethodException ex) {
 			throw new RuntimeException(cpc.getCanonicalName()
 				+ " is not a valid CommandProcessor; "
 				+ "No-args constructor is missing.", ex);
 		}
 		try {
 			cp = noArgsCtor.newInstance();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			throw new RuntimeException("Failed to instantiate "
 					+ cpc.getCanonicalName(), ex);
 		}
@@ -159,18 +157,18 @@ public class CommandProcessors implements ContextReceiver {
 	 * @param cp to be added
 	 * @throws Exception if name extraction fails
 	 */
-	public static void add(BundleContext bundleContext, CommandProcessor cp) throws Exception {
+	public static void add(final BundleContext bundleContext, final CommandProcessor cp) throws Exception {
 
 		String cmdName = null;
 		try {
 			cmdName = CommandProcessors.extractCommandName(cp.getClass());
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			throw new RuntimeException("Failed extracting command name", ex);
 		}
 
 		cp.receiveContext(Context.getService(bundleContext, Context.class));
 
-		Dictionary dict = new Hashtable();
+		final Dictionary dict = new Hashtable();
 		dict.put(CommandProcessor.NAME_PROPERTY, cmdName);
 		bundleContext.registerService(CommandProcessor.class.getName(), cp, dict);
 	}
