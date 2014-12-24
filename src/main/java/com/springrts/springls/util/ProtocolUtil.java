@@ -65,19 +65,19 @@ public final class ProtocolUtil {
 	/**
 	 * Converts an IP v4 number to a 64bit (long) number, according to the lobby
 	 * protocol standard.
-	 * @param ip an IP v4 (<tt>Inet4Address</tt>)
+	 * @param ipAddress an IP v4 (<tt>Inet4Address</tt>)
 	 * @return a 64 bit number representing the supplied IP
 	 */
-	public static long ip2Long(final InetAddress ip) {
+	public static long ip2Long(final InetAddress ipAddress) {
 
 		long res;
 
-		final byte[] addr = ip.getAddress();
-		final long f1 = (long) addr[0] << 24;
-		final long f2 = (long) addr[1] << 16;
-		final long f3 = (long) addr[2] << 8;
-		final long f4 = (long) addr[3];
-		res = f1 + f2 + f3 + f4;
+		final byte[] addr = ipAddress.getAddress();
+		final long field1 = (long) addr[0] << 24; // highest order byte
+		final long field2 = (long) addr[1] << 16;
+		final long field3 = (long) addr[2] << 8;
+		final long field4 = (long) addr[3]; // lowest order byte
+		res = field1 + field2 + field3 + field4;
 
 		return res;
 	}
@@ -129,9 +129,9 @@ public final class ProtocolUtil {
 	 */
 	public static Color colorSpringToJava(final int springColor) {
 
-		int red   = springColor       & 255;
-		int green = springColor >> 8  & 255;
-		int blue  = springColor >> 16 & 255;
+		final int red   = springColor       & 255;
+		final int green = springColor >> 8  & 255;
+		final int blue  = springColor >> 16 & 255;
 //		int alpha = springColor >> 24 & 255;
 		final Color color = new Color(red, green, blue/*, alpha*/);
 

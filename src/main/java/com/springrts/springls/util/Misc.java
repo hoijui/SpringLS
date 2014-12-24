@@ -52,9 +52,6 @@ import org.slf4j.LoggerFactory;
  */
 public final class Misc {
 
-	/** Make clear that this is an utility class */
-	private Misc() {}
-
 	private static final Logger LOG = LoggerFactory.getLogger(Misc.class);
 
 	public static final String EOL = "\n";
@@ -64,11 +61,14 @@ public final class Misc {
 
 	public static final String UNKNOWN_VERSION = "<unknown-version>";
 
-	private static final Pattern patternIpV4 = Pattern.compile("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
-	private static final Pattern patternIpV6 = Pattern.compile("^[0-9a-fA-F.:]+$");
+	private static final Pattern PATTERN_IP_V4 = Pattern.compile("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
+	private static final Pattern PATTERN_IP_V6 = Pattern.compile("^[0-9a-fA-F.:]+$");
 
 	private static Properties mavenProperties = null;
-	private static final Semaphore mavenPropertiesInit = new Semaphore(1);
+	private static final Semaphore MAVEN_PROPERTIES_INIT = new Semaphore(1);
+
+	/** Make clear that this is an utility class */
+	private Misc() {}
 
 	/**
 	 * Concatenates a list of strings together, starting at a certain index,
@@ -84,8 +84,7 @@ public final class Misc {
 		if (startIndex < words.length) {
 			result.append(words[startIndex]);
 			for (int i = startIndex + 1; i < words.length; i++) {
-				result.append(" ");
-				result.append(words[i]);
+				result.append(' ').append(words[i]);
 			}
 		}
 
@@ -111,7 +110,7 @@ public final class Misc {
 		if (startIndex < words.size()) {
 			res.append(words.get(startIndex));
 			for (int i = startIndex + 1; i < words.size(); i++) {
-				res.append(" ");
+				res.append(' ');
 				res.append(words.get(i));
 			}
 		}
@@ -138,9 +137,9 @@ public final class Misc {
 				final Enumeration<InetAddress> addresses = netface.getInetAddresses();
 
 				while (addresses.hasMoreElements()) {
-					final InetAddress ip = addresses.nextElement();
-					if (!ip.isLoopbackAddress() && ip.getHostAddress().indexOf(':') == -1) {
-						localIpAddress = ip;
+					final InetAddress address = addresses.nextElement();
+					if (!address.isLoopbackAddress() && address.getHostAddress().indexOf(':') == -1) {
+						localIpAddress = address;
 					}
 				}
 			}
@@ -158,8 +157,6 @@ public final class Misc {
 	 */
 	public static String timeToDHM(final long duration) {
 
-		final StringBuilder result = new StringBuilder(64);
-
 		long remainingTime = duration;
 
 		final long days = remainingTime / (1000 * 60 * 60 * 24);
@@ -170,11 +167,8 @@ public final class Misc {
 
 		final long minutes = remainingTime / (1000 * 60);
 
-		result.append(days).append(" days, ");
-		result.append(hours).append(" hours and ");
-		result.append(minutes).append(" minutes");
-
-		return result.toString();
+		return String.format("%d days, %d hours and %d minutes",
+				days, hours, minutes);
 	}
 
 	/**
@@ -245,7 +239,7 @@ public final class Misc {
 			out = new BufferedOutputStream(outF);
 			conn = url.openConnection();
 			in = conn.getInputStream();
-			byte[] buffer = new byte[1024];
+			final byte[] buffer = new byte[1024];
 			int numRead;
 
 			while ((numRead = in.read(buffer)) != -1) {
@@ -309,33 +303,32 @@ public final class Misc {
 		return download(address, localFileName, 0);
 	}
 
-	public static InetAddress parseIp(final String ip, final boolean acceptV6, final boolean acceptHostname) {
+	public static InetAddress parseIp(final String netAddress, final boolean acceptV6, final boolean acceptHostname) {
 
 		InetAddress inetAddress = null;
 
 		try {
 			if (!acceptHostname) {
-				if (!patternIpV6.matcher(ip).matches()) {
+				if (!PATTERN_IP_V6.matcher(netAddress).matches()) {
 					throw new IllegalArgumentException("Is neither a v4 nor a v6 IP address");
-				} else if (!acceptV6 && !patternIpV4.matcher(ip).matches()) {
+				} else if (!acceptV6 && !PATTERN_IP_V4.matcher(netAddress).matches()) {
 					throw new IllegalArgumentException("Only IP v4 addresses are supported");
 				}
 			}
 
 			try {
-				inetAddress = InetAddress.getByName(ip);
+				inetAddress = InetAddress.getByName(netAddress);
 			} catch (final UnknownHostException ex) {
-				throw new IllegalArgumentException("Could not to resolve hostname to IP", ex);
+				throw new IllegalArgumentException("Failed to resolve hostname to IP", ex);
 			}
 		} catch (final IllegalArgumentException ex) {
-			inetAddress = null;
-			LOG.trace("Failed parsing IP: {} - {}", ip, ex.getMessage());
+			LOG.trace("Failed parsing IP: {} - {}", netAddress, ex.getMessage());
 		}
 
 		return inetAddress;
 	}
-	public static InetAddress parseIp(final String ip) {
-		return parseIp(ip, false, false);
+	public static InetAddress parseIp(final String netAddress) {
+		return parseIp(netAddress, false, false);
 	}
 
 	private static Properties initMavenProperties() {
@@ -352,7 +345,7 @@ public final class Misc {
 			final Properties tmpProps = new Properties();
 			tmpProps.load(propFileIn);
 			mavenProps = tmpProps;
-		} catch (final Exception ex) {
+		} catch (final IOException ex) {
 			LOG.warn("Failed reading the Maven properties file", ex);
 		} finally {
 			if (propFileIn != null) {
@@ -375,14 +368,14 @@ public final class Misc {
 
 		if (mavenProperties == null) {
 			try {
-				mavenPropertiesInit.acquire();
+				MAVEN_PROPERTIES_INIT.acquire();
 				if (mavenProperties == null) {
 					mavenProperties = initMavenProperties();
 				}
 			} catch (InterruptedException ex) {
 				// do nothing
 			} finally {
-				mavenPropertiesInit.release();
+				MAVEN_PROPERTIES_INIT.release();
 			}
 		}
 
@@ -444,8 +437,6 @@ public final class Misc {
 			while ((line = in.readLine()) != null) {
 				content.append(line).append(EOL);
 			}
-		} catch (final IOException ex) {
-			throw ex;
 		} finally {
 			try {
 				if (in != null) {

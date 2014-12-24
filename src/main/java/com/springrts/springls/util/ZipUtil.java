@@ -96,10 +96,10 @@ public final class ZipUtil {
 		FileOutputStream out = null;
 		try {
 			out = new FileOutputStream(toFile);
-			byte[] b = new byte[512];
+			final byte[] buffer = new byte[512];
 			int len;
-			while ((len = zin.read(b)) != -1) {
-				out.write(b, 0, len);
+			while ((len = zin.read(buffer)) != -1) {
+				out.write(buffer, 0, len);
 			}
 		} finally {
 			if (out != null) {
