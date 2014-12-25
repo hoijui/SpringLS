@@ -43,11 +43,13 @@ public class MessageOfTheDay implements ContextReceiver {
 	private static final String DEFAULT_FILENAME = "motd.txt";
 
 
-	private Context context = null;
+	private Context context;
 
 	private String message;
 
 	public MessageOfTheDay() {
+
+		context = null;
 		message = DEFAULT_TEXT;
 	}
 
@@ -55,6 +57,7 @@ public class MessageOfTheDay implements ContextReceiver {
 	public void receiveContext(final Context context) {
 		this.context = context;
 	}
+
 	protected Context getContext() {
 		return context;
 	}
@@ -70,7 +73,7 @@ public class MessageOfTheDay implements ContextReceiver {
 	 * Reads MOTD from disk (if file is found).
 	 * @return true if read was successful
 	 */
-	public boolean read(String fileName) {
+	public boolean read(final String fileName) {
 
 		boolean success;
 

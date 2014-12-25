@@ -56,20 +56,20 @@ public class UpdateMotdCommandProcessor extends AbstractCommandProcessor {
 
 		final MessageOfTheDay messageOfTheDay
 				= getContext().getService(MessageOfTheDay.class);
-		if (messageOfTheDay != null) {
-			if (!messageOfTheDay.read(motdFileName)) {
+		if (messageOfTheDay == null) {
+			client.sendLine("SERVERMSG MOTD Error: service is not available");
+			LOG.error("MessageOfTheDay service not available");
+		} else {
+			if (messageOfTheDay.read(motdFileName)) {
+				client.sendLine(String.format(
+						"SERVERMSG MOTD has been successfully updated from %s",
+						motdFileName));
+			} else {
 				client.sendLine(String.format(
 						"SERVERMSG Error: unable to read MOTD from %s",
 						motdFileName));
 				return false;
-			} else {
-				client.sendLine(String.format(
-						"SERVERMSG MOTD has been successfully updated from %s",
-						motdFileName));
 			}
-		} else {
-			client.sendLine("SERVERMSG MOTD Error: service is not available");
-			LOG.error("MessageOfTheDay service not available");
 		}
 
 		return true;
