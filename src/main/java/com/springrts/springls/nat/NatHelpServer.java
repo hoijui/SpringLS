@@ -122,7 +122,7 @@ public class NatHelpServer implements Runnable, ContextReceiver,
 	public void run() {
 
 		final Configuration conf = getContext().getService(Configuration.class);
-		int port = conf.getInt(ServerConfiguration.NAT_PORT);
+		final int port = conf.getInt(ServerConfiguration.NAT_PORT);
 		try {
 			socket = new DatagramSocket(port);
 		} catch (final Exception ex) {
@@ -203,7 +203,7 @@ public class NatHelpServer implements Runnable, ContextReceiver,
 
 		DatagramPacket packet = null;
 
-		if (msgList.size() > 0) {
+		if (!msgList.isEmpty()) {
 			packet = msgList.remove(0);
 		}
 
