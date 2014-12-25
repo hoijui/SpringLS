@@ -22,5 +22,5 @@ package com.springrts.springls;
  */
 public interface ContextReceiver {
 
-	void receiveContext(Context context);
+	void receiveContext(Context context); // FIXME rename to setContext
 }
