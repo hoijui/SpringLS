@@ -72,7 +72,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 	 */
 	private final Map<Client, Long> receivedTillLastCheck;
 
-	private Context context = null;
+	private Context context;
 
 	public FloodProtection() {
 
@@ -81,6 +81,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 		this.maxBytesAlertForBot = 50000;
 		this.lastFloodCheckedTime = System.currentTimeMillis();
 		this.receivedTillLastCheck = new HashMap<Client, Long>();
+		this.context = null;
 	}
 
 
@@ -108,7 +109,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 			receivedTillLastCheck.clear();
 			final Clients clients = getContext().getClients();
 			for (int c = 0; c < clients.getClientsSize(); c++) {
-				Client client = clients.getClient(c);
+				final Client client = clients.getClient(c);
 				receivedTillLastCheck.put(client,
 						client.getReceivedSinceLogin());
 			}
@@ -213,7 +214,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 	@Override
 	public boolean isFlooding(final Client client) {
 
-		boolean flooding = checkFlooding(client);
+		final boolean flooding = checkFlooding(client);
 
 		// basic anti-flood protection:
 		if (flooding) {
@@ -231,14 +232,14 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 					"Disconnected due to excessive flooding");
 
 			// add server notification:
-			final ServerNotification sn = new ServerNotification(
+			final ServerNotification serverNotif = new ServerNotification(
 					"Flooding detected");
-			sn.addLine(String.format(
+			serverNotif.addLine(String.format(
 					"Flooding detected from %s (%s).",
 					client.getIp().getHostAddress(),
 					client.getAccount().getName()));
-			sn.addLine("User has been kicked from the server.");
-			getContext().getServerNotifications().addNotification(sn);
+			serverNotif.addLine("User has been kicked from the server.");
+			getContext().getServerNotifications().addNotification(serverNotif);
 		}
 
 		return flooding;
