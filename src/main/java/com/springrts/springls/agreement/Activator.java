@@ -47,11 +47,11 @@ public class Activator implements BundleActivator {
 
 		final Configuration conf = springLsContext.getService(Configuration.class);
 		// TODO needs adjusting due to new LAN mode accounts service
-		if (!conf.getBoolean(ServerConfiguration.LAN_MODE)) {
-			contentAvailable = agreement.read();
-		} else {
+		if (conf.getBoolean(ServerConfiguration.LAN_MODE)) {
 			log.info("Terms of use agreement not used because we are running in"
 					+ " LAN mode.");
+		} else {
+			contentAvailable = agreement.read();
 		}
 
 		if (contentAvailable) {
