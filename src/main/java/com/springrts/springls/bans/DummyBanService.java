@@ -50,7 +50,7 @@ public class DummyBanService implements BanService{
 	@Override
 	public BanEntry getBanEntry(
 			final String username,
-			final InetAddress ip,
+			final InetAddress ipAddress,
 			final int userId)
 	{
 		return null;

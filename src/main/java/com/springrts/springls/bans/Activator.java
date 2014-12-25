@@ -45,7 +45,7 @@ public class Activator implements BundleActivator {
 		context.registerService(BanService.class.getName(), banService, null);
 	}
 
-	private BanService createBanService(Context context) {
+	private BanService createBanService(final Context context) {
 
 		BanService banService = null;
 
