@@ -105,7 +105,7 @@ public class Statistics implements ContextReceiver, Updateable {
 	public void update() {
 
 		final Configuration conf = context.getService(Configuration.class);
-		boolean recording =
+		final boolean recording =
 				conf.getBoolean(ServerConfiguration.STATISTICS_STORE);
 		if (recording && ((System.currentTimeMillis() - lastStatisticsUpdate)
 				> saveStatisticsInterval))
@@ -119,11 +119,11 @@ public class Statistics implements ContextReceiver, Updateable {
 		// create statistics folder if it does not exist yet
 		final File file = new File(STATISTICS_FOLDER);
 		if (!file.exists()) {
-			final boolean success = (file.mkdir());
-			if (!success) {
-				LOG.error("Unable to create folder: {}", STATISTICS_FOLDER);
-			} else {
+			final boolean success = file.mkdir();
+			if (success) {
 				LOG.info("Created missing folder: {}", STATISTICS_FOLDER);
+			} else {
+				LOG.error("Unable to create folder: {}", STATISTICS_FOLDER);
 			}
 		}
 	}
@@ -148,7 +148,7 @@ public class Statistics implements ContextReceiver, Updateable {
 				LOG.info("*** Statistics saved to disk. Time taken: {} ms.",
 						taken);
 			}
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("*** Failed saving statistics... Stack trace:", ex);
 			taken = -1;
 		}
@@ -163,7 +163,8 @@ public class Statistics implements ContextReceiver, Updateable {
 	 */
 	private long autoUpdateStatisticsFile() {
 
-		final String fileName = STATISTICS_FOLDER + now("ddMMyy") + ".dat";
+		final String fileName = STATISTICS_FOLDER + now(TODAY_FILTER_FORMAT)
+				+ ".dat";
 		final long startTime = System.currentTimeMillis();
 
 		int activeBattlesCount = 0;
@@ -182,14 +183,19 @@ public class Statistics implements ContextReceiver, Updateable {
 		try {
 			outF = new FileWriter(fileName, true);
 			out = new BufferedWriter(outF);
-			Clients clients = context.getClients();
-			AccountsService accounts = context.getAccountsService();
+			final Clients clients = context.getClients();
+			final AccountsService accounts = context.getAccountsService();
 			out.write(now("HHmmss"));
-			out.write(" "); out.write("" + clients.getClientsSize());
-			out.write(" "); out.write("" + activeBattlesCount);
-			out.write(" "); out.write("" + accounts.getAccountsSize());
-			out.write(" "); out.write("" + accounts.getActiveAccountsSize());
-			out.write(" "); out.write(topGames);
+			out.write(" ");
+			out.write(String.valueOf(clients.getClientsSize()));
+			out.write(" ");
+			out.write(String.valueOf(activeBattlesCount));
+			out.write(" ");
+			out.write(String.valueOf(accounts.getAccountsSize()));
+			out.write(" ");
+			out.write(String.valueOf(accounts.getActiveAccountsSize()));
+			out.write(" ");
+			out.write(topGames);
 			out.write(Misc.EOL);
 		} catch (final IOException ex) {
 			LOG.error("Unable to access file <" + fileName + ">. Skipping ...",
@@ -232,12 +238,13 @@ public class Statistics implements ContextReceiver, Updateable {
 			out = new BufferedWriter(outF);
 			String line;
 
-			final SimpleDateFormat formatter = new SimpleDateFormat("ddMMyy");
+			final SimpleDateFormat formatter
+					= new SimpleDateFormat(TODAY_FILTER_FORMAT);
 			final Date today = today();
-			long msPerDay = 1000 * 60 * 60 * 24;
+			final long msPerDay = 1000 * 60 * 60 * 24;
+			final Date day = new Date();
 			// get file names for last 7 days (that is today + previous 6 days)
 			for (int i = 7; i > 0; i--) {
-				final Date day = new Date();
 				day.setTime(today.getTime() - (((long) i - 1) * msPerDay));
 				final String dayStr = formatter.format(day);
 				final File fileDay = new File(STATISTICS_FOLDER
@@ -290,7 +297,8 @@ public class Statistics implements ContextReceiver, Updateable {
 		boolean ret;
 
 		try {
-			final SimpleDateFormat dayFormatter = new SimpleDateFormat("ddMMyy");
+			final SimpleDateFormat dayFormatter
+					= new SimpleDateFormat(TODAY_FILTER_FORMAT);
 			// from (today_00:00 - 6 days) till today_00:00
 			final Date endDate = today(); // today_00:00
 			final Date startDate = new Date(endDate.getTime() - (6L * DAY));
@@ -347,7 +355,8 @@ public class Statistics implements ContextReceiver, Updateable {
 			Runtime.getRuntime().exec(cmd.toString()).waitFor();
 
 			// generate "popular games chart":
-			final String[] params = getPopularGamesList(now("ddMMyy")).split("\t");
+			final String[] params
+					= getPopularGamesList(now(TODAY_FILTER_FORMAT)).split("\t");
 			cmd = new StringBuilder(PLOTICUS_FULLPATH)
 					.append(" -png ").append(STATISTICS_FOLDER)
 					.append("games.pl -o ").append(STATISTICS_FOLDER)
@@ -357,13 +366,13 @@ public class Statistics implements ContextReceiver, Updateable {
 					.append(" datafile=").append(STATISTICS_FOLDER)
 					.append("statistics.dat");
 			for (int i = 1; i < params.length; i++) {
-				if ((i % 2) != 0) {
-					// odd index
-					cmd.append("game").append((i + 1) / 2).append("=")
+				if ((i % 2) == 0) {
+					// even index
+					cmd.append("gamefreq").append(i / 2).append('=')
 							.append(params[i]);
 				} else {
-					// even index
-					cmd.append("gamefreq").append(i / 2).append("=")
+					// odd index
+					cmd.append("game").append((i + 1) / 2).append('=')
 							.append(params[i]);
 				}
 			}
@@ -397,7 +406,7 @@ public class Statistics implements ContextReceiver, Updateable {
 			if (battle.inGame() && (battle.getClientsSize() >= 1)) {
 				// add to list or update in list:
 
-				int gameIndex = gameBattles.indexOf(battle.getGameName());
+				final int gameIndex = gameBattles.indexOf(battle.getGameName());
 				if (gameIndex == -1) {
 					gameBattles.add(new GameBattles(battle.getGameName(), 1));
 				} else {
@@ -414,13 +423,13 @@ public class Statistics implements ContextReceiver, Updateable {
 		public static final Comparator<GameBattles> BATTLES_COMPARATOR
 				= new Comparator<GameBattles>() {
 			@Override
-			public int compare(GameBattles gameBattles1, GameBattles gameBattles2) {
+			public int compare(final GameBattles gameBattles1, final GameBattles gameBattles2) {
 				return gameBattles1.getBattles() - gameBattles2.getBattles();
 			}
 		};
 
 		private final String name;
-		private int battles = 0;
+		private int battles;
 
 		GameBattles(final String name, final int battles) {
 
@@ -550,8 +559,9 @@ public class Statistics implements ContextReceiver, Updateable {
 		//   or sorting will not have any effect!
 		Collections.sort(gameBattles, GameBattles.BATTLES_COMPARATOR);
 		for (final GameBattles game : gameBattles) {
-			result.append("\t").append(game.getName());
-			result.append("\t").append(game.getBattles());
+			result
+					.append('\t').append(game.getName())
+					.append('\t').append(game.getBattles());
 		}
 
 		return result.toString();
