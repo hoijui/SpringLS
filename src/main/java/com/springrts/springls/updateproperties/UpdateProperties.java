@@ -53,12 +53,12 @@ public class UpdateProperties implements ContextReceiver {
 
 	private Context context;
 
-	private Properties updateProperties;
+	private Properties properties;
 
 	public UpdateProperties() {
 
 		context = null;
-		updateProperties = null;
+		properties = null;
 	}
 
 	@Override
@@ -74,14 +74,14 @@ public class UpdateProperties implements ContextReceiver {
 
 		boolean success = false;
 
-		updateProperties = new Properties();
+		properties = new Properties();
 
 		final File updatePropsFile = new File(fileName);
 		if (updatePropsFile.exists()) {
 			FileInputStream fStream = null;
 			try {
 				fStream = new FileInputStream(updatePropsFile);
-				updateProperties.loadFromXML(fStream);
+				properties.loadFromXML(fStream);
 				success = true;
 			} catch (final IOException ex) {
 				LOG.warn("Could not read from file '" + fileName + "'.", ex);
@@ -120,11 +120,11 @@ public class UpdateProperties implements ContextReceiver {
 	 */
 	public String getResponse(final String engineVersion) {
 
-		String response = updateProperties.getProperty(engineVersion);
+		String response = properties.getProperty(engineVersion);
 
 		if (response == null) {
 			// use general response ("default"), if it exists.
-			response = updateProperties.getProperty("default");
+			response = properties.getProperty("default");
 		}
 		if (response == null) {
 			// if still no response has been found,

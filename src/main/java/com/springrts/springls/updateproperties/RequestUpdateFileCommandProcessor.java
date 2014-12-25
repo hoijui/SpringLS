@@ -55,7 +55,7 @@ public class RequestUpdateFileCommandProcessor extends AbstractCommandProcessor 
 		client.sendLine(response);
 
 		// kill client if no update has been found for him:
-		if (response.substring(0, 12).toUpperCase().equals("SERVERMSGBOX")) {
+		if (response.substring(0, 12).equalsIgnoreCase("SERVERMSGBOX")) {
 			getContext().getClients().killClient(client);
 		}
 
