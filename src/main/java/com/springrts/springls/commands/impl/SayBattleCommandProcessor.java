@@ -43,17 +43,17 @@ public class SayBattleCommandProcessor extends AbstractSayCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		Battle battle = getBattle(client);
+		final Battle battle = getBattle(client);
 
-		String message = Misc.makeSentence(args, 0);
+		final String message = Misc.makeSentence(args, 0);
 
 		checkFlooding(client, message);
 

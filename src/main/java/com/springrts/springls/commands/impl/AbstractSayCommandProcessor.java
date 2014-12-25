@@ -36,18 +36,23 @@ public abstract class AbstractSayCommandProcessor
 	private static final Logger LOG
 			= LoggerFactory.getLogger(AbstractSayCommandProcessor.class);
 
-	protected AbstractSayCommandProcessor(int argsMin, int argsMax,
-			Account.Access accessMin, boolean battleRequired)
+	protected AbstractSayCommandProcessor(
+			final int argsMin,
+			final int argsMax,
+			final Account.Access accessMin,
+			final boolean battleRequired)
 	{
 		super(argsMin, argsMax, accessMin, battleRequired);
 	}
-	protected AbstractSayCommandProcessor(int argsMin, int argsMax,
-			Account.Access accessMin)
+	protected AbstractSayCommandProcessor(
+			final int argsMin,
+			final int argsMax,
+			final Account.Access accessMin)
 	{
 		super(argsMin, argsMax, accessMin);
 	}
 
-	protected void checkFlooding(Client client, String message)
+	protected void checkFlooding(final Client client, final String message)
 			throws CommandProcessingException
 	{
 		if ((message.length() > getContext().getServer().getMaxChatMessageLength())
@@ -73,7 +78,7 @@ public abstract class AbstractSayCommandProcessor
 		}
 	}
 
-	protected void checkMuted(Client client, Channel channel)
+	protected void checkMuted(final Client client, final Channel channel)
 			throws CommandProcessingException
 	{
 		if (channel.getMuteList().isMuted(client.getAccount().getName())) {

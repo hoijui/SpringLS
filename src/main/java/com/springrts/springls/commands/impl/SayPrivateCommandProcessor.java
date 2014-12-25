@@ -39,18 +39,18 @@ public class SayPrivateCommandProcessor extends AbstractSayCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String channelName = args.get(0);
-		String message = Misc.makeSentence(args, 1);
+		final String channelName = args.get(0);
+		final String message = Misc.makeSentence(args, 1);
 
-		Client target = getContext().getClients().getClient(channelName);
+		final Client target = getContext().getClients().getClient(channelName);
 		if (target == null) {
 			return false;
 		}
