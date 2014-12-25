@@ -23,6 +23,7 @@ import com.springrts.springls.ContextReceiver;
 import com.springrts.springls.LiveStateListener;
 import com.springrts.springls.Updateable;
 import java.net.InetAddress;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -35,6 +36,27 @@ import java.util.List;
 public interface AccountsService extends ContextReceiver, LiveStateListener,
 		Updateable
 {
+	/**
+	 * Used to compare accounts by username.
+	 * @see #COMPARATOR_STR_IGNORE_CASE
+	 */
+	Comparator<String> COMPARATOR_STR = new Comparator<String>() {
+		@Override
+		public int compare(final String str1, final String str2) {
+			return str1.compareTo(str2);
+		}
+	};
+
+	/**
+	 * Same as {@link #COMPARATOR_STR}, only that this ignores case.
+	 * @see #COMPARATOR_STR
+	 */
+	Comparator<String> COMPARATOR_STR_IGNORE_CASE = new Comparator<String>() {
+		@Override
+		public int compare(final String str1, final String str2) {
+			return str1.compareToIgnoreCase(str2);
+		}
+	};
 
 	/**
 	 * Checks resources required for the service to operate.
@@ -102,7 +124,7 @@ public interface AccountsService extends ContextReceiver, LiveStateListener,
 	Account findAccountNoCase(String userName);
 
 	/** Returns 'null' if no account ever connected from this IP */
-	Account findAccountByLastIP(InetAddress ip);
+	Account findAccountByLastIP(InetAddress ipAddress);
 
 	/** Returns an empty set if no account has the given email set. */
 	List<Account> findAccountsByEmail(String email);

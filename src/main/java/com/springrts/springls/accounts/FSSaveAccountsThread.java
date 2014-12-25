@@ -56,7 +56,7 @@ public class FSSaveAccountsThread extends Thread implements ContextReceiver {
 	private static final Logger LOG
 			= LoggerFactory.getLogger(FSSaveAccountsThread.class);
 
-	private Context context = null;
+	private Context context;
 
 	/**
 	 * Where to save the accounts to.
@@ -72,6 +72,7 @@ public class FSSaveAccountsThread extends Thread implements ContextReceiver {
 
 	public FSSaveAccountsThread(final File saveFile, final List<Account> dupAccounts) {
 
+		this.context = null;
 		this.saveFile = saveFile;
 		this.dupAccounts = dupAccounts;
 	}
@@ -104,12 +105,13 @@ public class FSSaveAccountsThread extends Thread implements ContextReceiver {
 					+ saveFile.getAbsolutePath() + "!", ex);
 
 			// add server notification:
-			final ServerNotification sn = new ServerNotification(
+			final ServerNotification srvNotif = new ServerNotification(
 					"Error saving accounts");
-			sn.addLine("Serious error: accounts info could not be saved to"
-					+ " disk. Exception trace:");
-			sn.addException(ex);
-			context.getServerNotifications().addNotification(sn);
+			srvNotif.addLine(
+					"Serious error: accounts info could not be saved to disk."
+					+ " Exception trace:");
+			srvNotif.addException(ex);
+			context.getServerNotifications().addNotification(srvNotif);
 
 			return;
 		} finally {

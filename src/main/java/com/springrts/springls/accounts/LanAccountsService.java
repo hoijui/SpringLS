@@ -40,29 +40,15 @@ public class LanAccountsService extends AbstractAccountsService {
 	 * (TreeMap class implements efficient Red-Black trees)
 	 * @see mapNoCase
 	 */
-	private static final TreeMap<String, Account> map
-			= new TreeMap<String, Account>(
-			new java.util.Comparator<String>() {
-
-				@Override
-				public int compare(final String s1, final String s2) {
-					return s1.compareTo(s2);
-				}
-			});
+	private static final TreeMap<String, Account> map // FIXME this can not be static!
+			= new TreeMap<String, Account>(COMPARATOR_STR);
 
 	/**
 	 * Same as 'map', only that this ignores case.
 	 * @see map
 	 */
-	private static final TreeMap<String, Account> mapNoCase
-			= new TreeMap<String, Account>(
-			new java.util.Comparator<String>() {
-
-				@Override
-				public int compare(String s1, String s2) {
-					return s1.compareToIgnoreCase(s2);
-				}
-			});
+	private static final TreeMap<String, Account> mapNoCase // FIXME this can not be static!
+			= new TreeMap<String, Account>(COMPARATOR_STR_IGNORE_CASE);
 
 
 	public LanAccountsService() {
@@ -117,7 +103,7 @@ public class LanAccountsService extends AbstractAccountsService {
 	@Override
 	public void addAccounts(final Iterable<Account> accs) {
 
-		for (Account acc : accs) {
+		for (final Account acc : accs) {
 			addAccount(acc);
 		}
 	}
@@ -155,7 +141,7 @@ public class LanAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
-	public Account findAccountByLastIP(final InetAddress ip) {
+	public Account findAccountByLastIP(final InetAddress ipAddress) {
 		return null;
 	}
 

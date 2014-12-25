@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 /**
@@ -80,7 +81,7 @@ public final class AccountUtils {
 		InetAddress localIp;
 		try {
 			localIp = InetAddress.getLocalHost();
-		} catch (java.net.UnknownHostException ex) {
+		} catch (final UnknownHostException ex) {
 			localIp = null;
 		}
 
@@ -124,7 +125,7 @@ public final class AccountUtils {
 			}
 		}
 
-		if (toDo.toUpperCase().equals("alibaba")) {
+		if (toDo.equalsIgnoreCase("alibaba")) {
 			final AccountsService actSrvc;
 			if ((args.length > 1) && (args[1].toUpperCase().equals("fs"))) {
 				actSrvc = new FSAccountsService();
@@ -132,9 +133,9 @@ public final class AccountUtils {
 				actSrvc = new JPAAccountsService();
 			}
 			createAliBaba(actSrvc);
-		} else if (toDo.toUpperCase().equals("FS2DB")) {
+		} else if (toDo.equalsIgnoreCase("FS2DB")) {
 			moveAccountsFromFStoDB();
-		} else if (toDo.toUpperCase().equals("DB2FS")) {
+		} else if (toDo.equalsIgnoreCase("DB2FS")) {
 			moveAccountsFromDBtoFS();
 		} else {
 			System.out.println("Specify one of these (be carefull! No \"Are you sure?\" protection):");

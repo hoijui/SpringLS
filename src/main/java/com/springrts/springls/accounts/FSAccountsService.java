@@ -64,28 +64,15 @@ public class FSAccountsService extends AbstractAccountsService {
 	 * (TreeMap class implements efficient Red-Black trees)
 	 * @see mapNoCase
 	 */
-	private static final SortedMap<String, Account> map = new TreeMap<String, Account>(
-			new java.util.Comparator<String>() {
-
-				@Override
-				public int compare(String s1, String s2) {
-					return s1.compareTo(s2);
-				}
-			});
+	private static final SortedMap<String, Account> map // FIXME this can not be static!
+			= new TreeMap<String, Account>(COMPARATOR_STR);
 
 	/**
 	 * Same as 'map', only that this ignores case.
 	 * @see map
 	 */
-	private static final SortedMap<String, Account> mapNoCase = new TreeMap<String, Account>(
-			new java.util.Comparator<String>() {
-
-				@Override
-				public int compare(String s1, String s2) {
-					return s1.compareToIgnoreCase(s2);
-				}
-			});
-
+	private static final SortedMap<String, Account> mapNoCase // FIXME this can not be static!
+			= new TreeMap<String, Account>(COMPARATOR_STR_IGNORE_CASE);
 
 	@Override
 	public boolean isReadyToOperate() {
@@ -110,7 +97,7 @@ public class FSAccountsService extends AbstractAccountsService {
 
 		final long oneWeekAgo = System.currentTimeMillis() - (1000 * 60 * 60 * 24 * 7);
 		for (int i = 0; i < getAccountsSize(); i++) {
-			Account act = getAccount(i);
+			final Account act = getAccount(i);
 			if ((act.getRank().compareTo(Account.Rank.Newbie) > 0)
 					&& (act.getLastLogin() > oneWeekAgo))
 			{
@@ -137,7 +124,7 @@ public class FSAccountsService extends AbstractAccountsService {
 				account.getRegistrationDate(),
 				account.getLastCountry(),
 				account.getId(),
-				(account.getEmail() != null) ? account.getEmail() : "");
+				(account.getEmail() == null) ? "" : account.getEmail());
 	}
 	/**
 	 * Used to load a persistent Account from file storage.
@@ -328,13 +315,13 @@ public class FSAccountsService extends AbstractAccountsService {
 	}
 
 	@Override
-	public Account findAccountByLastIP(final InetAddress ip) {
+	public Account findAccountByLastIP(final InetAddress ipAddress) {
 
 		Account account = null;
 
 		for (int i = 0; i < getAccountsSize(); i++) {
 			final Account actTmp = getAccount(i);
-			if (ip.equals(actTmp.getLastIp())) {
+			if (ipAddress.equals(actTmp.getLastIp())) {
 				account = actTmp;
 			}
 		}
@@ -349,7 +336,7 @@ public class FSAccountsService extends AbstractAccountsService {
 
 		for (int i = 0; i < getAccountsSize(); i++) {
 			final Account actTmp = getAccount(i);
-			if (email.toLowerCase().equals(actTmp.getEmail())) {
+			if (email.equalsIgnoreCase(actTmp.getEmail())) {
 				fittingAccounts.add(actTmp);
 			}
 		}
