@@ -40,24 +40,24 @@ public class Ip2CountryCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String ip = args.get(0);
+		final String ipAddress = args.get(0);
 
-		InetAddress addr = Misc.parseIp(ip);
+		final InetAddress addr = Misc.parseIp(ipAddress);
 		if (addr == null) {
-			client.sendLine("SERVERMSG Invalid IP address/range: " + ip);
+			client.sendLine("SERVERMSG Invalid IP address/range: " + ipAddress);
 			return false;
 		}
 
 		String country = ProtocolUtil.COUNTRY_UNKNOWN;
-		IP2Country service = getContext().getService(IP2Country.class);
+		final IP2Country service = getContext().getService(IP2Country.class);
 		if (service != null) {
 			country = service.getCountryCode(addr);
 		}

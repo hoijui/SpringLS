@@ -70,21 +70,22 @@ public class UpdateIP2CountryThread implements Runnable, ContextReceiver {
 	/** true if updating is already in progress */
 	private final AtomicBoolean inProgress;
 	private final IP2Country ip2Country;
-	private Context context = null;
+	private Context context;
 
 
-	public UpdateIP2CountryThread(IP2Country ip2Country) {
+	UpdateIP2CountryThread(final IP2Country ip2Country) {
 
 		this.inProgress = new AtomicBoolean(false);
 		this.ip2Country = ip2Country;
+		this.context = null;
 	}
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 		this.context = context;
 	}
 
-	public synchronized boolean inProgress() {
+	public synchronized boolean isInProgress() {
 		return inProgress.get();
 	}
 
@@ -93,7 +94,7 @@ public class UpdateIP2CountryThread implements Runnable, ContextReceiver {
 	 * @param input the string to remove quotes from
 	 * @return the input string with the first and the last char removed
 	 */
-	private static String stripQuotes(String input) {
+	private static String stripQuotes(final String input) {
 		return input.substring(1, input.length() - 1);
 	}
 
@@ -109,40 +110,42 @@ public class UpdateIP2CountryThread implements Runnable, ContextReceiver {
 				throw new IOException("Update already in progress");
 			}
 
-			List<URL> sourceUrls = new ArrayList<URL>(2);
+			final List<URL> sourceUrls = new ArrayList<URL>(2);
 			sourceUrls.add(new URL("http://ip-to-country.webhosting.info/downloads/ip-to-country.csv.zip"));
 			sourceUrls.add(new URL("http://software77.net/cgi-bin/ip-country/geo-ip.pl?action=downloadZ"));
 
-			ServerNotification sn = new ServerNotification("IP2Country database updated");
-			sn.addLine("IP2Country database has just been successfully updated from:");
-			sn.addLine("");
+			final ServerNotification serverNotification
+					= new ServerNotification("IP2Country database updated");
+			serverNotification.addLine("IP2Country database has just been successfully updated from:");
+			serverNotification.addLine("");
 
 			combinedData = File.createTempFile("ip2country_combined", ".dat");
 			combinedDataFileOut = new FileWriter(combinedData);
 			combinedDataOut = new PrintWriter(new BufferedWriter(combinedDataFileOut));
 
-			downloadAndCombineRawSources(sourceUrls, combinedDataOut, sn);
+			downloadAndCombineRawSources(sourceUrls, combinedDataOut, serverNotification);
 
 			long timeBuildDB = System.currentTimeMillis();
-			TreeMap<IPRange, IPRange> ipTable = new TreeMap<IPRange, IPRange>();
-			TreeSet<String> countries = new TreeSet<String>();
+			final TreeMap<IPRange, IPRange> ipTable = new TreeMap<IPRange, IPRange>();
+			final TreeSet<String> countries = new TreeSet<String>();
 			ip2Country.buildDatabaseSafe(combinedData.getAbsolutePath(), ipTable, countries);
 			ip2Country.assignDatabase(ipTable, countries);
 			ip2Country.saveDatabase(ipTable, ip2Country.getDataFile().getAbsolutePath());
 			timeBuildDB = System.currentTimeMillis() - timeBuildDB;
 
 			// add notification
-			sn.addLine("");
-			sn.addLine(timeBuildDB + " ms - time taken to build IP2Country database from the merged file, clean it up and save it back to disk");
-			sn.addLine(countries.size() + " countries mentioned in merged IP2Country database");
-			context.getServerNotifications().addNotification(sn);
+			serverNotification.addLine("");
+			serverNotification.addLine(timeBuildDB + " ms - time taken to build IP2Country database from the merged file, clean it up and save it back to disk");
+			serverNotification.addLine(countries.size() + " countries mentioned in merged IP2Country database");
+			context.getServerNotifications().addNotification(serverNotification);
 
 			LOG.info("IP2Country has just been successfully updated.");
-		} catch (IOException ex) {
-			ServerNotification sn = new ServerNotification("Unable to update IP2Country database");
-			sn.addLine("Attempt to update from online IP2Country database failed. Stack trace:");
-			sn.addException(ex);
-			context.getServerNotifications().addNotification(sn);
+		} catch (final IOException ex) {
+			final ServerNotification serverNotification
+					= new ServerNotification("Unable to update IP2Country database");
+			serverNotification.addLine("Attempt to update from online IP2Country database failed. Stack trace:");
+			serverNotification.addException(ex);
+			context.getServerNotifications().addNotification(serverNotification);
 		} finally {
 			inProgress.set(false);
 
@@ -157,7 +160,7 @@ public class UpdateIP2CountryThread implements Runnable, ContextReceiver {
 				}
 			}
 			if ((combinedData != null) && combinedData.exists()) {
-				boolean deleted = combinedData.delete();
+				final boolean deleted = combinedData.delete();
 				if (!deleted) {
 					LOG.warn("Failed to delete the temporary IP2Country data file " + combinedData.getAbsolutePath());
 				}
@@ -165,11 +168,13 @@ public class UpdateIP2CountryThread implements Runnable, ContextReceiver {
 		}
 	}
 
-	private static void downloadAndCombineRawSources(List<URL> sourceUrls,
-			PrintWriter combinedDataOut, ServerNotification sn)
+	private static void downloadAndCombineRawSources(
+			final List<URL> sourceUrls,
+			final PrintWriter combinedDataOut,
+			final ServerNotification serverNotification)
 			throws IOException
 	{
-		for (URL url : sourceUrls) {
+		for (final URL url : sourceUrls) {
 			File sourceArchive = null;
 			File sourceRaw = null;
 			FileReader sourceRawFileIn = null;
@@ -179,7 +184,7 @@ public class UpdateIP2CountryThread implements Runnable, ContextReceiver {
 				// download
 				long timeDownload = System.currentTimeMillis();
 				sourceArchive = File.createTempFile("ip2country_source", ".dat.zip");
-				long bytesDownloaded = Misc.download(url.toString(), sourceArchive.getAbsolutePath(), DOWNLOAD_LIMIT);
+				final long bytesDownloaded = Misc.download(url.toString(), sourceArchive.getAbsolutePath(), DOWNLOAD_LIMIT);
 				timeDownload = System.currentTimeMillis() - timeDownload;
 
 				// extract
@@ -202,8 +207,8 @@ public class UpdateIP2CountryThread implements Runnable, ContextReceiver {
 						continue;
 					}
 
-					String[] tokens = inLine.split(",");
-					String outLine = String.format("%s,%s,%s",
+					final String[] tokens = inLine.split(",");
+					final String outLine = String.format("%s,%s,%s",
 							stripQuotes(tokens[0]), // IP FROM field
 							stripQuotes(tokens[1]), // IP TO field
 							stripQuotes(tokens[2])  // COUNTRY_CHAR2 field
@@ -213,14 +218,14 @@ public class UpdateIP2CountryThread implements Runnable, ContextReceiver {
 				}
 				timeCombine = System.currentTimeMillis() - timeCombine;
 
-				sn.addLine("- " + url.toString());
-				sn.addLine("  Statistics:");
-				sn.addLine("  * downloaded: " + (bytesDownloaded / 1024) + " KB");
-				sn.addLine("  * time taken to download: " + timeDownload + " ms");
-				sn.addLine("  * time taken to decompress: " + timeExtract + " ms");
-				sn.addLine("  * time taken to re-write: " + timeCombine + " ms");
-				sn.addLine("");
-			} catch (IOException ex) {
+				serverNotification.addLine("- " + url.toString());
+				serverNotification.addLine("  Statistics:");
+				serverNotification.addLine("  * downloaded: " + (bytesDownloaded / 1024) + " KB");
+				serverNotification.addLine("  * time taken to download: " + timeDownload + " ms");
+				serverNotification.addLine("  * time taken to decompress: " + timeExtract + " ms");
+				serverNotification.addLine("  * time taken to re-write: " + timeCombine + " ms");
+				serverNotification.addLine("");
+			} catch (final IOException ex) {
 				throw new IOException("Failed to download & extract IP2Country data from " + url.toString(), ex);
 			} finally {
 				// clean up
@@ -233,15 +238,15 @@ public class UpdateIP2CountryThread implements Runnable, ContextReceiver {
 					combinedDataOut.close();
 				}
 				if ((sourceArchive != null) && sourceArchive.exists()) {
-					boolean deleted = sourceArchive.delete();
+					final boolean deleted = sourceArchive.delete();
 					if (!deleted) {
-						throw new IOException("Failed to delete the local archive after an incomplete download: " + sourceArchive.getAbsolutePath());
+						throw new IOException("Failed to delete the local archive after an incomplete download: " + sourceArchive.getAbsolutePath()); // FIXME The 'throw' statement in 'finally' block may hide the original exception
 					}
 				}
 				if ((sourceRaw != null) && sourceRaw.exists()) {
-					boolean deleted = sourceRaw.delete();
+					final boolean deleted = sourceRaw.delete();
 					if (!deleted) {
-						throw new IOException("Failed to delete the local file after an incomplete extraction: " + sourceRaw.getAbsolutePath());
+						throw new IOException("Failed to delete the local file after an incomplete extraction: " + sourceRaw.getAbsolutePath()); // FIXME The 'throw' statement in 'finally' block may hide the original exception
 					}
 				}
 			}

@@ -24,12 +24,12 @@ package com.springrts.springls.ip2country;
  */
 public class IPRange implements Comparable<IPRange> {
 
-	private long fromIP;
+	private final long fromIP;
 	private long toIP;
 	/** 2 character ISO country code, "XX" means unspecified */
 	private String countryCode2;
 
-	public IPRange(long fromIP, long toIP, String countryCode2) {
+	public IPRange(final long fromIP, final long toIP, final String countryCode2) {
 
 		this.fromIP = fromIP;
 		this.toIP = toIP;
@@ -43,7 +43,7 @@ public class IPRange implements Comparable<IPRange> {
 	 * @param other ipRange to compare us with
 	 */
 	@Override
-	public int compareTo(IPRange other) {
+	public int compareTo(final IPRange other) {
 
 		if (this.getFromIP() < other.getFromIP()) {
 			return -1;
@@ -66,7 +66,7 @@ public class IPRange implements Comparable<IPRange> {
 	 * i.e. compareTo(x) == 0 is true if and only if equals(x) == true.
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 
 		if (this == obj) {
 			return true;
@@ -74,7 +74,7 @@ public class IPRange implements Comparable<IPRange> {
 		if (!(obj instanceof IPRange)) {
 			return false;
 		}
-		IPRange other = (IPRange) obj;
+		final IPRange other = (IPRange) obj;
 		return (this.getFromIP() == other.getFromIP())
 				&& (this.getToIP() == other.getToIP())
 				&& (this.getCountryCode2().equals(other.getCountryCode2()));
@@ -104,17 +104,17 @@ public class IPRange implements Comparable<IPRange> {
 		return toIP;
 	}
 
-	public void setToIP(long toIP) {
+	public void setToIP(final long toIP) {
 		this.toIP = toIP;
 	}
 
 	/**
 	 * Checks whether a given IP is within our range (boundaries inclusive).
-	 * @param ip to be checked whether it is in our range
+	 * @param ipAddress to be checked whether it is in our range
 	 * @return true if the supplied IP is in our range, false otherwise.
 	 */
-	public boolean contains(long ip) {
-		return ((ip >= getFromIP()) && (ip <= getToIP()));
+	public boolean contains(final long ipAddress) {
+		return ((ipAddress >= getFromIP()) && (ipAddress <= getToIP()));
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class IPRange implements Comparable<IPRange> {
 	 * 2 character ISO country code, "XX" means unspecified
 	 * @param countryCode2 the countryCode2 to set
 	 */
-	public void setCountryCode2(String countryCode2) {
+	public void setCountryCode2(final String countryCode2) {
 		this.countryCode2 = countryCode2;
 	}
 }

@@ -106,12 +106,12 @@ final class IP2Country implements IP2CountryService {
 		return dataFile;
 	}
 
-	public void setDataFile(File dataFile) {
+	public void setDataFile(final File dataFile) {
 		this.dataFile = dataFile;
 	}
 
 	public boolean updateInProgress() {
-		return ((updater != null) && updater.inProgress());
+		return ((updater != null) && updater.isInProgress());
 	}
 
 	public boolean initializeAll() {
@@ -153,8 +153,11 @@ final class IP2Country implements IP2CountryService {
 	 * is produced by the UpdateIP2CountryThread class.
 	 * Results are saved into 'resolveTable' and 'countries' objects.
 	 */
-	private static void buildDatabase(File from, TreeMap<IPRange, IPRange> resolveTable,
-			TreeSet<String> countries) throws IOException
+	private static void buildDatabase(
+			final File from,
+			final TreeMap<IPRange, IPRange> resolveTable,
+			final TreeSet<String> countries)
+			throws IOException
 	{
 		BufferedReader in = null;
 		try {
@@ -168,9 +171,9 @@ final class IP2Country implements IP2CountryService {
 
 			while ((line = in.readLine()) != null) {
 				tokens = line.split(",");
-				IPRange ip = new IPRange(Long.parseLong(tokens[0]),
+				final IPRange ipRange = new IPRange(Long.parseLong(tokens[0]),
 						Long.parseLong(tokens[1]), tokens[2]);
-				resolveTable.put(ip, ip);
+				resolveTable.put(ipRange, ipRange);
 				countries.add(tokens[2]);
 			}
 		} finally {
@@ -186,8 +189,10 @@ final class IP2Country implements IP2CountryService {
 	 * which makes it much slower.
 	 * Should be called only from a separate thread when updating the database.
 	 */
-	public void buildDatabaseSafe(String fromFile,
-			TreeMap<IPRange, IPRange> resolveTable, TreeSet<String> countries)
+	public void buildDatabaseSafe(
+			final String fromFile,
+			final TreeMap<IPRange, IPRange> resolveTable,
+			final TreeSet<String> countries)
 			throws IOException
 	{
 		Reader inF = null;
@@ -204,16 +209,18 @@ final class IP2Country implements IP2CountryService {
 
 			while ((line = in.readLine()) != null) {
 				tokens = line.split(",");
-				IPRange ip = new IPRange(Long.parseLong(tokens[0]),
-						Long.parseLong(tokens[1]), tokens[2]);
+				final IPRange ipRange = new IPRange(
+						Long.parseLong(tokens[0]),
+						Long.parseLong(tokens[1]),
+						tokens[2]);
 
 				// check if this entry overlaps with any existing entry
-				if (hasDuplicate(ip)) {
+				if (hasDuplicate(ipRange)) {
 					continue;
 				}
 
 				// OK, add it to the table:
-				resolveTable.put(ip, ip);
+				resolveTable.put(ipRange, ipRange);
 				countries.add(tokens[2]);
 			}
 		} finally {
@@ -225,35 +232,38 @@ final class IP2Country implements IP2CountryService {
 		}
 	}
 
-	private boolean hasDuplicate(IPRange ip) {
+	private boolean hasDuplicate(final IPRange ipRange) {
 
 		boolean hasDuplicate = false;
 
 		// +1 because headMap() returns keys that are strictly less
 		// than given key, but we want equals as well
-		SortedMap<IPRange, IPRange> head
-				= resolveTable.headMap(new IPRange(ip.getFromIP() + 1,
-				ip.getToIP() + 1, ProtocolUtil.COUNTRY_UNKNOWN));
-		IPRange prev = head.isEmpty() ? null : head.lastKey();
+		final SortedMap<IPRange, IPRange> head
+				= resolveTable.headMap(new IPRange(ipRange.getFromIP() + 1,
+				ipRange.getToIP() + 1, ProtocolUtil.COUNTRY_UNKNOWN));
+		final IPRange prev = head.isEmpty() ? null : head.lastKey();
 
 		// +1 because tailMap() returns keys that are bigger or
 		// equal to given key, but we want strictly bigger ones
-		SortedMap<IPRange, IPRange> tail
-				= resolveTable.tailMap(new IPRange(ip.getFromIP() + 1,
-				ip.getToIP() + 1, ProtocolUtil.COUNTRY_UNKNOWN));
-		IPRange next = tail.isEmpty() ? null : tail.firstKey();
+		final SortedMap<IPRange, IPRange> tail
+				= resolveTable.tailMap(new IPRange(ipRange.getFromIP() + 1,
+				ipRange.getToIP() + 1, ProtocolUtil.COUNTRY_UNKNOWN));
+		final IPRange next = tail.isEmpty() ? null : tail.firstKey();
 
 		if ((prev == null) || (next == null)) {
 			LOG.debug("Failed to check if IP range overlaps with any other: {}",
-					ip);
+					ipRange);
 			// if either previous or next could not be fetched, assume there is
 			// no dupicate
 			hasDuplicate = false;
-		} else if((prev.getFromIP() == ip.getFromIP())
-				&& (prev.getToIP() == ip.getToIP()))
+		} else if((prev.getFromIP() == ipRange.getFromIP())
+				&& (prev.getToIP() == ipRange.getToIP()))
 		{
 			// duplicate!
-			if (!prev.getCountryCode2().equals(ip.getCountryCode2())) {
+			if (prev.getCountryCode2().equals(ipRange.getCountryCode2())) {
+				// discharge duplicate entry
+				hasDuplicate = true;
+			} else {
 				// XXX this poses a problem - what to do about it?
 				// We have two identical ranges, each pointing at
 				// a different country. Which one is correct?
@@ -265,81 +275,78 @@ final class IP2Country implements IP2CountryService {
 				if (prev.getCountryCode2().equals("EU")
 						|| prev.getCountryCode2().equals("US"))
 				{
-					prev.setCountryCode2(ip.getCountryCode2());
+					prev.setCountryCode2(ipRange.getCountryCode2());
 				}
 				hasDuplicate = true;
-			} else {
-				// discharge duplicate entry
-				hasDuplicate = true;
 			}
-		} else if ((prev.getFromIP() == ip.getFromIP())
-				&& (prev.getToIP() > ip.getToIP()))
+		} else if ((prev.getFromIP() == ipRange.getFromIP())
+				&& (prev.getToIP() > ipRange.getToIP()))
 		{
-			if (!prev.getCountryCode2().equals(ip.getCountryCode2())) {
+			if (prev.getCountryCode2().equals(ipRange.getCountryCode2())) {
+				// discharge duplicate subrange
+				hasDuplicate = true;
+			} else {
 				// XXX this poses a problem - what to do about it?
 				// Currently, we simply discharge the 2nd entry,
 				// hoping that the 1st one is correct and the 2nd
 				// was not.
 				hasDuplicate = true;
-			} else {
-				// discharge duplicate subrange
-				hasDuplicate = true;
 			}
-		} else if ((prev.getFromIP() == ip.getFromIP())
-				&& (prev.getToIP() < ip.getToIP()))
+		} else if ((prev.getFromIP() == ipRange.getFromIP())
+				&& (prev.getToIP() < ipRange.getToIP()))
 		{
-			if (!prev.getCountryCode2().equals(ip.getCountryCode2())) {
+			if (prev.getCountryCode2().equals(ipRange.getCountryCode2())) {
+				// We widen the original range, hopeing the 2nd
+				// database is right about this specific range.
+				prev.setToIP(ipRange.getToIP());
+				hasDuplicate = true;
+			} else {
 				// XXX this poses a problem - what to do about it?
 				// Currently, we also add the second entry.
 				// Since the 1st is narrower, it will stay on top
 				// of 2nd one.
 				// If some IP does not fit the narrower range,
 				// it may still fit the wider one.
-			} else {
-				// We widen the original range, hopeing the 2nd
-				// database is right about this specific range.
-				prev.setToIP(ip.getToIP());
-				hasDuplicate = true;
 			}
-		} else if ((prev.getFromIP() < ip.getFromIP())
-				&& (prev.getToIP() >= ip.getToIP()))
+		} else if ((prev.getFromIP() < ipRange.getFromIP())
+				&& (prev.getToIP() >= ipRange.getToIP()))
 		{
-			if (!prev.getCountryCode2().equals(ip.getCountryCode2())) {
+			if (prev.getCountryCode2().equals(ipRange.getCountryCode2())) {
+				// discharge duplicate subrange
+				hasDuplicate = true;
+			} else {
 				// XXX this poses a problem - what to do about it?
 				// Currently, we simply discharge the 2nd entry,
 				// hoping that the 1st one is correct and the 2nd
 				// was not.
 				return true;
-			} else {
-				// discharge duplicate subrange
-				hasDuplicate = true;
 			}
-		} else if ((prev.getFromIP() < ip.getFromIP())
-				&& (prev.getToIP() > ip.getFromIP())
-				&& (prev.getToIP() < ip.getToIP()))
+		} else if ((prev.getFromIP() < ipRange.getFromIP())
+				&& (prev.getToIP() > ipRange.getFromIP())
+				&& (prev.getToIP() < ipRange.getToIP()))
 		{
 			// XXX this poses a problem - what to do about it?
 			// Currently we simply discharge the 2nd entry, hoping
 			// that the 1st one is correct (and 2nd wasn't)
 			hasDuplicate = true;
-		} else if ((next.getFromIP() < ip.getToIP())
-				&& (next.getToIP() <= ip.getToIP()))
+		} else if ((next.getFromIP() < ipRange.getToIP())
+				&& (next.getToIP() <= ipRange.getToIP()))
 		{
-			if (!next.getCountryCode2().equals(ip.getCountryCode2())) {
+			if (next.getCountryCode2().equals(ipRange.getCountryCode2())) {
+				// We widen the original range, hopeing the 2nd
+				// database is right about this specific range.
+				next.setToIP(ipRange.getToIP());
+				hasDuplicate = true;
+			} else {
 				// XXX this poses a problem - what to do about it?
 				// Currently, we also add the second entry.
 				// Since the 1st is narrower, it will stay on top
 				// of 2nd one.
 				// If some IP does not fit the narrower range,
 				// it may still fit the wider one.
-			} else {
-				// We widen the original range, hopeing the 2nd
-				// database is right about this specific range.
-				next.setToIP(ip.getToIP());
-				hasDuplicate = true;
 			}
-		} else if ((next.getFromIP() < ip.getToIP())
-				&& (next.getToIP() > ip.getToIP()))
+		} else if ((next.getFromIP() < ipRange.getToIP())
+				&& (next.getToIP() > ipRange.getToIP()))
 		{
 			// XXX this poses a problem - what to do about it?
 			// Currently, we simply discharge the 2nd entry,
@@ -352,14 +359,16 @@ final class IP2Country implements IP2CountryService {
 	}
 
 	/** Will save given IP2County table to disk */
-	public void saveDatabase(TreeMap<IPRange, IPRange> resolveTable,
-			String fileName) throws IOException
+	public void saveDatabase(
+			final TreeMap<IPRange, IPRange> resolveTable,
+			final String fileName) 
+			throws IOException
 	{
 		PrintWriter out = null;
 		try {
 			out = new PrintWriter(new BufferedWriter(new FileWriter(fileName)));
 
-			for (IPRange ipRange : resolveTable.values()) {
+			for (final IPRange ipRange : resolveTable.values()) {
 				out.println(ipRange.toString());
 			}
 		} finally {
@@ -370,8 +379,9 @@ final class IP2Country implements IP2CountryService {
 	}
 
 	/** Will replace current "resolve" and "countries" tables with new ones */
-	public void assignDatabase(TreeMap<IPRange, IPRange> newResolveTable,
-			TreeSet<String> newCountries)
+	public void assignDatabase(
+			final TreeMap<IPRange, IPRange> newResolveTable,
+			final TreeSet<String> newCountries)
 	{
 		resolveTable = newResolveTable;
 		countries = newCountries;
@@ -384,15 +394,15 @@ final class IP2Country implements IP2CountryService {
 	 *   or "XX" if the country is unknown.
 	 */
 	@Override
-	public String getCountryCode(InetAddress ip) {
+	public String getCountryCode(final InetAddress ipAddress) {
 
 		String result = ProtocolUtil.COUNTRY_UNKNOWN;
 
-		long longIp = ProtocolUtil.ip2Long(ip);
+		final long longIp = ProtocolUtil.ip2Long(ipAddress);
 		// +1 because headMap() returns keys that are strictly less than the
 		// given key
-		long longIpPlus = longIp + 1;
-		SortedMap<IPRange, IPRange> possiblyFittingEntries
+		final long longIpPlus = longIp + 1;
+		final SortedMap<IPRange, IPRange> possiblyFittingEntries
 				= resolveTable.headMap(new IPRange(longIpPlus, longIpPlus,
 				ProtocolUtil.COUNTRY_UNKNOWN));
 		IPRange rng = null; // a range that might fit
@@ -403,7 +413,7 @@ final class IP2Country implements IP2CountryService {
 			result = rng.getCountryCode2();
 		} else {
 			LOG.debug("Failed to evaluate country code for IP: {}",
-					ip.getHostAddress());
+					ipAddress.getHostAddress());
 		}
 
 		// quick fix for some non-standard country codes:
@@ -422,7 +432,7 @@ final class IP2Country implements IP2CountryService {
 	 * @see #getCountryCode(InetAddress)
 	 */
 	@Override
-	public Locale getLocale(InetAddress ip) {
-		return ProtocolUtil.countryToLocale(getCountryCode(ip));
+	public Locale getLocale(final InetAddress ipAddress) {
+		return ProtocolUtil.countryToLocale(getCountryCode(ipAddress));
 	}
 }

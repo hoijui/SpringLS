@@ -33,9 +33,9 @@ public class Activator implements BundleActivator {
 	private final Logger log = LoggerFactory.getLogger(Activator.class);
 
 	@Override
-	public void start(BundleContext context) {
+	public void start(final BundleContext context) {
 
-		IP2Country ip2Country = new IP2Country();
+		final IP2Country ip2Country = new IP2Country();
 		long tempTime = System.currentTimeMillis();
 		if (ip2Country.initializeAll()) {
 			tempTime = System.currentTimeMillis() - tempTime;
@@ -58,6 +58,6 @@ public class Activator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext context) {
+	public void stop(final BundleContext context) {
 	}
 }

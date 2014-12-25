@@ -40,17 +40,17 @@ public class ReInitializeIp2CountryCommandProcessor extends AbstractCommandProce
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String dataFileName = Misc.makeSentence(args, 0);
+		final String dataFileName = Misc.makeSentence(args, 0);
 
-		IP2Country service = getContext().getService(IP2Country.class);
+		final IP2Country service = getContext().getService(IP2Country.class);
 		if (service == null) {
 			client.sendLine("SERVERMSG IP2Country service not available!");
 		} else {

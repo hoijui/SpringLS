@@ -33,11 +33,11 @@ public interface IP2CountryService {
 	 * @return 2-chars wide country code, as defined in ISO 3166-1 alpha-2,
 	 *   or "XX" if the country is unknown.
 	 */
-	String getCountryCode(InetAddress ip);
+	String getCountryCode(InetAddress ipAddress);
 
 	/**
 	 * Converts an IP address into a Locale, with the language unspecified.
 	 * @see #getCountryCode(InetAddress)
 	 */
-	Locale getLocale(InetAddress ip);
+	Locale getLocale(InetAddress ipAddress);
 }
