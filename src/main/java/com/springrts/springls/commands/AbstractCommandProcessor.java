@@ -35,7 +35,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	public static final int ARGS_MIN_NOCHECK = -1;
 	public static final int ARGS_MAX_NOCHECK = -1;
 	private static final Account.Access ACCESS_NOCHECK = null;
-	private Context context = null;
+	private Context context;
 	private final String commandName;
 	private final int argsMin;
 	private final int argsMax;
@@ -50,6 +50,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 			final boolean battleRequired,
 			final boolean battleFounderRequired)
 	{
+		this.context = null;
 		this.commandName
 				= CommandProcessors.extractCommandName(this.getClass());
 		this.argsMin = argsMin;
@@ -127,7 +128,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 		final StringBuilder fullCommand = new StringBuilder(getCommandName());
 
 		for (final String arg : args) {
-			fullCommand.append(" ").append(arg);
+			fullCommand.append(' ').append(arg);
 		}
 
 		return fullCommand.toString();

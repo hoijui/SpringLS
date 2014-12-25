@@ -42,11 +42,18 @@ public class CommandProcessors implements ContextReceiver {
 	private Context context;
 	private CommandProcessorTracker commandProcessorTracker;
 
+	public CommandProcessors() {
+
+		cmdNameToProcessor = new HashMap<String, CommandProcessor>();
+		context = null;
+		commandProcessorTracker = null;
+	}
+
 	/**
 	 * Extracts the name of the command supported by a command processor
 	 * from its {@link SupportedCommand} annotation.
 	 */
-	public static String extractCommandName(final Class<? extends CommandProcessor> cmdProcCls) {
+	public static String extractCommandName(final Class<? extends CommandProcessor> cmdProcCls) throws IllegalArgumentException {
 
 		final SupportedCommand supCmd = cmdProcCls.getAnnotation(SupportedCommand.class);
 		if (supCmd == null) {
@@ -66,15 +73,6 @@ public class CommandProcessors implements ContextReceiver {
 
 		return name;
 	}
-
-
-	public CommandProcessors() {
-
-		cmdNameToProcessor = new HashMap<String, CommandProcessor>();
-		context = null;
-		commandProcessorTracker = null;
-	}
-
 
 	@Override
 	public void receiveContext(final Context context) {
@@ -121,55 +119,59 @@ public class CommandProcessors implements ContextReceiver {
 	 * @return the command processor responsible for handling the given command,
 	 *   or <code>null</code>, if no suitable one was found
 	 */
-	public CommandProcessor get(String commandName) {
+	public CommandProcessor get(final String commandName) {
 		return cmdNameToProcessor.get(commandName);
 	}
 
 	/**
 	 * Instantiates a single CommandProcessor.
-	 * @param cpc the class to instantiate
+	 * @param cmdProcessorClass the class to instantiate
 	 * @throws Exception if loading failed, for whatever reason
 	 */
-	public static CommandProcessor load(final Class<? extends CommandProcessor> cpc) throws Exception {
-
-		CommandProcessor cp = null;
+	public static CommandProcessor load(
+			final Class<? extends CommandProcessor> cmdProcessorClass)
+			throws IllegalArgumentException
+	{
+		CommandProcessor cmdProcessor = null;
 
 		Constructor<? extends CommandProcessor> noArgsCtor = null;
 		try {
-			noArgsCtor = cpc.getConstructor();
+			noArgsCtor = cmdProcessorClass.getConstructor();
 		} catch (final NoSuchMethodException ex) {
-			throw new RuntimeException(cpc.getCanonicalName()
-				+ " is not a valid CommandProcessor; "
-				+ "No-args constructor is missing.", ex);
+			throw new IllegalArgumentException(
+					cmdProcessorClass.getCanonicalName()
+					+ " is not a valid CommandProcessor; "
+					+ "No-args constructor is missing.",
+					ex);
 		}
 		try {
-			cp = noArgsCtor.newInstance();
-		} catch (final Exception ex) {
-			throw new RuntimeException("Failed to instantiate "
-					+ cpc.getCanonicalName(), ex);
+			cmdProcessor = noArgsCtor.newInstance();
+		} catch (final ReflectiveOperationException ex) {
+			throw new IllegalArgumentException("Failed to instantiate "
+					+ cmdProcessorClass.getCanonicalName(), ex);
 		}
 
-		return cp;
+		return cmdProcessor;
 	}
 
 	/**
 	 * Adds a command processor.
-	 * @param cp to be added
+	 * @param cmdProcessor to be added
 	 * @throws Exception if name extraction fails
 	 */
-	public static void add(final BundleContext bundleContext, final CommandProcessor cp) throws Exception {
+	public static void add(
+			final BundleContext bundleContext,
+			final CommandProcessor cmdProcessor)
+	{
+		final String cmdName = CommandProcessors.extractCommandName(
+				cmdProcessor.getClass());
 
-		String cmdName = null;
-		try {
-			cmdName = CommandProcessors.extractCommandName(cp.getClass());
-		} catch (final Exception ex) {
-			throw new RuntimeException("Failed extracting command name", ex);
-		}
-
-		cp.receiveContext(Context.getService(bundleContext, Context.class));
+		cmdProcessor.receiveContext(Context.getService(bundleContext,
+				Context.class));
 
 		final Dictionary dict = new Hashtable();
 		dict.put(CommandProcessor.NAME_PROPERTY, cmdName);
-		bundleContext.registerService(CommandProcessor.class.getName(), cp, dict);
+		bundleContext.registerService(CommandProcessor.class.getName(),
+				cmdProcessor, dict);
 	}
 }
