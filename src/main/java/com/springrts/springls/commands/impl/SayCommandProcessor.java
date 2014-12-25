@@ -34,8 +34,16 @@ import java.util.List;
 @SupportedCommand("SAY")
 public class SayCommandProcessor extends AbstractSayCommandProcessor {
 
-	public SayCommandProcessor() {
+	private final String returnCommandName;
+
+	protected SayCommandProcessor(final String returnCommandName) {
 		super(2, ARGS_MAX_NOCHECK, Account.Access.NORMAL);
+
+		this.returnCommandName = returnCommandName;
+	}
+
+	public SayCommandProcessor() {
+		this("SAID");
 	}
 
 	@Override
@@ -59,9 +67,11 @@ public class SayCommandProcessor extends AbstractSayCommandProcessor {
 
 		checkFlooding(client, message);
 
-		channel.sendLineToClients(String.format("SAID %s %s %s",
+		channel.sendLineToClients(String.format("%s %s %s %s",
+				returnCommandName,
 				channel.getName(),
-				client.getAccount().getName(), message));
+				client.getAccount().getName(),
+				message));
 
 		return true;
 	}

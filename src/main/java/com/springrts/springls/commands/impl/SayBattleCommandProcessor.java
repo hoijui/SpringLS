@@ -38,8 +38,16 @@ import java.util.List;
 @SupportedCommand("SAYBATTLE")
 public class SayBattleCommandProcessor extends AbstractSayCommandProcessor {
 
-	public SayBattleCommandProcessor() {
+	private final String returnCommandName;
+
+	protected SayBattleCommandProcessor(final String returnCommandName) {
 		super(1, ARGS_MAX_NOCHECK, Account.Access.NORMAL, true);
+
+		this.returnCommandName = returnCommandName;
+	}
+
+	public SayBattleCommandProcessor() {
+		this("SAIDBATTLE");
 	}
 
 	@Override
@@ -57,8 +65,10 @@ public class SayBattleCommandProcessor extends AbstractSayCommandProcessor {
 
 		checkFlooding(client, message);
 
-		battle.sendToAllClients(String.format("SAIDBATTLE %s %s",
-				client.getAccount().getName(), message));
+		battle.sendToAllClients(String.format("%s %s %s",
+				returnCommandName,
+				client.getAccount().getName(),
+				message));
 
 		return true;
 	}

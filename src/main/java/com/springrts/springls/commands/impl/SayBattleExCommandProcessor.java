@@ -18,13 +18,7 @@
 package com.springrts.springls.commands.impl;
 
 
-import com.springrts.springls.Account;
-import com.springrts.springls.Battle;
-import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
-import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 
 /**
@@ -35,30 +29,9 @@ import java.util.List;
  * @author hoijui
  */
 @SupportedCommand("SAYBATTLEEX")
-public class SayBattleExCommandProcessor extends AbstractSayCommandProcessor {
+public class SayBattleExCommandProcessor extends SayBattleCommandProcessor {
 
 	public SayBattleExCommandProcessor() {
-		super(1, ARGS_MAX_NOCHECK, Account.Access.NORMAL, true);
-	}
-
-	@Override
-	public boolean process(final Client client, final List<String> args)
-			throws CommandProcessingException
-	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
-		final Battle battle = getBattle(client);
-
-		final String message = Misc.makeSentence(args, 0);
-
-		checkFlooding(client, message);
-
-		battle.sendToAllClients(String.format("SAIDBATTLEEX %s %s",
-				client.getAccount().getName(), message));
-
-		return true;
+		super("SAIDBATTLEEX");
 	}
 }

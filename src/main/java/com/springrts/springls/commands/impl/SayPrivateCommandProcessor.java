@@ -34,8 +34,16 @@ import java.util.List;
 @SupportedCommand("SAYPRIVATE")
 public class SayPrivateCommandProcessor extends AbstractSayCommandProcessor {
 
-	public SayPrivateCommandProcessor() {
+	private final String returnCommandName;
+
+	protected SayPrivateCommandProcessor(final String returnCommandName) {
 		super(2, ARGS_MAX_NOCHECK, Account.Access.NORMAL);
+
+		this.returnCommandName = returnCommandName;
+	}
+
+	public SayPrivateCommandProcessor() {
+		this("SAIDPRIVATE");
 	}
 
 	@Override
@@ -57,8 +65,10 @@ public class SayPrivateCommandProcessor extends AbstractSayCommandProcessor {
 
 		checkFlooding(client, message);
 
-		target.sendLine(String.format("SAIDPRIVATE %s %s",
-				client.getAccount().getName(), message));
+		target.sendLine(String.format("%s %s %s",
+				returnCommandName,
+				client.getAccount().getName(),
+				message));
 		// echo the command. See protocol description!
 		client.sendLine(getCommandName() + " " + Misc.makeSentence(args, 0));
 
