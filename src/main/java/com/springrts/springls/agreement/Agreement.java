@@ -20,8 +20,12 @@ package com.springrts.springls.agreement;
 
 import com.springrts.springls.Client;
 import com.springrts.springls.util.Misc;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.rtf.RTFEditorKit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,12 +41,31 @@ public class Agreement {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Agreement.class);
 
-	private String content;
+	private String contentRtf;
+	private String contentPlain;
 	private static final String DEFAULT_FILE_NAME = "agreement.rtf";
 
 	public Agreement() {
 
-		content = null;
+		contentRtf = null;
+		contentPlain = null;
+	}
+
+	private static String rtf2plain(final String rtfContent) {
+
+		String contentPlain = null;
+		try {
+			final RTFEditorKit rtfParser = new RTFEditorKit();
+			final Document document = rtfParser.createDefaultDocument();
+			rtfParser.read(new ByteArrayInputStream(rtfContent.getBytes()), document, 0);
+			contentPlain = document.getText(0, document.getLength());
+		} catch (final IOException ex) {
+			LOG.warn("Failed to convert RTF to plain-text", ex);
+		} catch (final BadLocationException ex) {
+			LOG.warn("Failed to convert RTF to plain-text", ex);
+		}
+
+		return contentPlain;
 	}
 
 	/** Reads agreement from disk (if file is found) */
@@ -50,11 +73,11 @@ public class Agreement {
 
 		boolean success = false;
 
-		String newAgreement = null;
 		try {
-			newAgreement = Misc.readTextFile(new File(DEFAULT_FILE_NAME));
+			final String newAgreement = Misc.readTextFile(new File(DEFAULT_FILE_NAME));
 			if (newAgreement.length() > 2) {
-				content = newAgreement;
+				contentRtf = newAgreement;
+				contentPlain = rtf2plain(newAgreement);
 				success = true;
 				LOG.info("Using agreement from file '{}'.", DEFAULT_FILE_NAME);
 			} else {
@@ -73,6 +96,12 @@ public class Agreement {
 	public void sendToClient(final Client client) {
 
 		client.beginFastWrite();
+		final String content;
+		if (client.getCompatFlags().contains("p")) { // NOTE lobby protocol "0.36+ p"
+			content = contentPlain;
+		} else {
+			content = contentRtf;
+		}
 		final String[] lines = content.split(Misc.EOL);
 		for (final String line : lines) {
 			client.sendLine("AGREEMENT " + line);
