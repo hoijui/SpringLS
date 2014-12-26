@@ -159,6 +159,9 @@ public class Activator implements BundleActivator {
 		commandProcessorClasses.add(SayPrivateCommandProcessor.class);
 		commandProcessorClasses.add(SayBattleCommandProcessor.class);
 		commandProcessorClasses.add(SayBattleExCommandProcessor.class);
+		commandProcessorClasses.add(SayDataCommandProcessor.class);
+		commandProcessorClasses.add(SayDataBattleCommandProcessor.class);
+		commandProcessorClasses.add(SayDataPrivateCommandProcessor.class);
 		commandProcessorClasses.add(JoinBattleCommandProcessor.class);
 		commandProcessorClasses.add(JoinBattleAcceptCommandProcessor.class);
 		commandProcessorClasses.add(JoinBattleDenyCommandProcessor.class);
