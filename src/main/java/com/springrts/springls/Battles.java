@@ -214,7 +214,7 @@ public class Battles implements ContextReceiver {
 			hash = Integer.parseInt(args.get(5));
 			rank = Integer.decode(args.get(6));
 			maphash = Integer.decode(args.get(7));
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException ex) {
 			return null;
 		}
 
