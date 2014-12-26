@@ -32,6 +32,7 @@ import java.util.List;
  * @author hoijui
  */
 @SupportedCommand("REQUESTUPDATEFILE")
+@Deprecated
 public class RequestUpdateFileCommandProcessor extends AbstractCommandProcessor {
 
 	public RequestUpdateFileCommandProcessor() {
@@ -44,6 +45,13 @@ public class RequestUpdateFileCommandProcessor extends AbstractCommandProcessor 
 	{
 		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
+			return false;
+		}
+
+		if (client.getCompatFlags().contains("cl")) { // NOTE lobby protocol "0.36+ cl"
+			client.sendLine("SERVERMSG Command " + getCommandName()
+					+ " was removed after lobby protocol version 0.36"
+					+ " with the 'cl' flag");
 			return false;
 		}
 

@@ -32,6 +32,7 @@ import java.util.List;
  * @author hoijui
  */
 @SupportedCommand("USERID")
+@Deprecated
 public class UserIdCommandProcessor extends AbstractCommandProcessor {
 
 	public UserIdCommandProcessor() {
@@ -50,6 +51,13 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 			throw ex;
 		}
 		if (!checksOk) {
+			return false;
+		}
+
+		if (client.getCompatFlags().contains("cl")) { // NOTE lobby protocol "0.36+ cl"
+			client.sendLine("SERVERMSG Command " + getCommandName()
+					+ " was removed after lobby protocol version 0.36"
+					+ " with the 'cl' flag");
 			return false;
 		}
 

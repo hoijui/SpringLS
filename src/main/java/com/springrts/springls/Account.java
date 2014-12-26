@@ -191,7 +191,7 @@ public class Account implements Serializable, Cloneable {
 	 * Unique name identification number.
 	 * Equals NO_USER_ID (currently 0) if not used/set. By default it is not
 	 * set. Multiple accounts may share same name ID. This value actually
-	 * indicates last ID as sent with the LOGIN or USERID command by the client.
+	 * indicates last ID as sent with the LOGIN command by the client.
 	 * We use it to detect spawned accounts (accounts registered by the same
 	 * name), ban evasion etc.
 	 * @see #id
@@ -778,7 +778,7 @@ public class Account implements Serializable, Cloneable {
 	 * Unique name identification number.
 	 * Equals NO_USER_ID (currently 0) if not used/set. By default it is not
 	 * set. Multiple accounts may share same name ID. This value actually
-	 * indicates last ID as sent with the LOGIN or USERID command by the client.
+	 * indicates last ID as sent with the LOGIN command by the client.
 	 * We use it to detect spawned accounts (accounts registered by the same
 	 * name), ban evasion etc.
 	 * @see #getId()
@@ -799,7 +799,7 @@ public class Account implements Serializable, Cloneable {
 	 * Unique name identification number.
 	 * Equals NO_USER_ID (currently 0) if not used/set. By default it is not
 	 * set. Multiple accounts may share same name ID. This value actually
-	 * indicates last ID as sent with the LOGIN or USERID command by the client.
+	 * indicates last ID as sent with the LOGIN command by the client.
 	 * We use it to detect spawned accounts (accounts registered by the same
 	 * name), ban evasion etc.
 	 * @see #getId()
