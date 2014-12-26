@@ -39,13 +39,13 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
 		try {
 			checksOk = super.process(client, args);
-		} catch (InvalidNumberOfArgumentsCommandProcessingException ex) {
+		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
 			client.sendLine(String.format(
 					"SERVERMSG Bad %s command:"
 					+ " Too many or too few parameters have been supplied",
@@ -56,8 +56,8 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		String oldPassword = args.get(0);
-		String newPassword = args.get(1);
+		final String oldPassword = args.get(0);
+		final String newPassword = args.get(1);
 
 		if (getConfiguration().getBoolean(ServerConfiguration.LAN_MODE)) {
 			client.sendLine(String.format(
@@ -75,7 +75,7 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		// validate password:
-		String valid = Account.isPasswordValid(newPassword);
+		final String valid = Account.isPasswordValid(newPassword);
 		if (valid != null) {
 			client.sendLine(String.format(
 					"SERVERMSG %s failed: Invalid password (reason: %s)",

@@ -37,18 +37,18 @@ public class UnmuteCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String chanelName = args.get(0);
-		String username = args.get(1);
+		final String chanelName = args.get(0);
+		final String username = args.get(1);
 
-		Channel chan = getContext().getChannels().getChannel(chanelName);
+		final Channel chan = getContext().getChannels().getChannel(chanelName);
 		if (chan == null) {
 			client.sendLine(String.format(
 					"SERVERMSG %s failed: Channel #%s does not exist!",

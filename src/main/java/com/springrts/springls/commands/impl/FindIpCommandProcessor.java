@@ -40,10 +40,10 @@ public class FindIpCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
@@ -54,27 +54,27 @@ public class FindIpCommandProcessor extends AbstractCommandProcessor {
 		//   by specifying a radix like "192.168.*.*".
 		//   Support for this has been removed.
 		//   You now have to explicitly specify the IP.
-		String ip = args.get(0);
+		final String ipAddress = args.get(0);
 
-		InetAddress addr = Misc.parseIp(ip);
+		final InetAddress addr = Misc.parseIp(ipAddress);
 		if (addr == null) {
-			client.sendLine("SERVERMSG Invalid IP address: " + ip);
+			client.sendLine("SERVERMSG Invalid IP address: " + ipAddress);
 			return false;
 		}
 
 		for (int i = 0; i < getContext().getClients().getClientsSize(); i++) {
-			Client curClient = getContext().getClients().getClient(i);
+			final Client curClient = getContext().getClients().getClient(i);
 			if (!addr.equals(curClient.getIp())) {
 				continue;
 			}
 
 			found = true;
 			client.sendLine(String.format("SERVERMSG %s is bound to: %s",
-					ip, curClient.getAccount().getName()));
+					ipAddress, curClient.getAccount().getName()));
 		}
 
 		// now let's check if this IP matches any recently used IP:
-		Account lastAccount = getContext().getAccountsService()
+		final Account lastAccount = getContext().getAccountsService()
 				.findAccountByLastIP(addr);
 		if ((lastAccount != null)
 				&& !getContext().getClients().isUserLoggedIn(lastAccount))
@@ -82,14 +82,14 @@ public class FindIpCommandProcessor extends AbstractCommandProcessor {
 			found = true;
 			client.sendLine(String.format(
 					"SERVERMSG %s was recently bound to: %s (offline)",
-					ip, lastAccount.getName()));
+					ipAddress, lastAccount.getName()));
 		}
 
 		if (!found) {
 			// TODO perhaps add an explanation like
 			// "(note that server only keeps track of last used IP addresses)"?
 			client.sendLine("SERVERMSG No client is/was recently using IP: "
-					+ ip);
+					+ ipAddress);
 		}
 
 		return true;

@@ -46,31 +46,31 @@ public class MyStatusCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String newStatusStr = args.get(0);
+		final String newStatusStr = args.get(0);
 
-		int newStatus;
+		final int newStatus;
 		try {
 			newStatus = Integer.parseInt(newStatusStr);
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException ex) {
 			return false;
 		}
 
-		boolean oldInGame = client.isInGame();
+		final boolean oldInGame = client.isInGame();
 
 		client.setStatus(newStatus, false);
 
 		if (client.isInGame() != oldInGame) {
 			// user changed his in-game status.
 			if (!oldInGame) { // client just entered game
-				Battle battle = getBattle(client);
+				final Battle battle = getBattle(client);
 				if ((battle != null) && (battle.getClientsSize() > 0)) {
 					client.setInGameTime(System.currentTimeMillis()); // FIXME ... that looks wrong! should be now - joinTime. also: change name of the inGameTime property in Client, as it is misnamed (shoudl rather be split in two: joinTime & inGameTime)
 				} else {
@@ -98,7 +98,7 @@ public class MyStatusCommandProcessor extends AbstractCommandProcessor {
 					// since some try to exploit the system
 					// by leaving their computer alone in-battle
 					// for hours, to increase their ranks.
-					long diffMins = (System.currentTimeMillis()
+					final long diffMins = (System.currentTimeMillis()
 							- client.getInGameTime()) / 60000;
 					client.getAccount().addMinsToInGameTime(diffMins);
 					final boolean mergeOk = getContext().getAccountsService()

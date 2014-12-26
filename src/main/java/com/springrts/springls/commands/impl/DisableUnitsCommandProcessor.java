@@ -41,17 +41,17 @@ public class DisableUnitsCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		Battle battle = getBattle(client);
+		final Battle battle = getBattle(client);
 
-		for (String unit : args) {
+		for (final String unit : args) {
 			// let's check if the client did not double the data.
 			// he should not, but we can not trust him, so we will check
 			// ourselves

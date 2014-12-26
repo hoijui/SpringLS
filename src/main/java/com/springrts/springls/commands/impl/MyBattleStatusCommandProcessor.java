@@ -42,27 +42,27 @@ public class MyBattleStatusCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(final Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		Battle battle = getBattle(client);
+		final Battle battle = getBattle(client);
 
-		String newBattleStatusStr = args.get(0);
-		String teamColorStr = args.get(1);
+		final String newBattleStatusStr = args.get(0);
+		final String teamColorStr = args.get(1);
 
-		int newBattleStatus;
+		final int newBattleStatus;
 		try {
 			newBattleStatus = Integer.parseInt(newBattleStatusStr);
 		} catch (NumberFormatException ex) {
 			return false;
 		}
 
-		Color newTeamColor = ProtocolUtil.colorSpringStringToJava(teamColorStr);
+		final Color newTeamColor = ProtocolUtil.colorSpringStringToJava(teamColorStr);
 		if (newTeamColor == null) {
 			return false;
 		}
@@ -73,14 +73,14 @@ public class MyBattleStatusCommandProcessor extends AbstractCommandProcessor {
 	private static class AllyTeamAndColorAligner
 			implements Processor<TeamController>
 	{
-		private TeamController alignTo;
+		private final TeamController alignTo;
 
-		AllyTeamAndColorAligner(TeamController alignTo) {
+		AllyTeamAndColorAligner(final TeamController alignTo) {
 			this.alignTo = alignTo;
 		}
 
 		@Override
-		public void process(TeamController curTeamController) {
+		public void process(final TeamController curTeamController) {
 			if ((curTeamController != alignTo)
 					&& (curTeamController.getTeam() == alignTo.getTeam())
 					&& !curTeamController.isSpectator())
@@ -91,10 +91,13 @@ public class MyBattleStatusCommandProcessor extends AbstractCommandProcessor {
 		}
 	}
 
-	private boolean setBattleStatus(final Client client, Battle battle,
-			int newBattleStatus, Color newTeamColor)
+	private boolean setBattleStatus(
+			final Client client,
+			final Battle battle,
+			final int newBattleStatus,
+			final Color newTeamColor)
 	{
-		int oldHandicap = client.getHandicap();
+		final int oldHandicap = client.getHandicap();
 		client.setBattleStatus(newBattleStatus);
 		// Note: We ignore the handicap value, as it can be changed only by the
 		// founder with the HANDICAP command!

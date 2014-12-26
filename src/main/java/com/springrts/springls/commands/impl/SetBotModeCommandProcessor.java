@@ -37,18 +37,18 @@ public class SetBotModeCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		int mode;
+		final int mode;
 		try {
 			mode = Integer.parseInt(args.get(1));
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException ex) {
 			client.sendLine("SERVERMSG Invalid 'mode' parameter (has to be 0 or 1)!");
 			return false;
 		}
@@ -57,9 +57,9 @@ public class SetBotModeCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		String userName = args.get(0);
+		final String userName = args.get(0);
 
-		Account acc = getContext().getAccountsService().getAccount(userName);
+		final Account acc = getContext().getAccountsService().getAccount(userName);
 		if (acc == null) {
 			client.sendLine(String.format("SERVERMSG User <%s> not found!",
 					userName));
@@ -67,7 +67,8 @@ public class SetBotModeCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		final boolean wasBot = acc.isBot();
-		acc.setBot((mode == 0) ? false : true);
+		final boolean isBot = (mode == 1);
+		acc.setBot(isBot);
 		final boolean mergeOk = getContext().getAccountsService()
 				.mergeAccountChanges(acc, acc.getName());
 		if (!mergeOk) {

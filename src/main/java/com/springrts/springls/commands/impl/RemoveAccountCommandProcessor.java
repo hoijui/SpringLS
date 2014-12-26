@@ -36,15 +36,15 @@ public class RemoveAccountCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String username = args.get(0);
+		final String username = args.get(0);
 
 		if (!getContext().getAccountsService().removeAccount(username)) {
 			return false;
@@ -52,7 +52,7 @@ public class RemoveAccountCommandProcessor extends AbstractCommandProcessor {
 
 		// if any user is connected to this account, kick him:
 		for (int j = 0; j < getContext().getClients().getClientsSize(); j++) {
-			Client curClient = getContext().getClients().getClient(j);
+			final Client curClient = getContext().getClients().getClient(j);
 			if (curClient.getAccount().getName().equals(username)) {
 				getContext().getClients().killClient(curClient);
 				j--;

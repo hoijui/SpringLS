@@ -39,13 +39,13 @@ public class GetSendBufferSizeCommandProcessor extends AbstractCommandProcessor 
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
 		try {
 			checksOk = super.process(client, args);
-		} catch (InvalidNumberOfArgumentsCommandProcessingException ex) {
+		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
 			client.sendLine("SERVERMSG Error: this method requires exactly 2 arguments!");
 			throw ex;
 		}
@@ -53,19 +53,19 @@ public class GetSendBufferSizeCommandProcessor extends AbstractCommandProcessor 
 			return false;
 		}
 
-		String username = args.get(0);
+		final String username = args.get(0);
 
-		Client c = getContext().getClients().getClient(username);
+		final Client c = getContext().getClients().getClient(username);
 		if (c == null) {
 			client.sendLine(String.format(
 					"SERVERMSG Error: user <%s> not found online!", username));
 			return false;
 		}
 
-		int size;
+		final int size;
 		try {
 			size = c.getSockChan().socket().getSendBufferSize();
-		} catch (Exception e) {
+		} catch (final Exception ex) {
 			// this could perhaps happen if user just disconnected or something
 			client.sendLine(String.format(
 					"SERVERMSG Error while trying to get send buffer size for"

@@ -41,13 +41,13 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
 		try {
 			checksOk = super.process(client, args);
-		} catch (InvalidNumberOfArgumentsCommandProcessingException ex) {
+		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
 			client.sendLine(String.format(
 					"SERVERMSG Bad %s command - too many or too few parameters",
 					getCommandName()));
@@ -57,7 +57,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		String newUsername = Misc.makeSentence(args, 0);
+		final String newUsername = Misc.makeSentence(args, 0);
 
 		if (getConfiguration().getBoolean(ServerConfiguration.LAN_MODE)) {
 			client.sendLine(String.format(
@@ -68,7 +68,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		// validate new user name
-		String valid = Account.isOldUsernameValid(newUsername);
+		final String valid = Account.isOldUsernameValid(newUsername);
 		if (valid != null) {
 			client.sendLine(String.format(
 					"SERVERMSG %s failed: Invalid username (reason: %s)",
@@ -76,7 +76,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		Account account = getContext().getAccountsService().findAccountNoCase(newUsername);
+		final Account account = getContext().getAccountsService().findAccountNoCase(newUsername);
 		if ((account != null) && (account != client.getAccount())) {
 			client.sendLine(String.format(
 					"SERVERMSG %s failed: Account with same username already exists!",
@@ -85,7 +85,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		final String oldName = client.getAccount().getName();
-		Account accountNew = client.getAccount().clone();
+		final Account accountNew = client.getAccount().clone();
 		accountNew.setName(newUsername);
 		accountNew.setLastLogin(System.currentTimeMillis());
 		accountNew.setLastIp(client.getIp());
@@ -118,10 +118,12 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 				oldName, client.getAccount().getName()));
 
 		// add server notification:
-		ServerNotification sn = new ServerNotification("Account renamed");
-		sn.addLine(String.format("User <%s> has renamed his account to <%s>",
+		final ServerNotification srvNotif
+				= new ServerNotification("Account renamed");
+		srvNotif.addLine(String.format(
+				"User <%s> has renamed his account to <%s>",
 				oldName, client.getAccount().getName()));
-		getContext().getServerNotifications().addNotification(sn);
+		getContext().getServerNotifications().addNotification(srvNotif);
 
 		return true;
 	}

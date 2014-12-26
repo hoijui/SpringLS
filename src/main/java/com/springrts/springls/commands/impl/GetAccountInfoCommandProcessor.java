@@ -36,18 +36,19 @@ public class GetAccountInfoCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String username = args.get(0);
+		final String username = args.get(0);
 
-		Account acc = getContext().getAccountsService().getAccount(username);
-		if (acc == null) {
+		final Account account
+				= getContext().getAccountsService().getAccount(username);
+		if (account == null) {
 			client.sendLine(String.format(
 					"SERVERMSG Account <%s> does not exist.",
 					username));
@@ -56,7 +57,7 @@ public class GetAccountInfoCommandProcessor extends AbstractCommandProcessor {
 
 		client.sendLine(String.format(
 				"SERVERMSG Full account info for <%s>: %s",
-				acc.getName(), acc.toString()));
+				account.getName(), account.toString()));
 
 		return true;
 	}

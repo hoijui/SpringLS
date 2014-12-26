@@ -41,13 +41,13 @@ public class ForceLeaveChannelCommandProcessor
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
 		try {
 			checksOk = super.process(client, args);
-		} catch (InvalidNumberOfArgumentsCommandProcessingException ex) {
+		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
 			client.sendLine(String.format(
 					"SERVERMSG Bad arguments (command %s)", getCommandName()));
 			throw ex;
@@ -56,10 +56,10 @@ public class ForceLeaveChannelCommandProcessor
 			return false;
 		}
 
-		String channelName = args.get(0);
-		String username = args.get(1);
+		final String channelName = args.get(0);
+		final String username = args.get(1);
 
-		Channel chan = getContext().getChannels().getChannel(channelName);
+		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
 			client.sendLine(String.format(
 					"SERVERMSG Error: Channel does not exist: %s",
@@ -67,7 +67,7 @@ public class ForceLeaveChannelCommandProcessor
 			return false;
 		}
 
-		Client target = getContext().getClients().getClient(username);
+		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
 			client.sendLine(String.format(
 					"SERVERMSG Error: <%s> not found!", username));

@@ -39,16 +39,16 @@ public class RedirectCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String redirectIpStr = args.get(0);
-		InetAddress redirectIp = Misc.parseIp(redirectIpStr);
+		final String redirectIpStr = args.get(0);
+		final InetAddress redirectIp = Misc.parseIp(redirectIpStr);
 		if (redirectIp == null) {
 			return false;
 		}
@@ -57,12 +57,12 @@ public class RedirectCommandProcessor extends AbstractCommandProcessor {
 				"BROADCAST Server has entered redirection mode");
 
 		// add server notification:
-		ServerNotification sn = new ServerNotification(
+		final ServerNotification srvNotif = new ServerNotification(
 				"Entered redirection mode");
-		sn.addLine(String.format(
+		srvNotif.addLine(String.format(
 				"Admin <%s> has enabled redirection mode. New address: %s",
 				client.getAccount().getName(), redirectIpStr));
-		getContext().getServerNotifications().addNotification(sn);
+		getContext().getServerNotifications().addNotification(srvNotif);
 
 		return true;
 	}

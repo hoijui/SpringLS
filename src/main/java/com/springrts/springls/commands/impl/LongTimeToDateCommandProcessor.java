@@ -41,25 +41,26 @@ public class LongTimeToDateCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		long time;
+		final long time;
 		try {
 			time = Long.parseLong(args.get(0));
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			client.sendLine("SERVERMSG LONGTIMETODATE failed: invalid argument.");
 			return false;
 		}
 
 		// As DateFormats are generally not-thread save,
 		// we always create a new one.
-		DateFormat dateTimeFormat = new SimpleDateFormat("d MMM yyyy HH:mm:ss z");
+		final DateFormat dateTimeFormat
+				= new SimpleDateFormat("d MMM yyyy HH:mm:ss z");
 
 		client.sendLine(String.format("SERVERMSG LONGTIMETODATE result: %s",
 				dateTimeFormat.format(new Date(time))));

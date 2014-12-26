@@ -37,42 +37,43 @@ public class ChangeAccountAccessCommandProcessor extends AbstractCommandProcesso
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String username = args.get(0);
-		String accessBitsString = args.get(1);
+		final String username = args.get(0);
+		final String accessBitsString = args.get(1);
 
-		int newAccessBifField = -1;
+		final int newAccessBifField;
 		try {
 			newAccessBifField = Integer.parseInt(accessBitsString);
 		} catch (NumberFormatException e) {
 			return false;
 		}
 
-		Account acc = getContext().getAccountsService().getAccount(username);
-		if (acc == null) {
+		Account account
+				= getContext().getAccountsService().getAccount(username);
+		if (account == null) {
 			return false;
 		}
 
-		int oldAccessBitField = acc.getAccessBitField();
-		Account accountNew = acc.clone();
+		final int oldAccessBitField = account.getAccessBitField();
+		final Account accountNew = account.clone();
 		accountNew.setAccess(Account.extractAccess(newAccessBifField));
 		accountNew.setBot(Account.extractBot(newAccessBifField));
 		accountNew.setInGameTime(Account.extractInGameTime(newAccessBifField));
 		accountNew.setAgreementAccepted(Account.extractAgreementAccepted(newAccessBifField));
 		final boolean mergeOk = getContext().getAccountsService().mergeAccountChanges(accountNew, accountNew.getName());
 		if (mergeOk) {
-			acc = accountNew;
+			account = accountNew;
 		} else {
 			client.sendLine(String.format(
 					"SERVERMSG Changing ACCESS for account <%s> failed.",
-					acc.getName()));
+					account.getName()));
 			return false;
 		}
 
@@ -85,17 +86,17 @@ public class ChangeAccountAccessCommandProcessor extends AbstractCommandProcesso
 
 		client.sendLine(String.format(
 				"SERVERMSG You have changed ACCESS for <%s> successfully.",
-				acc.getName()));
+				account.getName()));
 
 		// add server notification:
-		ServerNotification sn = new ServerNotification(
+		final ServerNotification srvNotif = new ServerNotification(
 				"Account access changed by admin");
-		sn.addLine(String.format(
+		srvNotif.addLine(String.format(
 				"Admin <%s> has changed access/status bits for account <%s>.",
-				client.getAccount().getName(), acc.getName()));
-		sn.addLine(String.format("Old access code: %d. New code: %d",
+				client.getAccount().getName(), account.getName()));
+		srvNotif.addLine(String.format("Old access code: %d. New code: %d",
 				oldAccessBitField, newAccessBifField));
-		getContext().getServerNotifications().addNotification(sn);
+		getContext().getServerNotifications().addNotification(srvNotif);
 
 		return true;
 	}

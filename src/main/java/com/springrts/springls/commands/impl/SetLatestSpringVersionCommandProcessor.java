@@ -40,13 +40,13 @@ public class SetLatestSpringVersionCommandProcessor extends AbstractCommandProce
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
 		try {
 			checksOk = super.process(client, args);
-		} catch (InvalidNumberOfArgumentsCommandProcessingException ex) {
+		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
 			client.sendLine("SERVERMSG Bad arguments to SETLATESTSPRINGVERSION command!");
 			throw ex;
 		}
@@ -54,7 +54,7 @@ public class SetLatestSpringVersionCommandProcessor extends AbstractCommandProce
 			return false;
 		}
 
-		String engineVersion = args.get(0);
+		final String engineVersion = args.get(0);
 
 		getConfiguration().setProperty(ServerConfiguration.ENGINE_VERSION,
 				engineVersion);

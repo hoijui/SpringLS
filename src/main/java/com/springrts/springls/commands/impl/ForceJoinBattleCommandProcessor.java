@@ -40,16 +40,16 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String userName = args.get(0);
-		Client affectedClient = getContext().getClients().getClient(userName);
+		final String userName = args.get(0);
+		final Client affectedClient = getContext().getClients().getClient(userName);
 		if (affectedClient == null) {
 			client.sendLine(String.format(
 					"FORCEJOINBATTLEFAILED %s %s", userName,
@@ -57,8 +57,8 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		int battleId = affectedClient.getBattleID();
-		Battle battle = getContext().getBattles().getBattleByID(battleId);
+		final int battleId = affectedClient.getBattleID();
+		final Battle battle = getContext().getBattles().getBattleByID(battleId);
 		if (battle == null) {
 			client.sendLine(String.format(
 					"FORCEJOINBATTLEFAILED %s %s", userName,
@@ -75,8 +75,8 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		int destinationBattleId;
-		String destinationBattleIdStr = args.get(1);
+		final int destinationBattleId;
+		final String destinationBattleIdStr = args.get(1);
 		try {
 			destinationBattleId = Integer.parseInt(destinationBattleIdStr);
 		} catch (NumberFormatException ex) {
@@ -86,7 +86,7 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		Battle destinationBattle = getContext().getBattles().getBattleByID(destinationBattleId);
+		final Battle destinationBattle = getContext().getBattles().getBattleByID(destinationBattleId);
 		if (destinationBattle == null) {
 			client.sendLine(String.format(
 					"FORCEJOINBATTLEFAILED %s %s", userName,
@@ -111,9 +111,9 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			battlePassword = args.get(2);
 		}
 
-		boolean clientSupportsCmd = affectedClient.getCompatFlags().contains("m"); // NOTE lobby protocol "0.35+ m"
+		final boolean clientSupportsCmd = affectedClient.getCompatFlags().contains("m"); // NOTE lobby protocol "0.35+ m"
 		if (clientSupportsCmd) {
-			String successResponseMessage = (battlePassword == null)
+			final String successResponseMessage = (battlePassword == null)
 					? String.format("FORCEJOINBATTLE %d", destinationBattleId)
 					: String.format("FORCEJOINBATTLE %d %s", destinationBattleId, battlePassword);
 
@@ -126,7 +126,7 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			// Join the destination battle.
 			// We fake a JOINBATTLE command, as if it was sent
 			// by the affected client
-			List<String> joinBattleArgs = new ArrayList<String>(1);
+			final List<String> joinBattleArgs = new ArrayList<String>(1);
 			joinBattleArgs.add(destinationBattleIdStr);
 			getContext().getCommandProcessors().get("JOINBATTLE").process(affectedClient, joinBattleArgs);
 		}

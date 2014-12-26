@@ -38,13 +38,13 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
 		try {
 			checksOk = super.process(client, args);
-		} catch (InvalidNumberOfArgumentsCommandProcessingException ex) {
+		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
 			client.sendLine("SERVERMSG MUTELIST failed: Invalid arguments!");
 			throw ex;
 		}
@@ -52,9 +52,9 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		String chanelName = args.get(0);
+		final String chanelName = args.get(0);
 
-		Channel chan = getContext().getChannels().getChannel(chanelName);
+		final Channel chan = getContext().getChannels().getChannel(chanelName);
 		if (chan == null) {
 			client.sendLine(String.format(
 					"SERVERMSG MUTELIST failed: Channel #%s does not exist!",
@@ -64,7 +64,7 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 
 		client.sendLine(String.format("MUTELISTBEGIN %s", chan.getName()));
 
-		int size = chan.getMuteList().size(); // we mustn't call muteList.size() in for loop since it will purge expired records each time and so we could have ArrayOutOfBounds exception
+		final int size = chan.getMuteList().size(); // we mustn't call muteList.size() in for loop since it will purge expired records each time and so we could have ArrayOutOfBounds exception
 		for (int i = 0; i < size; i++) {
 			if (chan.getMuteList().getRemainingSeconds(i) == 0) {
 				client.sendLine(String.format(

@@ -51,13 +51,13 @@ public class SetScriptTagsCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
 		try {
 			checksOk = super.process(client, args);
-		} catch (InvalidNumberOfArgumentsCommandProcessingException ex) {
+		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
 			// kill client since it is not using this command correctly
 			client.sendLine(String.format(
 					"SERVERMSG Serious error: inconsistent data (%s command)."
@@ -69,13 +69,13 @@ public class SetScriptTagsCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		Battle battle = getBattle(client);
+		final Battle battle = getBattle(client);
 
-		String scriptTagsOrig = Misc.makeSentence(args, 0);
+		final String scriptTagsOrig = Misc.makeSentence(args, 0);
 
-		Map<String, String> scriptTags = parseScriptTags(scriptTagsOrig);
+		final Map<String, String> scriptTags = parseScriptTags(scriptTagsOrig);
 
-		String scriptTagsClean = createScriptTagsString(scriptTags);
+		final String scriptTagsClean = createScriptTagsString(scriptTags);
 
 		battle.getScriptTags().putAll(scriptTags);
 
@@ -87,19 +87,19 @@ public class SetScriptTagsCommandProcessor extends AbstractCommandProcessor {
 		return true;
 	}
 
-	private static Map<String, String> parseScriptTags(String keyValuePairs) {
+	private static Map<String, String> parseScriptTags(final String keyValuePairs) {
 
-		Map<String, String> scriptTags = new HashMap<String, String>();
+		final Map<String, String> scriptTags = new HashMap<String, String>();
 
-		String[] pairs = keyValuePairs.split("\t");
-		for (int i = 0; i < pairs.length; i++) {
-			parseKeyValuePair(scriptTags, pairs[i]);
+		final String[] pairs = keyValuePairs.split("\t");
+		for (final String pair : pairs) {
+			parseKeyValuePair(scriptTags, pair);
 		}
 
 		return scriptTags;
 	}
 
-	private static boolean isValidKey(String key) {
+	private static boolean isValidKey(final String key) {
 
 		if (key.isEmpty()) {
 			return false;
@@ -111,7 +111,7 @@ public class SetScriptTagsCommandProcessor extends AbstractCommandProcessor {
 		return true;
 	}
 
-	private static boolean isValidValue(String value) {
+	private static boolean isValidValue(final String value) {
 
 		// forbid trailing/leading spaces
 		if (!value.equals(value.trim())) {
@@ -124,21 +124,23 @@ public class SetScriptTagsCommandProcessor extends AbstractCommandProcessor {
 		return true;
 	}
 
-	private static boolean parseKeyValuePair(Map<String, String> properties, String keyValuePair) {
-
-		int equalPos = keyValuePair.indexOf('=');
+	private static boolean parseKeyValuePair(
+			final Map<String, String> properties,
+			final String keyValuePair)
+	{
+		final int equalPos = keyValuePair.indexOf('=');
 		if (equalPos < 1) {
 			return false;
 		}
 
 		// parse the key
-		String key = keyValuePair.substring(0, equalPos).toLowerCase();
+		final String key = keyValuePair.substring(0, equalPos).toLowerCase();
 		if (!isValidKey(key)) {
 			return false;
 		}
 
 		// parse the value
-		String value = keyValuePair.substring(equalPos + 1);
+		final String value = keyValuePair.substring(equalPos + 1);
 		if (!isValidValue(value)) {
 			return false;
 		}
@@ -148,11 +150,11 @@ public class SetScriptTagsCommandProcessor extends AbstractCommandProcessor {
 		return true;
 	}
 
-	private static String createScriptTagsString(Map<String, String> scriptTags) {
+	private static String createScriptTagsString(final Map<String, String> scriptTags) {
 
-		StringBuilder scriptTagsClean = new StringBuilder();
+		final StringBuilder scriptTagsClean = new StringBuilder();
 
-		for (Entry<String, String> entry : scriptTags.entrySet()) {
+		for (final Entry<String, String> entry : scriptTags.entrySet()) {
 			if (scriptTagsClean.length() > 0) {
 				scriptTagsClean.append("\t");
 			}

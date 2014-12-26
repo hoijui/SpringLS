@@ -37,18 +37,18 @@ public class KickUserCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String username = args.get(0);
+		final String username = args.get(0);
 
-		Client target = getContext().getClients().getClient(username);
-		String reason;
+		final Client target = getContext().getClients().getClient(username);
+		final String reason;
 		if (args.size() > 1) {
 			reason = String.format(" (reason: %s)", Misc.makeSentence(args, 1));
 		} else {

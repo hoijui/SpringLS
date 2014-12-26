@@ -42,35 +42,35 @@ public class UpdateBotCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		Battle battle = getBattle(client);
+		final Battle battle = getBattle(client);
 
-		String botName = args.get(0);
-		String battleStatusStr = args.get(1);
-		String teamColorStr = args.get(2);
+		final String botName = args.get(0);
+		final String battleStatusStr = args.get(1);
+		final String teamColorStr = args.get(2);
 		// TODO needs protocol change
-		//String specifier = Misc.makeSentence(args, 3);
+		//final String specifier = Misc.makeSentence(args, 3);
 
-		Bot bot = battle.getBot(botName);
+		final Bot bot = battle.getBot(botName);
 		if (bot == null) {
 			return false;
 		}
 
-		int battleStatus;
+		final int battleStatus;
 		try {
 			battleStatus = Integer.parseInt(battleStatusStr);
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException ex) {
 			return false;
 		}
 
-		Color teamColor = ProtocolUtil.colorSpringStringToJava(teamColorStr);
+		final Color teamColor = ProtocolUtil.colorSpringStringToJava(teamColorStr);
 		if (teamColor == null) {
 			return false;
 		}

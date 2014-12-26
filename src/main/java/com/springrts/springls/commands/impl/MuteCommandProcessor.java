@@ -38,18 +38,18 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String chanelName = args.get(0);
-		String username = args.get(1);
+		final String chanelName = args.get(0);
+		final String username = args.get(1);
 
-		Channel chan = getContext().getChannels().getChannel(chanelName);
+		final Channel chan = getContext().getChannels().getChannel(chanelName);
 		if (chan == null) {
 			client.sendLine(String.format(
 					"SERVERMSG %s failed: Channel #%s does not exist!",
@@ -64,7 +64,7 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		Account targetAccount = getContext().getAccountsService().getAccount(username);
+		final Account targetAccount = getContext().getAccountsService().getAccount(username);
 		if (targetAccount == null) {
 			client.sendLine(String.format(
 					"SERVERMSG %s failed: User <%s> does not exist",
@@ -74,7 +74,7 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 
 		boolean muteByIP = false;
 		if (args.size() > 3) {
-			String option = args.get(3);
+			final String option = args.get(3);
 			if (option.toUpperCase().equals("IP")) {
 				muteByIP = true;
 			} else {
@@ -85,17 +85,17 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 			}
 		}
 
-		long minutes;
+		final long minutes;
 		try {
 			minutes = Long.parseLong(args.get(2));
-		} catch (NumberFormatException ex) {
+		} catch (final NumberFormatException ex) {
 			client.sendLine(String.format(
 					"SERVERMSG %s failed: Invalid argument - should be an integer",
 					getCommandName()));
 			return false;
 		}
 
-		InetAddress muteIp = muteByIP ? targetAccount.getLastIp() : null;
+		final InetAddress muteIp = muteByIP ? targetAccount.getLastIp() : null;
 		chan.getMuteList().mute(username, minutes * 60, muteIp);
 
 		client.sendLine(String.format(

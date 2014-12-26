@@ -40,17 +40,17 @@ public class GetLastLoginTimeCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String username = args.get(0);
+		final String username = args.get(0);
 
-		Account acc = getContext().getAccountsService().getAccount(username);
+		final Account acc = getContext().getAccountsService().getAccount(username);
 		if (acc == null) {
 			client.sendLine(String.format(
 					"SERVERMSG %s failed: <%s> not found!",
@@ -62,7 +62,7 @@ public class GetLastLoginTimeCommandProcessor extends AbstractCommandProcessor {
 		if (getContext().getClients().getClient(acc.getName()) == null) {
 			// As DateFormats are generally not-thread save,
 			// we always create a new one.
-			DateFormat dateTimeFormat = new SimpleDateFormat(
+			final DateFormat dateTimeFormat = new SimpleDateFormat(
 					"d MMM yyyy HH:mm:ss z");
 			client.sendLine(String.format(
 					"SERVERMSG <%s>'s last login was on %s",

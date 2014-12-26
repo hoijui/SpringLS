@@ -42,28 +42,28 @@ public class AddStartRectCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		Battle battle = getBattle(client);
+		final Battle battle = getBattle(client);
 
-		int allyno;
-		int left;
-		int top;
-		int right;
-		int bottom;
+		final int allyno;
+		final int left;
+		final int top;
+		final int right;
+		final int bottom;
 		try {
 			allyno = Integer.parseInt(args.get(0));
 			left = Integer.parseInt(args.get(1));
 			top = Integer.parseInt(args.get(2));
 			right = Integer.parseInt(args.get(3));
 			bottom = Integer.parseInt(args.get(4));
-		} catch (NumberFormatException ex) {
+		} catch (final NumberFormatException ex) {
 			client.sendLine(String.format(
 					"SERVERMSG Error: inconsistent data (%s command)."
 					+ " You will now be disconnected ...", getCommandName()));
@@ -72,7 +72,7 @@ public class AddStartRectCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		StartRect startRect = battle.getStartRects().get(allyno);
+		final StartRect startRect = battle.getStartRects().get(allyno);
 		if (startRect.isEnabled()) {
 			client.sendLine(String.format(
 					"SERVERMSG Error: inconsistent data (%s command)."

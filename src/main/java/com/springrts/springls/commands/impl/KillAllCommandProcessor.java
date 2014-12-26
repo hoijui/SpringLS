@@ -39,10 +39,10 @@ public class KillAllCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
@@ -52,7 +52,7 @@ public class KillAllCommandProcessor extends AbstractCommandProcessor {
 			reason += ", reason: " + Misc.makeSentence(args, 0) + "";
 		}
 
-		Clients clients = getContext().getClients();
+		final Clients clients = getContext().getClients();
 		while (clients.getClientsSize() > 0) {
 			clients.killClient(clients.getClient(0), reason);
 		}

@@ -40,18 +40,18 @@ public class ForgeReverseMessageCommandProcessor extends AbstractCommandProcesso
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String username = args.get(0);
-		String message = Misc.makeSentence(args, 1);
+		final String username = args.get(0);
+		final String message = Misc.makeSentence(args, 1);
 
-		Client targetClient = getContext().getClients().getClient(username);
+		final Client targetClient = getContext().getClients().getClient(username);
 		if (targetClient == null) {
 			return false;
 		}

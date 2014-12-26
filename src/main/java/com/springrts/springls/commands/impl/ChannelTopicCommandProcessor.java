@@ -39,18 +39,18 @@ public class ChannelTopicCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String channelName = args.get(0);
-		String channelTopic = Misc.makeSentence(args, 1);
+		final String channelName = args.get(0);
+		final String channelTopic = Misc.makeSentence(args, 1);
 
-		Channel chan = getContext().getChannels().getChannel(channelName);
+		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
 			client.sendLine("SERVERMSG Error: Channel does not exist: "
 					+ channelName);

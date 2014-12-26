@@ -41,16 +41,16 @@ public class JoinBattleDenyCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String username = args.get(0);
-		Client joiningClient = getContext().getClients().getClient(username);
+		final String username = args.get(0);
+		final Client joiningClient = getContext().getClients().getClient(username);
 		if (joiningClient == null) {
 			return false;
 		}
@@ -58,8 +58,8 @@ public class JoinBattleDenyCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 		joiningClient.setRequestedBattleID(Battle.NO_BATTLE_ID);
-		if(args.size() > 1) {
-			String reason = Misc.makeSentence(args, 1);
+		if (args.size() > 1) {
+			final String reason = Misc.makeSentence(args, 1);
 			joiningClient.sendLine("JOINBATTLEFAILED Denied by battle founder"
 					+ " - " + reason);
 		} else {

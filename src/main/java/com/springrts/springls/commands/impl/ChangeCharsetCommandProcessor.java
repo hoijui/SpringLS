@@ -39,22 +39,22 @@ public class ChangeCharsetCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String charset = args.get(0);
+		final String charset = args.get(0);
 
 		try {
 			getContext().getServer().setCharset(charset);
-		} catch (IllegalCharsetNameException e) {
+		} catch (final IllegalCharsetNameException ex) {
 			client.sendLine("SERVERMSG Error: Illegal charset name: " + charset);
 			return false;
-		} catch (UnsupportedCharsetException e) {
+		} catch (final UnsupportedCharsetException ex) {
 			client.sendLine("SERVERMSG Error: Unsupported charset: " + charset);
 			return false;
 		}

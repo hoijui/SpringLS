@@ -38,13 +38,13 @@ public class RegisterCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
 		try {
 			checksOk = super.process(client, args);
-		} catch (InvalidNumberOfArgumentsCommandProcessingException ex) {
+		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
 			client.sendLine("REGISTRATIONDENIED Bad command arguments");
 			throw ex;
 		}
@@ -73,8 +73,8 @@ public class RegisterCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		String username = args.get(0);
-		String password = args.get(1);
+		final String username = args.get(0);
+		final String password = args.get(1);
 
 		// validate userName:
 		String valid = Account.isOldUsernameValid(username);
@@ -122,7 +122,7 @@ public class RegisterCommandProcessor extends AbstractCommandProcessor {
 			client.sendLine("REGISTRATIONDENIED Using a known proxy ip");
 			context.getClients().sendToAllAdministrators("SERVERMSG Client at " + client.ip + "'s registration of " + username + " was blocked as it is a proxy ip");
 			return false;
-			} catch (UnknownHostException e) {
+			} catch (final UnknownHostException ex) {
 			}
 		}*/
 		getContext().getClients().sendToAllAdministrators(String.format(

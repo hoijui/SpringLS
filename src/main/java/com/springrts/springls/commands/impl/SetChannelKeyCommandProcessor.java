@@ -39,18 +39,18 @@ public class SetChannelKeyCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String channelName = args.get(0);
-		String key = args.get(1);
+		final String channelName = args.get(0);
+		final String key = args.get(1);
 
-		Channel chan = getContext().getChannels().getChannel(channelName);
+		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
 			client.sendLine(String.format(
 					"SERVERMSG Error: Channel does not exist: %s",

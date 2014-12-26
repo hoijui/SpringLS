@@ -41,20 +41,20 @@ public class ForceAllyNumberCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		Battle battle = getBattle(client);
+		final Battle battle = getBattle(client);
 
-		String username = args.get(0);
-		String alllyTeamNumberStr = args.get(1);
+		final String username = args.get(0);
+		final String alllyTeamNumberStr = args.get(1);
 
-		int alllyTeamNumber;
+		final int alllyTeamNumber;
 		try {
 			alllyTeamNumber = Integer.parseInt(alllyTeamNumberStr);
 		} catch (NumberFormatException e) {
@@ -66,7 +66,7 @@ public class ForceAllyNumberCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		Client target = getContext().getClients().getClient(username);
+		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
 			return false;
 		}

@@ -39,13 +39,13 @@ public class RemoveScriptTagsCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
 		try {
 			checksOk = super.process(client, args);
-		} catch (InvalidNumberOfArgumentsCommandProcessingException ex) {
+		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
 			// kill client since it is not using this command correctly
 			client.sendLine(String.format(
 					"SERVERMSG Serious error: inconsistent data (%s command)."
@@ -58,12 +58,12 @@ public class RemoveScriptTagsCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		Battle battle = getBattle(client);
+		final Battle battle = getBattle(client);
 
-		StringBuilder lowerKeyCommand = new StringBuilder("REMOVESCRIPTTAGS");
-		for (String key : args) {
-			String lowerKey = key.toLowerCase();
-			lowerKeyCommand.append(" ").append(lowerKey);
+		final StringBuilder lowerKeyCommand = new StringBuilder("REMOVESCRIPTTAGS");
+		for (final String key : args) {
+			final String lowerKey = key.toLowerCase();
+			lowerKeyCommand.append(' ').append(lowerKey);
 			battle.getScriptTags().remove(lowerKey);
 		}
 

@@ -40,16 +40,17 @@ public class ConnectUserCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String userName = args.get(0);
-		Client affectedClient = getContext().getClients().getClient(userName);
+		final String userName = args.get(0);
+		final Client affectedClient
+				= getContext().getClients().getClient(userName);
 		if (affectedClient == null) {
 			client.sendLine(String.format(
 					"CONNECTUSERFAILED %s %s", userName,
@@ -60,23 +61,26 @@ public class ConnectUserCommandProcessor extends AbstractCommandProcessor {
 		if (affectedClient.isInGame()) {
 			client.sendLine(String.format(
 					"CONNECTUSERFAILED %s %s", userName,
-					"The affected client is currently in-game, and can therefore not connect to an other game"));
+					"The affected client is currently in-game,"
+					+ " and can therefore not connect to an other game"));
 			return false;
 		}
 
-		boolean clientSupportsCmd = affectedClient.getCompatFlags().contains("cu"); // NOTE lobby protocol "0.35+ cu"
+		final boolean clientSupportsCmd = affectedClient.getCompatFlags().contains("cu"); // NOTE lobby protocol "0.35+ cu"
 		if (!clientSupportsCmd) {
 			client.sendLine(String.format(
-					"CONNECTUSERFAILED %s %s", userName,
-					"The affected client does not support the command CONNECTUSERFAILED (comp-flag \"cu\")"));
+					"CONNECTUSERFAILED %s %s",
+					userName,
+					"The affected client does not support the command"
+					+ " CONNECTUSERFAILED (comp-flag \"cu\")"));
 			return false;
 		}
 
-		String ipAndPort = args.get(1);
+		final String ipAndPort = args.get(1);
 
-		String scriptPassword = (args.size() > 1) ? args.get(2) : null;
+		final String scriptPassword = (args.size() > 1) ? args.get(2) : null;
 
-		String successResponseMessage = (scriptPassword == null)
+		final String successResponseMessage = (scriptPassword == null)
 				? String.format("CONNECTUSER %s", ipAndPort)
 				: String.format("CONNECTUSER %s %s", ipAndPort, scriptPassword);
 

@@ -51,7 +51,7 @@ public class Activator implements BundleActivator {
 	 * @param context The context for the bundle.
 	 */
 	@Override
-	public void start(BundleContext context) {
+	public void start(final BundleContext context) {
 		this.context = context;
 
 		try {
@@ -59,7 +59,7 @@ public class Activator implements BundleActivator {
 			// FIXME This should probably be done in the ForceJoinBattleCommandProcessor directly.
 			//   That would first need some start(bundle) and stop(bundle) equivalent there, though.
 			Context.getService(context, Context.class).getServer().getSupportedCompFlags().add("m");
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			log.error("Failed to load Command Processors", ex);
 			Context.getService(context, Context.class).getServerThread().closeServerAndExit();
 		}
@@ -71,7 +71,7 @@ public class Activator implements BundleActivator {
 	 * @param context The context for the bundle.
 	 */
 	@Override
-	public void stop(BundleContext context) {
+	public void stop(final BundleContext context) {
 		Context.getService(context, Context.class).getServer().getSupportedCompFlags().remove("m");
 	}
 
@@ -82,17 +82,17 @@ public class Activator implements BundleActivator {
 	 * @throws Exception if loading of any of the command processors failed,
 	 *   for whatever reason
 	 */
-	private void load(Collection<Class<? extends CommandProcessor>> cpcs)
+	private void load(final Collection<Class<? extends CommandProcessor>> cpcs)
 			throws Exception
 	{
-		for (Class<? extends CommandProcessor> cpc : cpcs) {
+		for (final Class<? extends CommandProcessor> cpc : cpcs) {
 			CommandProcessors.add(context, CommandProcessors.load(cpc));
 		}
 	}
 
 	private static Collection<Class<? extends CommandProcessor>> getCommandProcessorClasses() {
 
-		Collection<Class<? extends CommandProcessor>> commandProcessorClasses =
+		final Collection<Class<? extends CommandProcessor>> commandProcessorClasses =
 				new LinkedList<Class<? extends CommandProcessor>>();
 
 		commandProcessorClasses.add(PingCommandProcessor.class);

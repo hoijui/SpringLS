@@ -39,18 +39,17 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		int battleID;
+		final String battleIdStr = args.get(0);
 
-		String battleIdStr = args.get(0);
-
+		final int battleID;
 		try {
 			battleID = Integer.parseInt(battleIdStr);
 		} catch (NumberFormatException e) {
@@ -65,7 +64,7 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		Battle battle = getContext().getBattles().getBattleByID(battleID);
+		final Battle battle = getContext().getBattles().getBattleByID(battleID);
 
 		if (battle == null) {
 			client.sendLine("JOINBATTLEFAILED Invalid battle ID!");
@@ -78,7 +77,7 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 				return false;
 			}
 
-			String password = args.get(1);
+			final String password = args.get(1);
 
 			if (!battle.getPassword().equals(password)) {
 				client.sendLine("JOINBATTLEFAILED Invalid password");
@@ -92,18 +91,20 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		if (args.size() > 2) {
-			String scriptPassword = args.get(2);
+			final String scriptPassword = args.get(2);
 			client.setScriptPassword(scriptPassword);
 		}
 
 		if (battle.getFounder().isHandleBattleJoinAuthorization()) {
 			client.setRequestedBattleID(battleID);
-			InetAddress ip = battle.getFounder().getIp().equals(client.getIp())
-					? client.getLocalIp() : client.getIp();
+			final InetAddress ipAddress
+					= battle.getFounder().getIp().equals(client.getIp())
+					? client.getLocalIp()
+					: client.getIp();
 			battle.getFounder().sendLine(String.format(
 					"JOINBATTLEREQUEST %s %s",
 					client.getAccount().getName(),
-					ip.getHostAddress()));
+					ipAddress.getHostAddress()));
 		} else {
 			battle.notifyClientJoined(client);
 		}

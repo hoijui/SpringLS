@@ -42,23 +42,23 @@ public class HandicapCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		Battle battle = getBattle(client);
+		final Battle battle = getBattle(client);
 
-		String username = args.get(0);
-		String handicapStr = args.get(1);
+		final String username = args.get(0);
+		final String handicapStr = args.get(1);
 
-		int handicap;
+		final int handicap;
 		try {
 			handicap = Integer.parseInt(handicapStr);
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException ex) {
 			return false;
 		}
 		// FIXME: handicap can be [-100, float_max], common: [-100, 100]
@@ -66,7 +66,7 @@ public class HandicapCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		Client target = getContext().getClients().getClient(username);
+		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
 			return false;
 		}

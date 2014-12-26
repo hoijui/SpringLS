@@ -39,10 +39,10 @@ public class LeaveBattleCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
@@ -51,7 +51,7 @@ public class LeaveBattleCommandProcessor extends AbstractCommandProcessor {
 		// from the battle, this might be <code>null</code>, but we already
 		// check for that earlier, in AbstractCommandProcessor
 		// -> we always get a valid value here
-		Battle battle = getBattle(client);
+		final Battle battle = getBattle(client);
 
 		// automatically checks if the client is the founder and in that case
 		// closes the battle

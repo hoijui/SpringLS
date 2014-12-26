@@ -37,23 +37,23 @@ public class ForceCloseBattleCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		int battleID;
+		final int battleID;
 		try {
 			battleID = Integer.parseInt(args.get(0));
-		} catch (NumberFormatException ex) {
+		} catch (final NumberFormatException ex) {
 			client.sendLine("SERVERMSG Invalid BattleID!");
 			return false;
 		}
 
-		Battle battle = getContext().getBattles().getBattleByID(battleID);
+		final Battle battle = getContext().getBattles().getBattleByID(battleID);
 		if (battle == null) {
 			client.sendLine("SERVERMSG Error: unknown BATTLE_ID!");
 			return false;

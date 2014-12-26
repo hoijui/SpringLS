@@ -36,24 +36,24 @@ public class GetLastIpCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String username = args.get(0);
+		final String username = args.get(0);
 
-		Account acc = getContext().getAccountsService().getAccount(username);
+		final Account acc = getContext().getAccountsService().getAccount(username);
 		if (acc == null) {
 			client.sendLine(String.format("SERVERMSG User %s not found!",
 					username));
 			return false;
 		}
 
-		boolean online = getContext().getClients().isUserLoggedIn(acc);
+		final boolean online = getContext().getClients().isUserLoggedIn(acc);
 		client.sendLine(String.format(
 				"SERVERMSG %s's last IP was %s (%s)",
 				username,

@@ -38,10 +38,10 @@ public class OpenBattleCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
@@ -51,8 +51,8 @@ public class OpenBattleCommandProcessor extends AbstractCommandProcessor {
 					);
 			return false;
 		}
-		Battle battle = getContext().getBattles().createBattleFromString(args,
-				client);
+		final Battle battle = getContext().getBattles().createBattleFromString(
+				args, client);
 		if (battle == null) {
 			client.sendLine("OPENBATTLEFAILED Invalid command format or bad"
 					+ " arguments");
@@ -64,16 +64,18 @@ public class OpenBattleCommandProcessor extends AbstractCommandProcessor {
 		client.setRequestedBattleID(Battle.NO_BATTLE_ID);
 
 		boolean local;
-		Clients clients = getContext().getClients();
+		final Clients clients = getContext().getClients();
 		for (int i = 0; i < clients.getClientsSize(); i++) {
-			Client c = clients.getClient(i);
-			if (c.getAccount().getAccess().isLessThen(Account.Access.NORMAL)) {
+			final Client curClient = clients.getClient(i);
+			if (curClient.getAccount().getAccess().isLessThen(
+					Account.Access.NORMAL))
+			{
 				continue;
 			}
 			// make sure that the clients behind NAT get local IPs and not
 			// external ones:
-			local = client.getIp().equals(c.getIp());
-			c.sendLine(battle.createBattleOpenedCommandEx(local));
+			local = client.getIp().equals(curClient.getIp());
+			curClient.sendLine(battle.createBattleOpenedCommandEx(local));
 		}
 
 		// notify client that he successfully opened a new battle

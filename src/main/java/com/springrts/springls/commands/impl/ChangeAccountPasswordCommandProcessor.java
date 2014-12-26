@@ -38,19 +38,20 @@ public class ChangeAccountPasswordCommandProcessor
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String username = args.get(0);
-		String password = args.get(1);
+		final String username = args.get(0);
+		final String password = args.get(1);
 
-		Account acc = getContext().getAccountsService().getAccount(username);
-		if (acc == null) {
+		final Account account
+				= getContext().getAccountsService().getAccount(username);
+		if (account == null) {
 			return false;
 		}
 		// validate password:
@@ -58,12 +59,12 @@ public class ChangeAccountPasswordCommandProcessor
 			return false;
 		}
 
-		final String oldPasswd = acc.getPassword();
-		acc.setPassword(password);
+		final String oldPasswd = account.getPassword();
+		account.setPassword(password);
 		final boolean mergeOk = getContext().getAccountsService()
-				.mergeAccountChanges(acc, acc.getName());
+				.mergeAccountChanges(account, account.getName());
 		if (!mergeOk) {
-			acc.setPassword(oldPasswd);
+			account.setPassword(oldPasswd);
 			client.sendLine(String.format(
 					"SERVERMSG %s failed: Failed saving to persistent storage.",
 					getCommandName()));
@@ -73,12 +74,12 @@ public class ChangeAccountPasswordCommandProcessor
 		getContext().getAccountsService().saveAccounts(false); // save changes
 
 		// add server notification:
-		ServerNotification sn = new ServerNotification(
+		final ServerNotification srvNotif = new ServerNotification(
 				"Account password changed by admin");
-		sn.addLine(String.format(
+		srvNotif.addLine(String.format(
 				"Admin <%s> has changed password for account <%s>",
-				client.getAccount().getName(), acc.getName()));
-		getContext().getServerNotifications().addNotification(sn);
+				client.getAccount().getName(), account.getName()));
+		getContext().getServerNotifications().addNotification(srvNotif);
 
 		return true;
 	}

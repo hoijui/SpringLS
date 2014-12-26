@@ -39,13 +39,13 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
 		try {
 			checksOk = super.process(client, args);
-		} catch (InvalidNumberOfArgumentsCommandProcessingException ex) {
+		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
 			client.sendLine("SERVERMSG Bad USERID command - too many or too few parameters");
 			throw ex;
 		}
@@ -53,20 +53,23 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		String userIdStr = args.get(0);
+		final String userIdStr = args.get(0);
 
 		int userId = Account.NO_USER_ID;
 		try {
-			long tempUserId = Long.parseLong(userIdStr, 16);
+			final long tempUserId = Long.parseLong(userIdStr, 16);
 			// we transform an unsigned 32 bit integer to a signed one
 			userId = (int) tempUserId;
-		} catch (NumberFormatException e) {
+		} catch (final NumberFormatException ex) {
 			client.sendLine("SERVERMSG Bad USERID command - userID field should be an integer");
 			return false;
 		}
 
 		client.getAccount().setLastUserId(userId);
-		final boolean mergeOk = getContext().getAccountsService().mergeAccountChanges(client.getAccount(), client.getAccount().getName());
+		final boolean mergeOk
+				= getContext().getAccountsService().mergeAccountChanges(
+						client.getAccount(),
+						client.getAccount().getName());
 		if (!mergeOk) {
 			// FIXME set back?
 			client.sendLine("SERVERMSG Failed saving last userid to persistent storage");
@@ -74,10 +77,10 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		// add server notification:
-		ServerNotification sn = new ServerNotification("User ID received");
-		sn.addLine(String.format("<%s> has generated a new user ID: %s(%d)",
+		final ServerNotification srvNotif = new ServerNotification("User ID received");
+		srvNotif.addLine(String.format("<%s> has generated a new user ID: %s(%d)",
 				client.getAccount().getName(), userIdStr, userId));
-		getContext().getServerNotifications().addNotification(sn);
+		getContext().getServerNotifications().addNotification(srvNotif);
 
 		return true;
 	}
