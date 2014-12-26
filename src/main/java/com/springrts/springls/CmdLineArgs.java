@@ -43,8 +43,8 @@ import org.apache.commons.configuration.DataConfiguration;
  */
 public final class CmdLineArgs {
 
-	private Options options;
-	private CommandLineParser parser;
+	private final Options options;
+	private final CommandLineParser parser;
 
 	public CmdLineArgs() {
 
@@ -54,15 +54,15 @@ public final class CmdLineArgs {
 
 	private static Options createOptions() {
 
-		Configuration defaults = ServerConfiguration.getDefaults();
+		final Configuration defaults = ServerConfiguration.getDefaults();
 
-		Options options = new Options();
+		final Options options = new Options();
 
-		Option help = new Option(null, "help", false,
+		final Option help = new Option(null, "help", false,
 				"Print this help message.");
 		options.addOption(help);
 
-		Option port = new Option("p", "port", true,
+		final Option port = new Option("p", "port", true,
 				String.format(
 				"The main (TCP) port number to host on [1, 65535]."
 				+ " The default is %d.",
@@ -77,12 +77,12 @@ public final class CmdLineArgs {
 		port.setArgName("port-number");
 		options.addOption(port);
 
-		Option statistics = new Option(null, "statistics", false,
+		final Option statistics = new Option(null, "statistics", false,
 				"Whether to create and save statistics to disc on predefined"
 				+ " intervals.");
 		options.addOption(statistics);
 
-		Option natPort = new Option("n", "nat-port", true,
+		final Option natPort = new Option("n", "nat-port", true,
 				String.format(
 				"The (UDP) port number to host the NAT traversal techniques"
 				+ " help service on [1, 65535], which lets clients detect their"
@@ -93,13 +93,13 @@ public final class CmdLineArgs {
 		natPort.setArgName("NAT-port-number");
 		options.addOption(natPort);
 
-		Option logMain = new Option(null, "log-main", false,
+		final Option logMain = new Option(null, "log-main", false,
 				String.format(
 				"Whether to log all conversations from channel #main to \"%s\"",
 				Channel.createDefaultActivityLogFilePath("main").getPath()));
 		options.addOption(logMain);
 
-		Option lanAdmin = new Option(null, "lan-admin", true,
+		final Option lanAdmin = new Option(null, "lan-admin", true,
 				String.format(
 				"The LAN mode admin account. Use this account to administer"
 				+ " your LAN server. The default is \"%s\", with password \"%s\".",
@@ -108,7 +108,7 @@ public final class CmdLineArgs {
 		lanAdmin.setArgName("username");
 		options.addOption(lanAdmin);
 
-		Option loadArgs = new Option(null, "load-args", true,
+		final Option loadArgs = new Option(null, "load-args", true,
 				"Will read command-line arguments from the specified file."
 				+ " You can freely combine actual command-line arguments with"
 				+ " the ones from the file. If duplicate args are specified,"
@@ -117,7 +117,7 @@ public final class CmdLineArgs {
 		port.setType(File.class);
 		options.addOption(loadArgs);
 
-		Option springVersion = new Option(null, "spring-version", true,
+		final Option springVersion = new Option(null, "spring-version", true,
 				"Will set the latest Spring version to this string."
 				+ " The default is \"*\". This is used to tell clients which"
 				+ " version is the latest one, so that they know when to"
@@ -125,17 +125,17 @@ public final class CmdLineArgs {
 		springVersion.setArgName("version");
 		options.addOption(springVersion);
 
-		Option useStorageDb = new Option(null, "database", false,
+		final Option useStorageDb = new Option(null, "database", false,
 				"Use a DB for user accounts and ban entries."
 				+ " This disables \"LAN mode\".");
 		options.addOption(useStorageDb);
 
-		Option useStorageFile = new Option(null, "file-storage", false,
+		final Option useStorageFile = new Option(null, "file-storage", false,
 				"Use the (deprecated) accounts.txt for user accounts."
 				+ " This disables \"LAN mode\".");
 		options.addOption(useStorageFile);
 
-		OptionGroup storageOG = new OptionGroup();
+		final OptionGroup storageOG = new OptionGroup();
 		storageOG.addOption(useStorageDb);
 		storageOG.addOption(useStorageFile);
 		options.addOptionGroup(storageOG);
@@ -148,21 +148,24 @@ public final class CmdLineArgs {
 	 * Raises an exception in case of errors.
 	 * @return whether to exit the application after this method
 	 */
-	private static boolean apply(Configuration configuration,
-			CommandLineParser parser, Options options, String[] args)
+	private static boolean apply(
+			final Configuration configuration,
+			final CommandLineParser parser,
+			final Options options,
+			final String[] args)
 			throws ParseException
 	{
-		CommandLine cmd = parser.parse(options, args);
+		final CommandLine cmd = parser.parse(options, args);
 
 		if (cmd.hasOption("help")) {
-			HelpFormatter formatter = new HelpFormatter();
+			final HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp(Server.getApplicationName(), options);
 			return true;
 		}
 
 		if (cmd.hasOption("port")) {
-			String portStr = cmd.getOptionValue("port");
-			int port = Integer.parseInt(portStr);
+			final String portStr = cmd.getOptionValue("port");
+			final int port = Integer.parseInt(portStr);
 			if ((port < 1) || (port > 65535)) {
 				throw new ParseException("Invalid port specified: "
 						+ portStr);
@@ -180,8 +183,8 @@ public final class CmdLineArgs {
 			configuration.setProperty(ServerConfiguration.STATISTICS_STORE, true);
 		}
 		if (cmd.hasOption("nat-port")) {
-			String portStr = cmd.getOptionValue("port");
-			int port = Integer.parseInt(portStr);
+			final String portStr = cmd.getOptionValue("port");
+			final int port = Integer.parseInt(portStr);
 			if ((port < 1) || (port > 65535)) {
 				throw new ParseException("Invalid NAT traversal port"
 						+ " specified: " + portStr);
@@ -192,14 +195,14 @@ public final class CmdLineArgs {
 			configuration.setProperty(ServerConfiguration.CHANNELS_LOG_REGEX, "^main$");
 		}
 		if (cmd.hasOption("lan-admin")) {
-			String[] usernamePassword = cmd.getOptionValues("lan-admin");
+			final String[] usernamePassword = cmd.getOptionValues("lan-admin");
 
 			if (usernamePassword.length < 1) {
 				throw new MissingArgumentException(
 						"LAN admin user name is missing");
 			}
-			String username = usernamePassword[0];
-			String password = (usernamePassword.length > 1)
+			final String username = usernamePassword[0];
+			final String password = (usernamePassword.length > 1)
 					? usernamePassword[0]
 					: ServerConfiguration.getDefaults().getString(
 							ServerConfiguration.LAN_ADMIN_PASSWORD);
@@ -218,7 +221,7 @@ public final class CmdLineArgs {
 			configuration.setProperty(ServerConfiguration.LAN_ADMIN_PASSWORD, password);
 		}
 		if (cmd.hasOption("load-args")) {
-			File argsFile = new File(cmd.getOptionValue("load-args"));
+			final File argsFile = new File(cmd.getOptionValue("load-args"));
 			Reader inF = null;
 			BufferedReader in = null;
 			try {
@@ -226,12 +229,12 @@ public final class CmdLineArgs {
 					inF = new FileReader(argsFile);
 					in = new BufferedReader(inF);
 					String line;
-					List<String> argsList = new LinkedList<String>();
+					final List<String> argsList = new LinkedList<String>();
 					while ((line = in.readLine()) != null) {
-						String[] argsLine = line.split("[ \t]+");
+						final String[] argsLine = line.split("[ \t]+");
 						argsList.addAll(Arrays.asList(argsLine));
 					}
-					String[] args2 = argsList.toArray(new String[argsList.size()]);
+					final String[] args2 = argsList.toArray(new String[argsList.size()]);
 					apply(configuration, parser, options, args2);
 				} finally {
 					if (in != null) {
@@ -240,26 +243,28 @@ public final class CmdLineArgs {
 						inF.close();
 					}
 				}
-			} catch (Exception ex) {
+			} catch (final Exception ex) {
 				throw new ParseException("invalid load-args argument: "
 						+ ex.getMessage());
 			}
 		}
 		if (cmd.hasOption("spring-version")) {
-			String version = cmd.getOptionValue("spring-version");
+			final String version = cmd.getOptionValue("spring-version");
 			configuration.setProperty(ServerConfiguration.ENGINE_VERSION, version);
 		}
 
 		return false;
 	}
 
-	private static void printHelp(Options options) {
+	private static void printHelp(final Options options) {
 
-		HelpFormatter formatter = new HelpFormatter();
+		final HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp(Server.getApplicationName(), options);
 	}
 
-	public boolean apply(DataConfiguration configuration, String[] args)
+	public boolean apply(
+			final DataConfiguration configuration,
+			final String[] args)
 			throws Exception
 	{
 		return apply(configuration, parser, options, args);

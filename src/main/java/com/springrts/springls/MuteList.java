@@ -29,24 +29,36 @@ import java.util.ListIterator;
  */
 public class MuteList {
 
+	private final List<MuteEntry> mutes;
+	private final Channel channel;
+
+	public MuteList(final Channel channel) {
+
+		this.mutes = new ArrayList<MuteEntry>();
+		this.channel = channel;
+	}
+
 	private static class MuteEntry {
 
 		private String username;
-		private long expireTime;
-		private InetAddress ip;
+		private final long expireTime;
+		private final InetAddress ipAddress;
 
-		MuteEntry(String username, long expireTime, InetAddress ip) {
-
+		MuteEntry(
+				final String username,
+				final long expireTime,
+				final InetAddress ip)
+		{
 			this.username = username;
 			this.expireTime = expireTime;
-			this.ip = ip;
+			this.ipAddress = ip;
 		}
 
 		public String getUsername() {
 			return username;
 		}
 
-		public void setUsername(String username) {
+		public void setUsername(final String username) {
 			this.username = username;
 		}
 
@@ -66,7 +78,7 @@ public class MuteList {
 		 * <code>null</code>.
 		 */
 		public InetAddress getIp() {
-			return ip;
+			return ipAddress;
 		}
 
 		public boolean isPersistent() {
@@ -78,21 +90,12 @@ public class MuteList {
 		}
 	}
 
-	private List<MuteEntry> mutes;
-	private Channel channel;
-
-	public MuteList(Channel channel) {
-
-		this.mutes = new ArrayList<MuteEntry>();
-		this.channel = channel;
-	}
-
 	/** Purges expired entries */
 	public void clearExpiredOnes() {
 
-		ListIterator<MuteEntry> m = mutes.listIterator();
+		final ListIterator<MuteEntry> m = mutes.listIterator();
 		while (m.hasNext()) {
-			MuteEntry mute = m.next();
+			final MuteEntry mute = m.next();
 			if (mute.isExpired()) {
 				m.remove();
 				channel.broadcast(String.format(
@@ -102,17 +105,17 @@ public class MuteList {
 		}
 	}
 
-	public boolean isMuted(String username) {
+	public boolean isMuted(final String username) {
 
 		clearExpiredOnes();
 		return isMutedFast(username);
 	}
 
-	private boolean isMutedFast(String username) {
+	private boolean isMutedFast(final String username) {
 
 		boolean muted = false;
 
-		for (MuteEntry mute : mutes) {
+		for (final MuteEntry mute : mutes) {
 			if (mute.getUsername().equals(username)) {
 				muted = true;
 				break;
@@ -122,15 +125,15 @@ public class MuteList {
 		return muted;
 	}
 
-	public boolean isMuted(String username, InetAddress ip) {
+	public boolean isMuted(final String username, final InetAddress ipAddress) {
 
 		boolean muted = false;
 
 		clearExpiredOnes();
 
-		for (MuteEntry mute : mutes) {
+		for (final MuteEntry mute : mutes) {
 			if (mute.getUsername().equals(username)
-					|| ((mute.getIp() != null) && (mute.getIp().equals(ip))))
+					|| ((mute.getIp() != null) && (mute.getIp().equals(ipAddress))))
 			{
 				muted = true;
 				break;
@@ -140,14 +143,14 @@ public class MuteList {
 		return muted;
 	}
 
-	public boolean isIpMuted(InetAddress ip) {
+	public boolean isIpMuted(final InetAddress ipAddress) {
 
 		boolean muted = false;
 
 		clearExpiredOnes();
 
-		for (MuteEntry mute : mutes) {
-			if ((mute.getIp() != null) && (mute.getIp().equals(ip))) {
+		for (final MuteEntry mute : mutes) {
+			if ((mute.getIp() != null) && (mute.getIp().equals(ipAddress))) {
 				muted = true;
 				break;
 			}
@@ -160,11 +163,14 @@ public class MuteList {
 	 * Mutes a user.
 	 * @param username name of the user to mute.
 	 * @param seconds use to specify for how long he user should be muted.
-	 * @param ip set to 'null' if you don't want to mute this user by the IP.
+	 * @param ipAddress set to 'null' if you don't want to mute this user by the IP.
 	 * @return false if already muted
 	 */
-	public boolean mute(String username, long seconds, InetAddress ip) {
-
+	public boolean mute(
+			final String username,
+			final long seconds,
+			final InetAddress ipAddress)
+	{
 		if (isMutedFast(username)) {
 			return false;
 		}
@@ -174,7 +180,7 @@ public class MuteList {
 			until = System.currentTimeMillis() + (seconds * 1000L);
 		}
 
-		mutes.add(new MuteEntry(username, until, ip));
+		mutes.add(new MuteEntry(username, until, ipAddress));
 
 		return true;
 	}
@@ -182,11 +188,11 @@ public class MuteList {
 	/**
 	 * @return false if the user is not on the list
 	 */
-	public boolean unmute(String username) {
+	public boolean unmute(final String username) {
 
 		boolean unmuted = false;
 
-		for (MuteEntry mute : mutes) {
+		for (final MuteEntry mute : mutes) {
 			if (mute.getUsername().equals(username)) {
 				mutes.remove(mute);
 				unmuted = true;
@@ -203,7 +209,7 @@ public class MuteList {
 		return mutes.size();
 	}
 
-	public String getUsername(int index) {
+	public String getUsername(final int index) {
 
 		if (index >= mutes.size()) {
 			return "";
@@ -212,7 +218,7 @@ public class MuteList {
 		}
 	}
 
-	public long getRemainingSeconds(int index) {
+	public long getRemainingSeconds(final int index) {
 
 		// note: you shouldn't call clearExpiredOnes() here!
 		// (see "MUTELIST" command to see why)
@@ -229,13 +235,13 @@ public class MuteList {
 	/**
 	 * @return 'null' if no IP is set for the user
 	 */
-	public InetAddress getIp(int index) {
+	public InetAddress getIp(final int index) {
 		return mutes.get(index).getIp();
 	}
 
-	public boolean rename(String oldUsername, String newUsername) {
+	public boolean rename(final String oldUsername, final String newUsername) {
 
-		for (MuteEntry mute : mutes) {
+		for (final MuteEntry mute : mutes) {
 			if (mute.getUsername().equals(oldUsername)) {
 				mute.setUsername(newUsername);
 				return true;

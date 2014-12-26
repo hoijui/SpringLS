@@ -78,11 +78,13 @@ public class Context implements LiveStateListener {
 	}
 
 
-	public static <T> T getService(BundleContext bundleContext, Class<T> serviceClass) {
-
+	public static <T> T getService(
+			final BundleContext bundleContext,
+			final Class<T> serviceClass)
+	{
 		T service = null;
 
-		ServiceReference serviceReference
+		final ServiceReference serviceReference
 				= bundleContext.getServiceReference(serviceClass.getName());
 
 		if (serviceReference != null) {
@@ -92,25 +94,25 @@ public class Context implements LiveStateListener {
 		return service;
 	}
 
-	public <T> T getService(Class<T> serviceClass) {
+	public <T> T getService(final Class<T> serviceClass) {
 		return getService(getFramework().getBundleContext(), serviceClass);
 	}
 
 	public void push() {
 
-		for (ContextReceiver contextReceiver : contextReceivers) {
+		for (final ContextReceiver contextReceiver : contextReceivers) {
 			contextReceiver.receiveContext(this);
 		}
 	}
 
-	public void addContextReceiver(ContextReceiver contextReceiver) {
+	public void addContextReceiver(final ContextReceiver contextReceiver) {
 
 		if (!contextReceivers.contains(contextReceiver)) {
 			contextReceivers.add(contextReceiver);
 		}
 	}
 
-	public void addLiveStateListener(LiveStateListener liveStateListener) {
+	public void addLiveStateListener(final LiveStateListener liveStateListener) {
 
 		if (!liveStateListeners.contains(liveStateListener)) {
 			liveStateListeners.add(liveStateListener);
@@ -120,14 +122,14 @@ public class Context implements LiveStateListener {
 	@Override
 	public void starting() {
 
-		for (LiveStateListener liveStateListener : liveStateListeners) {
+		for (final LiveStateListener liveStateListener : liveStateListeners) {
 			liveStateListener.starting();
 		}
 	}
 	@Override
 	public void started() {
 
-		for (LiveStateListener liveStateListener : liveStateListeners) {
+		for (final LiveStateListener liveStateListener : liveStateListeners) {
 			liveStateListener.started();
 		}
 	}
@@ -135,14 +137,14 @@ public class Context implements LiveStateListener {
 	@Override
 	public void stopping() {
 
-		for (LiveStateListener liveStateListener : liveStateListeners) {
+		for (final LiveStateListener liveStateListener : liveStateListeners) {
 			liveStateListener.stopping();
 		}
 	}
 	@Override
 	public void stopped() {
 
-		for (LiveStateListener liveStateListener : liveStateListeners) {
+		for (final LiveStateListener liveStateListener : liveStateListeners) {
 			liveStateListener.stopped();
 		}
 	}
@@ -151,7 +153,7 @@ public class Context implements LiveStateListener {
 		return framework;
 	}
 
-	public void setFramework(Framework framework) {
+	public void setFramework(final Framework framework) {
 		this.framework = framework;
 	}
 
@@ -159,7 +161,7 @@ public class Context implements LiveStateListener {
 		return accountsService;
 	}
 
-	public void setAccountsService(AccountsService accountsService) {
+	public void setAccountsService(final AccountsService accountsService) {
 
 		this.accountsService = accountsService;
 		addContextReceiver(accountsService);
@@ -170,7 +172,7 @@ public class Context implements LiveStateListener {
 		return battles;
 	}
 
-	public void setBattles(Battles battles) {
+	public void setBattles(final Battles battles) {
 
 		this.battles = battles;
 		addContextReceiver(battles);
@@ -180,7 +182,7 @@ public class Context implements LiveStateListener {
 		return channels;
 	}
 
-	public void setChannels(Channels channels) {
+	public void setChannels(final Channels channels) {
 
 		this.channels = channels;
 		addContextReceiver(channels);
@@ -191,7 +193,7 @@ public class Context implements LiveStateListener {
 		return clients;
 	}
 
-	public void setClients(Clients clients) {
+	public void setClients(final Clients clients) {
 
 		this.clients = clients;
 		addContextReceiver(clients);
@@ -201,7 +203,7 @@ public class Context implements LiveStateListener {
 		return engine;
 	}
 
-	public void setEngine(Engine engine) {
+	public void setEngine(final Engine engine) {
 
 		this.engine = engine;
 	}
@@ -211,7 +213,7 @@ public class Context implements LiveStateListener {
 	}
 
 	public void setServerNotifications(
-			ServerNotifications serverNotifications)
+			final ServerNotifications serverNotifications)
 	{
 		this.serverNotifications = serverNotifications;
 		addContextReceiver(serverNotifications);
@@ -221,7 +223,7 @@ public class Context implements LiveStateListener {
 		return server;
 	}
 
-	public void setServer(Server server) {
+	public void setServer(final Server server) {
 
 		this.server = server;
 	}
@@ -230,8 +232,8 @@ public class Context implements LiveStateListener {
 		return commandProcessors;
 	}
 
-	public void setCommandProcessors(CommandProcessors commandProcessors) {
-
+	public void setCommandProcessors(final CommandProcessors commandProcessors)
+	{
 		this.commandProcessors = commandProcessors;
 		addContextReceiver(commandProcessors);
 	}
@@ -240,7 +242,7 @@ public class Context implements LiveStateListener {
 		return serverThread;
 	}
 
-	public void setServerThread(ServerThread serverThread) {
+	public void setServerThread(final ServerThread serverThread) {
 
 		this.serverThread = serverThread;
 		addContextReceiver(serverThread);

@@ -93,7 +93,7 @@ public final class ServerConfiguration {
 
 	private static Configuration createDefaults() {
 
-		Configuration configuration = new BaseConfiguration();
+		final Configuration configuration = new BaseConfiguration();
 
 		configuration.setProperty(PORT, 8200);
 		configuration.setProperty(NAT_PORT, 8201);

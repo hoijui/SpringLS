@@ -37,16 +37,16 @@ public final class Main {
 	/** Make clear that this is a utility class */
 	private Main() {}
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 
-		CmdLineArgs cmdLineArgs = new CmdLineArgs();
+		final CmdLineArgs cmdLineArgs = new CmdLineArgs();
 
-		DataConfiguration configuration = new DataConfiguration(ServerConfiguration.getDefaults());
+		final DataConfiguration configuration = new DataConfiguration(ServerConfiguration.getDefaults());
 
 		boolean exit;
 		try {
 			exit = cmdLineArgs.apply(configuration, args);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.warn("Bad command line arguments", ex);
 			cmdLineArgs.printHelp();
 			exit = true;

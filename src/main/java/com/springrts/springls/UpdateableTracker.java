@@ -42,7 +42,7 @@ public class UpdateableTracker extends ServiceTracker {
 	 * changes.
 	 * @param context The bundle context to be used by the tracker.
 	 */
-	public UpdateableTracker(BundleContext context) {
+	public UpdateableTracker(final BundleContext context) {
 		super(context, Updateable.class.getName(), null);
 	}
 
@@ -57,9 +57,9 @@ public class UpdateableTracker extends ServiceTracker {
 	 * @return The service object to be used by the tracker.
 	 */
 	@Override
-	public Object addingService(ServiceReference ref) {
+	public Object addingService(final ServiceReference ref) {
 
-		Updateable updateable = (Updateable) context.getService(ref);
+		final Updateable updateable = (Updateable) context.getService(ref);
 		getServerThread().addUpdateable(updateable);
 		return updateable;
 	}
@@ -71,9 +71,9 @@ public class UpdateableTracker extends ServiceTracker {
 	 * @param svc The service object of the removed service.
 	 */
 	@Override
-	public void removedService(ServiceReference ref, Object svc) {
+	public void removedService(final ServiceReference ref, final Object svc) {
 
-		Updateable updateable = (Updateable) svc;
+		final Updateable updateable = (Updateable) svc;
 		getServerThread().removeUpdateable(updateable);
 	}
 }

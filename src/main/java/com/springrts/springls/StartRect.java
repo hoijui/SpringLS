@@ -38,7 +38,7 @@ public class StartRect {
 		return enabled;
 	}
 
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(final boolean enabled) {
 		this.enabled = enabled;
 	}
 
@@ -46,7 +46,7 @@ public class StartRect {
 		return left;
 	}
 
-	public void setLeft(int left) {
+	public void setLeft(final int left) {
 		this.left = left;
 	}
 
@@ -54,7 +54,7 @@ public class StartRect {
 		return top;
 	}
 
-	public void setTop(int top) {
+	public void setTop(final int top) {
 		this.top = top;
 	}
 
@@ -62,7 +62,7 @@ public class StartRect {
 		return right;
 	}
 
-	public void setRight(int right) {
+	public void setRight(final int right) {
 		this.right = right;
 	}
 
@@ -70,7 +70,7 @@ public class StartRect {
 		return bottom;
 	}
 
-	public void setBottom(int bottom) {
+	public void setBottom(final int bottom) {
 		this.bottom = bottom;
 	}
 }

@@ -58,7 +58,7 @@ public class Server {
 	 * The list of compatibility flags (see command LOGIN) supported
 	 * by this server.
 	 */
-	private Set<String> supportedCompFlags;
+	private final Set<String> supportedCompFlags;
 
 	public Server() {
 
@@ -76,21 +76,15 @@ public class Server {
 	/**
 	 * Initializes the ASCII-Decoder and ASCII-Encoder.
 	 */
-	public boolean setCharset(String newCharset) {
+	public boolean setCharset(final String newCharset) {
 
-		CharsetDecoder dec;
-		CharsetEncoder enc;
-
-		dec = Charset.forName(newCharset).newDecoder();
-		enc = Charset.forName(newCharset).newEncoder();
-
-		asciiDecoder = dec;
+		asciiDecoder = Charset.forName(newCharset).newDecoder();
 		asciiDecoder.replaceWith("?");
 		asciiDecoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
 		asciiDecoder.onMalformedInput(CodingErrorAction.REPLACE);
 
-		asciiEncoder = enc;
-		asciiEncoder.replaceWith(new byte[]{(byte) '?'});
+		asciiEncoder = Charset.forName(newCharset).newEncoder();
+		asciiEncoder.replaceWith(new byte[] {(byte) '?'});
 		asciiEncoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
 		asciiEncoder.onMalformedInput(CodingErrorAction.REPLACE);
 
@@ -139,7 +133,7 @@ public class Server {
 	 * @see java.lang.System#currentTimeMillis()
 	 * @param startTime the startTime to set
 	 */
-	public void setStartTime(long startTime) {
+	public void setStartTime(final long startTime) {
 		this.startTime = startTime;
 	}
 
@@ -147,7 +141,7 @@ public class Server {
 		return loginEnabled;
 	}
 
-	public void setLoginEnabled(boolean loginEnabled) {
+	public void setLoginEnabled(final boolean loginEnabled) {
 		this.loginEnabled = loginEnabled;
 	}
 
@@ -163,7 +157,7 @@ public class Server {
 	 * After this time in milli-seconds of inactivity, a client is getting
 	 * killed.
 	 */
-	public void setTimeoutLength(int timeoutLength) {
+	public void setTimeoutLength(final int timeoutLength) {
 		this.timeoutLength = timeoutLength;
 	}
 
@@ -196,7 +190,7 @@ public class Server {
 	 * is disabled.
 	 * @param redirectAddress the redirectAddress to set
 	 */
-	public void setRedirectAddress(InetAddress redirectAddress) {
+	public void setRedirectAddress(final InetAddress redirectAddress) {
 		this.redirectAddress = redirectAddress;
 	}
 

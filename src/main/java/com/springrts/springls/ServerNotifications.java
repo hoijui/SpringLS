@@ -58,7 +58,7 @@ public class ServerNotifications implements ContextReceiver {
 
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 		this.context = context;
 	}
 
@@ -67,7 +67,7 @@ public class ServerNotifications implements ContextReceiver {
 
 		synchronized (notificationsDir) {
 			if (!notificationsDir.exists()) {
-				boolean success = notificationsDir.mkdir();
+				final boolean success = notificationsDir.mkdir();
 				if (!success) {
 					LOG.error("Unable to create folder: {}", notificationsDir);
 				} else {
@@ -94,7 +94,7 @@ public class ServerNotifications implements ContextReceiver {
 			} else {
 				throw new IOException("File already exists");
 			}
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			LOG.error("Failed creating notification-file: " + tmpFile, ex);
 		}
 
@@ -104,9 +104,9 @@ public class ServerNotifications implements ContextReceiver {
 	/**
 	 * NOTE: This method may be called from multiple threads simultaneously!
 	 */
-	public boolean addNotification(ServerNotification sn) {
+	public boolean addNotification(final ServerNotification srvNotif) {
 
-		Configuration conf = context.getService(Configuration.class);
+		final Configuration conf = context.getService(Configuration.class);
 		if (conf.getBoolean(ServerConfiguration.LAN_MODE)) {
 			// ignore notifications if server is running in LAN mode!
 			return false;
@@ -114,11 +114,11 @@ public class ServerNotifications implements ContextReceiver {
 
 		ensureNotifsDirExists();
 
-		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+		final DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		final String baseFileName
 				= notificationsDir + "/" + dateFormat.format(new Date());
 
-		File notifFile = findWriteableNotifFile(baseFileName);
+		final File notifFile = findWriteableNotifFile(baseFileName);
 
 		if (notifFile == null) {
 			LOG.error("Unable to find/create a notification file. Server"
@@ -136,9 +136,9 @@ public class ServerNotifications implements ContextReceiver {
 			out = new BufferedWriter(outF);
 			out.write(NOTIFICATION_SYSTEM_VERSION);
 			out.write(Misc.EOL);
-			out.write(sn.toString());
+			out.write(srvNotif.toString());
 			out.close();
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			LOG.error("Unable to write file <" + notifFile
 					+ ">. Server notification will not be saved!", ex);
 			context.getClients().sendToAllAdministrators("SERVERMSG [broadcast"
@@ -152,7 +152,7 @@ public class ServerNotifications implements ContextReceiver {
 				} else if (outF != null) {
 					outF.close();
 				}
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				LOG.warn("Failed to close notification file writer: "
 						+ notifFile.getAbsolutePath(), ex);
 			}

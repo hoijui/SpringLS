@@ -61,10 +61,10 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 
 	private static class DeprecatedCommand {
 
-		private String name;
-		private String message;
+		private final String name;
+		private final String message;
 
-		DeprecatedCommand(String name, String message) {
+		DeprecatedCommand(final String name, final String message) {
 
 			this.name = name;
 			this.message = message;
@@ -110,8 +110,8 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	 * by the author of the <code>java.nio</code> chat example (see links) upon
 	 * which this code is built on.
 	 */
-	private ByteBuffer readBuffer;
-	private List<Updateable> updateables;
+	private final ByteBuffer readBuffer;
+	private final List<Updateable> updateables;
 	private UpdateableTracker updateableTracker;
 
 
@@ -124,15 +124,16 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	}
 
 	// TODO make all this stuff non-static
-	private static void add(Map<String, DeprecatedCommand> deprecatedCommands,
-			DeprecatedCommand command)
+	private static void add(
+			final Map<String, DeprecatedCommand> deprecatedCommands,
+			final DeprecatedCommand command)
 	{
 		deprecatedCommands.put(command.getName(), command);
 	}
 	private void initDeprecatedCommands() {
 
 		if (deprecatedCommands == null) {
-			Map<String, DeprecatedCommand> tmpDeprecatedCommands
+			final Map<String, DeprecatedCommand> tmpDeprecatedCommands
 					= new HashMap<String, DeprecatedCommand>();
 
 			add(tmpDeprecatedCommands, new DeprecatedCommand(
@@ -155,16 +156,16 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 		}
 	}
 
-	public void addUpdateable(Updateable updateable) {
+	public void addUpdateable(final Updateable updateable) {
 		updateables.add(updateable);
 	}
 
-	public void removeUpdateable(Updateable updateable) {
+	public void removeUpdateable(final Updateable updateable) {
 		updateables.remove(updateable);
 	}
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 
 		this.context = context;
 
@@ -199,7 +200,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 					continue;
 				}
 
-				Client client = getContext().getClients().addNewClient(
+				final Client client = getContext().getClients().addNewClient(
 						clientChannel, readSelector, SEND_BUFFER_SIZE);
 				if (client == null) {
 					continue;
@@ -212,12 +213,12 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 				LOG.debug("New client connected: {}",
 						client.getIp().getHostAddress());
 			}
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Exception in acceptNewConnections(): " + ex.getMessage(), ex);
 		}
 	}
 
-	public boolean redirectAndKill(Socket socket) {
+	public boolean redirectAndKill(final Socket socket) {
 		if (!context.getServer().isRedirectActive()) {
 			return false;
 		}
@@ -226,7 +227,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 					String.format("REDIRECT %s",
 					context.getServer().getRedirectAddress().getHostAddress()));
 			socket.close();
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			return false;
 		}
 		return true;
@@ -242,13 +243,13 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 			readSelector.selectNow();
 
 			// fetch the keys
-			Set<SelectionKey> readyKeys = readSelector.selectedKeys();
+			final Set<SelectionKey> readyKeys = readSelector.selectedKeys();
 
 			// run through the keys and process each one
 			while (!readyKeys.isEmpty()) {
-				SelectionKey key = readyKeys.iterator().next();
+				final SelectionKey key = readyKeys.iterator().next();
 				readyKeys.remove(key);
-				SocketChannel channel = (SocketChannel) key.channel();
+				final SocketChannel channel = (SocketChannel) key.channel();
 				client = (Client) key.attachment();
 				if (client.isHalfDead()) {
 					continue;
@@ -258,11 +259,11 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 				client.setTimeOfLastReceive(System.currentTimeMillis());
 
 				// read from the channel into our buffer
-				long nBytes = channel.read(readBuffer);
+				final long nBytes = channel.read(readBuffer);
 				client.addReceived(nBytes);
 
 				// basic anti-flood protection
-				FloodProtectionService floodProtection
+				final FloodProtectionService floodProtection
 						= getContext().getService(FloodProtectionService.class);
 				if ((floodProtection != null)
 						&& floodProtection.isFlooding(client))
@@ -280,7 +281,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 					// use a CharsetDecoder to turn those bytes into a string
 					// and append it to the client's StringBuilder
 					readBuffer.flip();
-					String str = getContext().getServer().getAsciiDecoder().decode(readBuffer).toString();
+					final String str = getContext().getServer().getAsciiDecoder().decode(readBuffer).toString();
 					readBuffer.clear();
 					client.appendToRecvBuf(str);
 
@@ -299,7 +300,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 					}
 				}
 			}
-		} catch (IOException ioex) {
+		} catch (final IOException ioex) {
 			LOG.info("exception during select(): possibly due to force disconnect. Killing the client ...");
 			if (client != null) {
 				getContext().getClients().killClient(client, "Quit: connection lost");
@@ -308,13 +309,13 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 		}
 	}
 
-	private void executeCommandWrapper(String command, Client client) {
+	private void executeCommandWrapper(final String command, final Client client) {
 
 		long time = System.currentTimeMillis();
 		executeCommand(command, client);
 		time = System.currentTimeMillis() - time;
 		if (time > 200) {
-			String message = String.format(
+			final String message = String.format(
 					"SERVERMSG [broadcast to all admins]: (DEBUG) User <%s>"
 					+ " caused %d ms load on the server. Command issued: %s",
 					client.getAccount().getName(), time, command);
@@ -326,7 +327,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	 * Note: this method is not synchronized!
 	 * Note2: this method may be called recursively!
 	 */
-	public boolean executeCommand(String command, Client client) {
+	public boolean executeCommand(final String command, final Client client) {
 
 		String commandClean = command.trim();
 		if (commandClean.isEmpty()) {
@@ -350,37 +351,37 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 				msgId = Integer.parseInt(commandClean.substring(1).split("\\s")[0]);
 				// remove id field from the rest of command:
 				commandClean = commandClean.replaceFirst("#\\d+\\s", "");
-			} catch (NumberFormatException ex) {
+			} catch (final NumberFormatException ex) {
 				return false; // this means that the command is malformed
-			} catch (PatternSyntaxException ex) {
+			} catch (final PatternSyntaxException ex) {
 				return false; // this means that the command is malformed
 			}
 		}
 
 		// parse command into tokens:
-		String[] commands = commandClean.split(" ");
+		final String[] commands = commandClean.split(" ");
 		commands[0] = commands[0].toUpperCase();
 
 		client.setSendMsgId(msgId);
 
 		try {
-			CommandProcessor cp = getContext().getCommandProcessors().get(commands[0]);
-			if (cp != null) {
-				List<String> args = new ArrayList<String>(Arrays.asList(commands));
+			final CommandProcessor cmdProcessor = getContext().getCommandProcessors().get(commands[0]);
+			if (cmdProcessor != null) {
+				final List<String> args = new ArrayList<String>(Arrays.asList(commands));
 				args.remove(0);
 				try {
-					boolean ret = cp.process(client, args);
+					final boolean ret = cmdProcessor.process(client, args);
 					if (!ret) {
 						return false;
 					}
-				} catch (CommandProcessingException ex) {
-					LOG.debug(cp.getClass().getCanonicalName()
+				} catch (final CommandProcessingException ex) {
+					LOG.debug(cmdProcessor.getClass().getCanonicalName()
 							+ " failed to handle command from client: \""
 							+ Misc.makeSentence(commands) + "\"", ex);
 					return false;
 				}
 			} else if (deprecatedCommands.containsKey(commands[0])) {
-				DeprecatedCommand deprecatedCommand = deprecatedCommands.get(commands[0]);
+				final DeprecatedCommand deprecatedCommand = deprecatedCommands.get(commands[0]);
 				client.sendLine(String.format(
 						"SERVERMSG Command %s is deprecated: %s",
 						deprecatedCommand.getName(),
@@ -410,14 +411,14 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 		running = true;
 		while (running) { // main loop
 
-			for (Updateable updateable : updateables) {
+			for (final Updateable updateable : updateables) {
 				updateable.update();
 			}
 
 			// sleep a bit
 			try {
 				Thread.sleep(MAIN_LOOP_SLEEP);
-			} catch (InterruptedException iex) {
+			} catch (final InterruptedException iex) {
 			}
 		}
 
@@ -425,15 +426,15 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 
 		// close everything:
 		getContext().getAccountsService().saveAccounts(true);
-		NatHelpServer natHelpServer = getContext().getService(NatHelpServer.class);
+		final NatHelpServer natHelpServer = getContext().getService(NatHelpServer.class);
 		if ((natHelpServer != null) && natHelpServer.isRunning()) {
 			natHelpServer.stopServer();
 		}
 
 		// add server notification:
-		ServerNotification sn = new ServerNotification("Server stopped");
-		sn.addLine("Server has just been stopped gracefully. See server log for more info.");
-		getContext().getServerNotifications().addNotification(sn);
+		final ServerNotification srvNotif = new ServerNotification("Server stopped");
+		srvNotif.addLine("Server has just been stopped gracefully. See server log for more info.");
+		getContext().getServerNotifications().addNotification(srvNotif);
 
 		LOG.info("Server closed gracefully!");
 
@@ -444,9 +445,9 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 
 		context.starting();
 
-		Configuration configuration =
+		final Configuration configuration =
 				getContext().getService(Configuration.class);
-		int port = configuration.getInt(ServerConfiguration.PORT);
+		final int port = configuration.getInt(ServerConfiguration.PORT);
 
 		try {
 			context.getServer().setCharset("ISO-8859-1");
@@ -463,7 +464,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 			// get a selector for multiplexing the client channels
 			readSelector = Selector.open();
 
-		} catch (IOException ex) {
+		} catch (final IOException ex) {
 			LOG.error("Could not listen on port: " + port, ex);
 			return false;
 		}
@@ -496,9 +497,9 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 		if ((getContext() != null)
 				&& (getContext().getServerNotifications() != null))
 		{
-			ServerNotification sn = new ServerNotification("Server stopped");
-			sn.addLine("Server has just been stopped. See server log for more info.");
-			getContext().getServerNotifications().addNotification(sn);
+			final ServerNotification srvNotif = new ServerNotification("Server stopped");
+			srvNotif.addLine("Server has just been stopped. See server log for more info.");
+			getContext().getServerNotifications().addNotification(srvNotif);
 		}
 
 		//getContext().stopped();
@@ -517,7 +518,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 
 		// As DateFormats are generally not-thread save,
 		// we always create a new one.
-		DateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd 'at' hh:mm:ss z");
+		final DateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd 'at' hh:mm:ss z");
 
 		LOG.info("{} {} started on {}",
 				new Object[] {
@@ -527,16 +528,17 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 				});
 
 		// add server notification
-		ServerNotification sn = new ServerNotification("Server started");
-		Configuration conf = getContext().getService(Configuration.class);
-		int port = conf.getInt(ServerConfiguration.PORT);
-		sn.addLine(String.format(
+		final ServerNotification srvNotif
+				= new ServerNotification("Server started");
+		final Configuration conf = getContext().getService(Configuration.class);
+		final int port = conf.getInt(ServerConfiguration.PORT);
+		srvNotif.addLine(String.format(
 				"Server has been started on port %d."
 				+ " There are %d accounts. "
 				+ "See server log for more info.",
 				port,
 				context.getAccountsService().getAccountsSize()));
-		context.getServerNotifications().addNotification(sn);
+		context.getServerNotifications().addNotification(srvNotif);
 
 		createAdminIfNoUsers();
 	}
@@ -547,19 +549,19 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	 */
 	private void createAdminIfNoUsers() {
 
-		Configuration conf = context.getService(Configuration.class);
+		final Configuration conf = context.getService(Configuration.class);
 		if (!conf.getBoolean(ServerConfiguration.LAN_MODE)) {
-			AccountsService accountsService = context.getAccountsService();
+			final AccountsService accountsService = context.getAccountsService();
 			if (accountsService.getAccountsSize() == 0) {
-				Configuration defaults = ServerConfiguration.getDefaults();
-				String username = defaults.getString(
+				final Configuration defaults = ServerConfiguration.getDefaults();
+				final String username = defaults.getString(
 						ServerConfiguration.LAN_ADMIN_USERNAME);
-				String password = defaults.getString(
+				final String password = defaults.getString(
 						ServerConfiguration.LAN_ADMIN_PASSWORD);
 				LOG.info("As there are no accounts yet, we are creating an"
 						+ " admin account: username=\"{}\", password=\"{}\"",
 						username, password);
-				Account admin = createAdmin(username, password);
+				final Account admin = createAdmin(username, password);
 				accountsService.addAccount(admin);
 				accountsService.saveAccountsIfNeeded();
 			}
@@ -569,9 +571,9 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	/**
 	 * Creates a simple account with administrator rights.
 	 */
-	private static Account createAdmin(String username, String password) {
+	private static Account createAdmin(final String username, final String password) {
 
-		Account admin = new Account(username, ProtocolUtil.encodePassword(password));
+		final Account admin = new Account(username, ProtocolUtil.encodePassword(password));
 		admin.setAccess(Account.Access.ADMIN);
 		return admin;
 	}
@@ -585,7 +587,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 
 		// As DateFormats are generally not-thread save,
 		// we always create a new one.
-		DateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd 'at' hh:mm:ss z");
+		final DateFormat dateTimeFormat = new SimpleDateFormat("yyyy.MM.dd 'at' hh:mm:ss z");
 
 		running = false;
 		LOG.info("Server stopped on {}", dateTimeFormat.format(new Date()));

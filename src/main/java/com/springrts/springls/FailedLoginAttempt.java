@@ -24,13 +24,15 @@ package com.springrts.springls;
  */
 public class FailedLoginAttempt {
 
-	private String userName;
+	private final String userName;
 	private int failedAttempts;
 	private long timeOfLastFailedAttempt;
 	private boolean logged;
 
-	public FailedLoginAttempt(String username, int numOfFailedAttempts,
-			long timeOfLastFailedAttempt)
+	public FailedLoginAttempt(
+			final String username,
+			final int numOfFailedAttempts,
+			final long timeOfLastFailedAttempt)
 	{
 		this.userName = username;
 		this.failedAttempts = numOfFailedAttempts;
@@ -57,7 +59,7 @@ public class FailedLoginAttempt {
 		return logged;
 	}
 
-	public void setFailedAttempts(int failedAttempts) {
+	public void setFailedAttempts(final int failedAttempts) {
 		this.failedAttempts = failedAttempts;
 	}
 
@@ -67,7 +69,7 @@ public class FailedLoginAttempt {
 		this.failedAttempts++;
 	}
 
-	public void setLogged(boolean logged) {
+	public void setLogged(final boolean logged) {
 		this.logged = logged;
 	}
 }

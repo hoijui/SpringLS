@@ -68,13 +68,13 @@ public class Client extends TeamController implements ContextReceiver {
 	 * If false, then this client is not "valid" anymore.
 	 * We already killed him and closed his socket.
 	 */
-	private boolean alive = false;
+	private boolean alive;
 	/**
 	 * When we schedule client for kill (via Clients.killClientDelayed(),
 	 * for example) this flag is set to true.
 	 * When true, we do not read or send any data to this client.
 	 */
-	private boolean halfDead = false;
+	private boolean halfDead;
 
 	private Account account;
 	/**
@@ -106,24 +106,24 @@ public class Client extends TeamController implements ContextReceiver {
 	/**
 	 * List of channels user is participating in.
 	 */
-	private List<Channel> channels = new ArrayList<Channel>();
+	private final List<Channel> channels;
 
 	private SocketChannel sockChan;
 	private SelectionKey selKey;
-	private StringBuilder recvBuf;
+	private final StringBuilder recvBuf;
 	/**
 	 * This is the message/command ID used when sending command
 	 * as described in the "lobby protocol description" document.
 	 * Use setSendMsgId() and resetSendMsgId() methods to manipulate it.
 	 * NO_MSG_ID means no ID is used.
 	 */
-	private int myMsgId = NO_MSG_ID;
+	private int myMsgId;
 	/**
 	 * Queue of "delayed data".
 	 * We failed sending this the first time, so we will have to try sending it
 	 * again some time later.
 	 */
-	private Queue<ByteBuffer> sendQueue = new LinkedList<ByteBuffer>();
+	private final Queue<ByteBuffer> sendQueue;
 	/**
 	 * Temporary StringBuilder used by some internal methods.
 	 * @see beginFastWrite()
@@ -200,9 +200,10 @@ public class Client extends TeamController implements ContextReceiver {
 	private List<String> compatFlags;
 
 
-	public Client(SocketChannel sockChan) {
+	public Client(final SocketChannel sockChan) {
 
 		this.alive = true;
+		this.halfDead = false;
 
 		// no info on user/pass, zero access
 		this.account = new Account();
@@ -211,7 +212,7 @@ public class Client extends TeamController implements ContextReceiver {
 		// this fixes the issue with local user connecting to the server at
 		// "127.0.0.1", as he can not host battles with that ip
 		if (ip.isLoopbackAddress()) {
-			InetAddress newIP = Misc.getLocalIpAddress();
+			final InetAddress newIP = Misc.getLocalIpAddress();
 			if (newIP != null) {
 				ip = newIP;
 			} else {
@@ -226,9 +227,12 @@ public class Client extends TeamController implements ContextReceiver {
 		inGame = false;
 		away = false;
 		locale = ProtocolUtil.countryToLocale(ProtocolUtil.COUNTRY_UNKNOWN);
+		myMsgId = NO_MSG_ID;
+		sendQueue = new LinkedList<ByteBuffer>();
 		inGameTime = 0;
 		battleID = Battle.NO_BATTLE_ID;
 		requestedBattleID = Battle.NO_BATTLE_ID;
+		channels = new ArrayList<Channel>();
 		cpu = 0;
 		scriptPassword = NO_SCRIPT_PASSWORD;
 		scriptPasswordSupported = false;
@@ -239,17 +243,17 @@ public class Client extends TeamController implements ContextReceiver {
 
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 
 		this.context = context;
 
 		// TODO when bundle-context is available in ctor, move this code there
-		IP2CountryService ip2CountryService = context.getService(IP2CountryService.class);
+		final IP2CountryService ip2CountryService = context.getService(IP2CountryService.class);
 		if (ip2CountryService != null) {
 			setLocale(ip2CountryService.getLocale(ip));
 		}
 
-		Set<String> supportedCompFlags = context.getServer().getSupportedCompFlags();
+		final Set<String> supportedCompFlags = context.getServer().getSupportedCompFlags();
 		supportedCompFlags.add("a");
 		supportedCompFlags.add("b");
 		supportedCompFlags.add("sp");
@@ -265,7 +269,7 @@ public class Client extends TeamController implements ContextReceiver {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 
 		if (obj == null) {
 			return false;
@@ -274,12 +278,12 @@ public class Client extends TeamController implements ContextReceiver {
 			return false;
 		}
 		final Client other = (Client) obj;
-		if (this.sockChan != other.getSockChan() && (this.sockChan == null
-				|| !this.sockChan.equals(other.getSockChan())))
+		if (this.getSockChan() != other.getSockChan()
+				&& (this.getSockChan() == null))
 		{
 			return false;
 		}
-		return true;
+		return this.sockChan.equals(other.getSockChan());
 	}
 
 	/**
@@ -287,11 +291,11 @@ public class Client extends TeamController implements ContextReceiver {
 	 * See "lobby protocol description" document for more info
 	 * on message/command IDs.
 	 */
-	public void setSendMsgId(int msgId) {
+	public void setSendMsgId(final int msgId) {
 		this.myMsgId = msgId;
 	}
 
-	public void resetSendMsgId(int msgId) {
+	public void resetSendMsgId(final int msgId) {
 		this.myMsgId = msgId;
 	}
 
@@ -299,7 +303,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * Will prefix the message with a msgId value, if it was previously
 	 * set via setSendMsgId() method.
 	 */
-	public boolean sendLine(String text) {
+	public boolean sendLine(final String text) {
 		return sendLine(text, myMsgId);
 	}
 
@@ -308,17 +312,17 @@ public class Client extends TeamController implements ContextReceiver {
 	 *   use NO_MSG_ID for none.
 	 * @see #setSendMsgId(int msgId)
 	 */
-	private boolean sendLine(String text, int msgId) {
+	private boolean sendLine(final String text, final int msgId) {
 
 		if (!alive || halfDead) {
 			return false;
 		}
 
-		StringBuilder data = new StringBuilder();
+		final StringBuilder data = new StringBuilder();
 
 		// prefix message with a message ID:
 		if (msgId != NO_MSG_ID) {
-			data.append("#").append(msgId).append(" ");
+			data.append('#').append(msgId).append(' ');
 		}
 		data.append(text);
 
@@ -331,7 +335,7 @@ public class Client extends TeamController implements ContextReceiver {
 		}
 
 		if (LOG.isTraceEnabled()) {
-			String nameOrIp = (account.getAccess() != Account.Access.NONE)
+			final String nameOrIp = (account.getAccess() != Account.Access.NONE)
 						? account.getName()
 						: ip.getHostAddress();
 			LOG.trace("[->{}] \"{}\"", nameOrIp, data);
@@ -354,7 +358,7 @@ public class Client extends TeamController implements ContextReceiver {
 			try {
 				buf = context.getServer().getAsciiEncoder().encode(
 						CharBuffer.wrap(data));
-			} catch (CharacterCodingException ex) {
+			} catch (final CharacterCodingException ex) {
 				LOG.warn("Unable to encode message. Killing the client next"
 						+ " loop ...", ex);
 				context.getClients().killClientDelayed(this,
@@ -366,12 +370,12 @@ public class Client extends TeamController implements ContextReceiver {
 				sendQueue.add(buf);
 			} else {
 				sendQueue.add(buf);
-				boolean empty = tryToFlushData();
+				final boolean empty = tryToFlushData();
 				if (!empty) {
 					context.getClients().enqueueDelayedData(this);
 				}
 			}
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed sending data (undefined). Killing the client next"
 					+ " loop ...", ex);
 			context.getClients().killClientDelayed(this,
@@ -383,7 +387,7 @@ public class Client extends TeamController implements ContextReceiver {
 
 	public void sendWelcomeMessage() {
 
-		Configuration conf = context.getService(Configuration.class);
+		final Configuration conf = context.getService(Configuration.class);
 
 		// the welcome messages command-name is hardcoded to TASSERVER
 		// XXX maybe change TASSERVER to WELCOME or the like -> protocol change
@@ -405,7 +409,7 @@ public class Client extends TeamController implements ContextReceiver {
 
 		try {
 			sockChan.close();
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			LOG.error("Failed disconnecting socket!", ex);
 		}
 
@@ -422,7 +426,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * This method also does not do any notifying of other clients in the
 	 * channel, the caller must do all that.
 	 */
-	public Channel joinChannel(String chanName) {
+	public Channel joinChannel(final String chanName) {
 
 		Channel chan = context.getChannels().getChannel(chanName);
 		if (chan == null) {
@@ -445,9 +449,9 @@ public class Client extends TeamController implements ContextReceiver {
 	 * from channels list.
 	 * @param reason may be left blank ("") if no reason is to be given.
 	 */
-	public boolean leaveChannel(Channel chan, String reason) {
+	public boolean leaveChannel(final Channel chan, final String reason) {
 
-		boolean left = chan.removeClient(this);
+		final boolean left = chan.removeClient(this);
 
 		if (left) {
 			if (chan.getClientsSize() == 0) {
@@ -457,14 +461,15 @@ public class Client extends TeamController implements ContextReceiver {
 				// We don't want that!
 				context.getChannels().removeChannel(chan);
 			} else {
-				StringBuilder message = new StringBuilder("LEFT ");
-				message.append(chan.getName()).append(" ");
-				message.append(this.account.getName());
+				final StringBuilder message = new StringBuilder("LEFT ");
+				message
+						.append(chan.getName()).append(' ')
+						.append(this.account.getName());
 				if (!reason.isEmpty()) {
-					message.append(" ").append(reason);
+					message.append(' ').append(reason);
 				}
 
-				String messageStr = message.toString();
+				final String messageStr = message.toString();
 				for (int i = 0; i < chan.getClientsSize(); i++) {
 					chan.getClient(i).sendLine(messageStr);
 				}
@@ -480,7 +485,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * Also notifies all clients of his departure.
 	 * Also see comments for leaveChannel() method.
 	 */
-	public void leaveAllChannels(String reason) {
+	public void leaveAllChannels(final String reason) {
 
 		while (!channels.isEmpty()) {
 			leaveChannel(channels.get(0), reason);
@@ -493,11 +498,11 @@ public class Client extends TeamController implements ContextReceiver {
 	 * and return the specified channel or 'null' if client is not participating
 	 * in this channel.
 	 */
-	public Channel getChannel(String chanName) {
+	public Channel getChannel(final String chanName) {
 
-		for (int i = 0; i < channels.size(); i++) {
-			if (channels.get(i).getName().equals(chanName)) {
-				return channels.get(i);
+		for (final Channel channel : channels) {
+			if (channel.getName().equals(chanName)) {
+				return channel;
 			}
 		}
 		return null;
@@ -531,14 +536,14 @@ public class Client extends TeamController implements ContextReceiver {
 				}
 				// remove element from queue (it was sent entirely)
 				sendQueue.remove();
-			} catch (ClosedChannelException ccex) {
+			} catch (final ClosedChannelException ccex) {
 				// no point sending the rest to the closed channel
 				if (alive) {
 					context.getClients().killClientDelayed(this,
 							"Quit: socket channel closed exception");
 				}
 				break;
-			} catch (IOException ioex) {
+			} catch (final IOException ioex) {
 				if (alive) {
 					context.getClients().killClientDelayed(this,
 							"Quit: socket channel closed exception");
@@ -569,7 +574,7 @@ public class Client extends TeamController implements ContextReceiver {
 			context.getServerThread().closeServerAndExit();
 		}
 
-		String data = fastWrite.toString();
+		final String data = fastWrite.toString();
 		fastWrite = null;
 		if (data.isEmpty()) {
 			return;
@@ -584,7 +589,7 @@ public class Client extends TeamController implements ContextReceiver {
 		return inGame;
 	}
 
-	public void setInGame(boolean inGame) {
+	public void setInGame(final boolean inGame) {
 		this.inGame = inGame;
 	}
 
@@ -592,7 +597,7 @@ public class Client extends TeamController implements ContextReceiver {
 		return away;
 	}
 
-	public void setAway(boolean away) {
+	public void setAway(final boolean away) {
 		this.away = away;
 	}
 
@@ -620,7 +625,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * We already killed him and closed his socket.
 	 * @param alive the alive to set
 	 */
-	public void setAlive(boolean alive) {
+	public void setAlive(final boolean alive) {
 		this.alive = alive;
 	}
 
@@ -640,7 +645,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * When true, we do not read or send any data to this client.
 	 * @param halfDead the halfDead to set
 	 */
-	public void setHalfDead(boolean halfDead) {
+	public void setHalfDead(final boolean halfDead) {
 		this.halfDead = halfDead;
 	}
 
@@ -654,7 +659,7 @@ public class Client extends TeamController implements ContextReceiver {
 	/**
 	 * @param account the account to set
 	 */
-	public void setAccount(Account account) {
+	public void setAccount(final Account account) {
 		this.account = account;
 	}
 
@@ -668,10 +673,10 @@ public class Client extends TeamController implements ContextReceiver {
 
 	/**
 	 * External IP
-	 * @param ip the IP to set
+	 * @param ipAddress the IP to set
 	 */
-	public void setIp(InetAddress ip) {
-		this.ip = ip;
+	public void setIp(final InetAddress ipAddress) {
+		this.ip = ipAddress;
 	}
 
 	/**
@@ -688,7 +693,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * The server can not figure out the clients local IP by himself of course.
 	 * @param localIp the local IP to set
 	 */
-	public void setLocalIP(InetAddress localIp) {
+	public void setLocalIP(final InetAddress localIp) {
 		this.localIp = localIp;
 	}
 
@@ -706,7 +711,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * e.g. "hole punching".
 	 * @param udpSourcePort the udpSourcePort to set
 	 */
-	public void setUdpSourcePort(int udpSourcePort) {
+	public void setUdpSourcePort(final int udpSourcePort) {
 		this.udpSourcePort = udpSourcePort;
 	}
 
@@ -732,7 +737,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * @param status the status to set
 	 * @param priviledged rank, access and bot are only changed if this is true
 	 */
-	public void setStatus(int status, boolean priviledged) {
+	public void setStatus(final int status, final boolean priviledged) {
 
 		setInGame((status & 0x1)        == 1);
 		setAway( ((status & 0x2)  >> 1) == 1);
@@ -766,7 +771,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * Has to be -1 if not participating in any battle.
 	 * @param battleID the battleID to set
 	 */
-	public void setBattleID(int battleID) {
+	public void setBattleID(final int battleID) {
 
 		this.battleID = battleID;
 		if (battleID == Battle.NO_BATTLE_ID) {
@@ -788,7 +793,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * Must be -1 if not requesting to join any battle.
 	 * @param requestedBattleID the requestedBattleID to set
 	 */
-	public void setRequestedBattleID(int requestedBattleID) {
+	public void setRequestedBattleID(final int requestedBattleID) {
 		this.requestedBattleID = requestedBattleID;
 	}
 
@@ -802,19 +807,19 @@ public class Client extends TeamController implements ContextReceiver {
 	/**
 	 * @param selKey the selKey to set
 	 */
-	public void setSelKey(SelectionKey selKey) {
+	public void setSelKey(final SelectionKey selKey) {
 		this.selKey = selKey;
 	}
 
-	public void appendToRecvBuf(String received) {
+	public void appendToRecvBuf(final String received) {
 		recvBuf.append(received);
 	}
 
-	private static boolean isWhiteSpace(char c) {
-		return (" \n\r\t\f".indexOf(c) != -1);
+	private static boolean isWhiteSpace(final char chr) {
+		return (" \n\r\t\f".indexOf(chr) != -1);
 	}
 
-	private static void deleteLeadingWhiteSpace(StringBuilder str) {
+	private static void deleteLeadingWhiteSpace(final StringBuilder str) {
 
 		int wsPos = 0;
 		while ((wsPos < str.length()) && isWhiteSpace(str.charAt(wsPos))) {
@@ -829,8 +834,9 @@ public class Client extends TeamController implements ContextReceiver {
 	 * @param posUntil only chars from 0 until this position are searched
 	 * @return number of deleted chars
 	 */
-	private static int deleteCarriageReturnChars(StringBuilder str,
-			int posUntil)
+	private static int deleteCarriageReturnChars(
+			final StringBuilder str,
+			final int posUntil)
 	{
 		int deleted = 0;
 
@@ -857,9 +863,9 @@ public class Client extends TeamController implements ContextReceiver {
 
 		deleteLeadingWhiteSpace(recvBuf);
 		if (recvBuf.length() > 0) {
-			int nPos = recvBuf.indexOf("\n");
+			final int nPos = recvBuf.indexOf("\n");
 			if (nPos != -1) {
-				int deleted = deleteCarriageReturnChars(recvBuf, nPos);
+				final int deleted = deleteCarriageReturnChars(recvBuf, nPos);
 
 				line = recvBuf.substring(0, nPos - deleted);
 				recvBuf.delete(0, nPos - deleted);
@@ -885,7 +891,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * @see java.lang.System#currentTimeMillis()
 	 * @param inGameTime the inGameTime to set
 	 */
-	public void setInGameTime(long inGameTime) {
+	public void setInGameTime(final long inGameTime) {
 		this.inGameTime = inGameTime;
 	}
 
@@ -901,7 +907,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * Specifying the origin of the user. So far, only the country part is used.
 	 * @param locale the locale specifying the country
 	 */
-	public void setLocale(Locale locale) {
+	public void setLocale(final Locale locale) {
 		this.locale = locale;
 	}
 
@@ -924,7 +930,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * "XX" is used for unknown country.
 	 * @param country the country to set
 	 */
-	public void setCountry(String country) {
+	public void setCountry(final String country) {
 		ProtocolUtil.countryToLocale(country);
 	}
 
@@ -942,7 +948,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * 0 means the client can not figure out its CPU speed.
 	 * @param cpu the CPU to set
 	 */
-	public void setCpu(int cpu) {
+	public void setCpu(final int cpu) {
 		this.cpu = cpu;
 	}
 
@@ -958,7 +964,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * e.g. "TASClient 1.0" (gets updated when server receives LOGIN command)
 	 * @param lobbyVersion the lobbyVersion to set
 	 */
-	public void setLobbyVersion(String lobbyVersion) {
+	public void setLobbyVersion(final String lobbyVersion) {
 		this.lobbyVersion = lobbyVersion;
 	}
 
@@ -978,7 +984,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * @see java.lang.System#currentTimeMillis()
 	 * @param timeOfLastReceive the timeOfLastReceive to set
 	 */
-	public void setTimeOfLastReceive(long timeOfLastReceive) {
+	public void setTimeOfLastReceive(final long timeOfLastReceive) {
 		this.timeOfLastReceive = timeOfLastReceive;
 	}
 
@@ -998,7 +1004,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * The script password is used for spoof-protection, which means
 	 * someone illegally joining the battle under wrong user-name.
 	 */
-	public void setScriptPassword(String scriptPassword) {
+	public void setScriptPassword(final String scriptPassword) {
 		this.scriptPassword = scriptPassword;
 	}
 
@@ -1014,7 +1020,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * Does the client accept accountIDs in ADDUSER command?
 	 * @param acceptAccountIDs the acceptAccountIDs to set
 	 */
-	private void setAcceptAccountIDs(boolean acceptAccountIDs) {
+	private void setAcceptAccountIDs(final boolean acceptAccountIDs) {
 		this.acceptAccountIDs = acceptAccountIDs;
 	}
 
@@ -1030,7 +1036,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * Does the client accept JOINBATTLEREQUEST command?
 	 */
 	private void setHandleBattleJoinAuthorization(
-			boolean handleBattleJoinAuthorization)
+			final boolean handleBattleJoinAuthorization)
 	{
 		this.handleBattleJoinAuthorization = handleBattleJoinAuthorization;
 	}
@@ -1047,7 +1053,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * Does the client accept the scriptPassord argument to the
 	 * JOINEDBATTLE command?
 	 */
-	private void setScriptPassordSupported(boolean supported) {
+	private void setScriptPassordSupported(final boolean supported) {
 		scriptPasswordSupported = supported;
 	}
 
@@ -1064,7 +1070,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * Adds to the number of bytes received from this client.
 	 * @param nBytes to add number of bytes
 	 */
-	public void addReceived(long nBytes) {
+	public void addReceived(final long nBytes) {
 
 		receivedSinceLogin += nBytes;
 	}
@@ -1092,7 +1098,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * @see #getCompatFlags
 	 * @param compatFlags the compatFlags to set
 	 */
-	public void setCompatFlags(List<String> compatFlags) {
+	public void setCompatFlags(final List<String> compatFlags) {
 
 		this.compatFlags = Collections.unmodifiableList(compatFlags);
 

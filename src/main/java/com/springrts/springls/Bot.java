@@ -37,39 +37,43 @@ public class Bot extends TeamController {
 	 * This should be though of as the bots equivalent
 	 * to the humans account name, at least for the users.
 	 */
-	private String name;
+	private final String name;
 	/**
 	 * Name of the owner of this bot.
 	 * For Lua AIs (synced), this is always the account name of the client
 	 * which added the bot. While this is also true for "native"
 	 * bots (unsynced), it there also denotes the client running the bot.
 	 */
-	private String ownerName;
+	private final String ownerName;
 	/**
 	 * Short name (machine friendly) of the bots implementation.
 	 * Examples: "KAIK", "AAI", "C.R.A.I.G."
 	 */
-	private String shortName;
+	private final String shortName;
 	/**
 	 * Version (machine friendly) of the bots implementation.
 	 * Examples: "0.13", "0.900", "<not-versioned>"
 	 * For Lua bots this is always "<not-versioned>".
 	 */
-	private String version;
+	private final String version;
 
-	public Bot(String name, String ownerName, String specifier,
-			int battleStatus, Color teamColor)
+	public Bot(
+			final String name,
+			final String ownerName,
+			final String specifier,
+			final int battleStatus,
+			final Color teamColor)
 	{
 		super(battleStatus, teamColor);
 
 		this.name = name;
 		this.ownerName = ownerName;
-		String[] specifierParts = specifier.split("\\|");
+		final String[] specifierParts = specifier.split("\\|");
 		this.shortName = specifierParts[0];
 		this.version = ((specifierParts.length > 1) ? specifierParts[1] : "");
 	}
 
-	public static boolean isValidName(String name) {
+	public static boolean isValidName(final String name) {
 		return name.matches("^[A-Za-z0-9_]+$");
 	}
 

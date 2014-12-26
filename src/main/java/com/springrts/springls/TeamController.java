@@ -42,10 +42,10 @@ public class TeamController {
 	public TeamController() {
 
 		setDefaultBattleStatus();
-		teamColor = Color.BLACK;
+		this.teamColor = Color.BLACK;
 	}
 
-	public TeamController(int battleStatus, Color teamColor) {
+	public TeamController(final int battleStatus, final Color teamColor) {
 
 		setBattleStatus(battleStatus);
 		this.teamColor = teamColor;
@@ -75,7 +75,7 @@ public class TeamController {
 	 * See the 'MYBATTLESTATUS' command for valid values
 	 * @param battleStatus the battleStatus to set
 	 */
-	public void setBattleStatus(int battleStatus) {
+	public void setBattleStatus(final int battleStatus) {
 
 		setReady(((battleStatus     & 0x2)       >> 1) == 1);
 		setTeam((battleStatus       & 0x3C)      >> 2);
@@ -109,7 +109,7 @@ public class TeamController {
 	 * See the 'MYBATTLESTATUS' command for valid values.
 	 * @param teamColor the teamColor to set
 	 */
-	public void setTeamColor(Color teamColor) {
+	public void setTeamColor(final Color teamColor) {
 		this.teamColor = teamColor;
 	}
 
@@ -117,7 +117,7 @@ public class TeamController {
 		return ready;
 	}
 
-	public void setReady(boolean ready) {
+	public void setReady(final boolean ready) {
 		this.ready = ready;
 	}
 
@@ -125,7 +125,7 @@ public class TeamController {
 		return team;
 	}
 
-	public void setTeam(int team) {
+	public void setTeam(final int team) {
 		this.team = team;
 	}
 
@@ -133,7 +133,7 @@ public class TeamController {
 		return allyTeam;
 	}
 
-	public void setAllyTeam(int allyTeam) {
+	public void setAllyTeam(final int allyTeam) {
 		this.allyTeam = allyTeam;
 	}
 
@@ -147,7 +147,7 @@ public class TeamController {
 	/**
 	 * Also called mode.
 	 */
-	public void setSpectator(boolean spectator) {
+	public void setSpectator(final boolean spectator) {
 		this.spectator = spectator;
 	}
 
@@ -155,7 +155,7 @@ public class TeamController {
 		return handicap;
 	}
 
-	public void setHandicap(int handicap) {
+	public void setHandicap(final int handicap) {
 		this.handicap = handicap;
 	}
 
@@ -163,7 +163,7 @@ public class TeamController {
 		return sync;
 	}
 
-	public void setSync(int sync) {
+	public void setSync(final int sync) {
 		this.sync = sync;
 	}
 
@@ -171,7 +171,7 @@ public class TeamController {
 		return side;
 	}
 
-	public void setSide(int side) {
+	public void setSide(final int side) {
 		this.side = side;
 	}
 }

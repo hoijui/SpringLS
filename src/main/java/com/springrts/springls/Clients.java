@@ -36,16 +36,60 @@ import org.slf4j.LoggerFactory;
  * @author Betalord
  * @author hoijui
  */
-public class Clients implements ContextReceiver, Updateable {
+public class Clients implements ContextReceiver, Updateable { // XXX support the List interface!
 
 	private static final Logger LOG = LoggerFactory.getLogger(Clients.class);
 
+	/** in milli-seconds */
+	private static final int TIMEOUT_CHECK = 5000;
+
+	private final List<Client> clients;
+
+	/**
+	 * A list of clients waiting to be killed/disconnected.
+	 * This is used when we want to kill a client but not immediately,
+	 * within a loop, for example.
+	 * Clients on the list will get killed at the start of a main server loop
+	 * iteration.
+	 * Any redundant entries will be removed, so a client will be killed only
+	 * once; no additional logic for consistency is required.
+	 * @see killClientDelayed(Client)
+	 */
+	private final List<KillJob> delayedKills;
+
+	/**
+	 * Here we keep a list of clients who have their send queues not empty.
+	 * This collection is not synchronized!
+	 * Use <code>Collections.synchronizedList(List)</code> to wrap it,
+	 * if synchronized access is needed.
+	 * @see http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collections.html#synchronizedList(java.util.List))
+	 */
+	private final Queue<Client> sendQueue;
+
+	/**
+	 * Time ({@link java.lang.System#currentTimeMillis()}) when we last checked
+	 * for timeouts from clients.
+	 */
+	private long lastTimeoutCheck;
+
+	private Context context;
+
+
+	public Clients() {
+
+		clients = new ArrayList<Client>();
+		delayedKills = new ArrayList<KillJob>();
+		sendQueue = new LinkedList<Client>();
+		lastTimeoutCheck = System.currentTimeMillis();
+		context = null;
+	}
+
 	private static class KillJob {
 
-		private Client client;
-		private String reason;
+		private final Client client;
+		private final String reason;
 
-		KillJob(Client client, String reason) {
+		KillJob(final Client client, final String reason) {
 
 			this.client = client;
 			this.reason = reason;
@@ -60,55 +104,11 @@ public class Clients implements ContextReceiver, Updateable {
 		}
 	}
 
-
-	/** in milli-seconds */
-	private static final int TIMEOUT_CHECK = 5000;
-
-	private List<Client> clients;
-
-	/**
-	 * A list of clients waiting to be killed/disconnected.
-	 * This is used when we want to kill a client but not immediately,
-	 * within a loop, for example.
-	 * Clients on the list will get killed at the start of a main server loop
-	 * iteration.
-	 * Any redundant entries will be removed, so a client will be killed only
-	 * once; no additional logic for consistency is required.
-	 * @see killClientDelayed(Client)
-	 */
-	private List<KillJob> delayedKills;
-
-	/**
-	 * Here we keep a list of clients who have their send queues not empty.
-	 * This collection is not synchronized!
-	 * Use <code>Collections.synchronizedList(List)</code> to wrap it,
-	 * if synchronized access is needed.
-	 * @see http://java.sun.com/j2se/1.5.0/docs/api/java/util/Collections.html#synchronizedList(java.util.List))
-	 */
-	private Queue<Client> sendQueue;
-
-	/**
-	 * Time ({@link java.lang.System#currentTimeMillis()}) when we last checked
-	 * for timeouts from clients.
-	 */
-	private long lastTimeoutCheck;
-
-	private Context context = null;
-
-
-	public Clients() {
-
-		clients = new ArrayList<Client>();
-		delayedKills = new ArrayList<KillJob>();
-		sendQueue = new LinkedList<Client>();
-		lastTimeoutCheck = System.currentTimeMillis();
-	}
-
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 
 		this.context = context;
-		for (Client client : clients) {
+		for (final Client client : clients) {
 			client.receiveContext(context);
 		}
 	}
@@ -128,7 +128,7 @@ public class Clients implements ContextReceiver, Updateable {
 
 	private void checkForTimeouts() {
 
-		for (Client client : getTimedOutClients()) {
+		for (final Client client : getTimedOutClients()) {
 			if (client.isHalfDead()) {
 				continue; // already scheduled for kill
 			}
@@ -149,17 +149,17 @@ public class Clients implements ContextReceiver, Updateable {
 	 */
 	public Collection<Client> getTimedOutClients() {
 
-		Collection<Client> timedOutClients = new LinkedList<Client>();
+		final Collection<Client> timedOutClients = new LinkedList<Client>();
 
-		boolean timeOut = ((System.currentTimeMillis() - lastTimeoutCheck)
+		final boolean timeOut = ((System.currentTimeMillis() - lastTimeoutCheck)
 				> TIMEOUT_CHECK);
 
 		if (timeOut) {
 			lastTimeoutCheck = System.currentTimeMillis();
-			long now = System.currentTimeMillis();
-			long timeoutLength = getContext().getServer().getTimeoutLength();
+			final long now = System.currentTimeMillis();
+			final long timeoutLength = getContext().getServer().getTimeoutLength();
 			for (int i = 0; i < getClientsSize(); i++) {
-				Client client = getClient(i);
+				final Client client = getClient(i);
 				if ((now - client.getTimeOfLastReceive()) > timeoutLength) {
 					timedOutClients.add(client);
 				}
@@ -174,10 +174,12 @@ public class Clients implements ContextReceiver, Updateable {
 	 * and register its socket channel with 'readSelector'.
 	 * @param sendBufferSize specifies the sockets send buffer size.
 	 */
-	public Client addNewClient(SocketChannel chan, Selector readSelector,
-			int sendBufferSize)
+	public Client addNewClient(
+			final SocketChannel chan,
+			final Selector readSelector,
+			final int sendBufferSize)
 	{
-		Client client = new Client(chan);
+		final Client client = new Client(chan);
 		client.receiveContext(context);
 		clients.add(client);
 
@@ -190,7 +192,7 @@ public class Clients implements ContextReceiver, Updateable {
 			//chan.socket().setSoTimeout(TIMEOUT_LENGTH);
 			client.setSelKey(chan.register(readSelector, SelectionKey.OP_READ,
 					client));
-		} catch (IOException ioex) {
+		} catch (final IOException ioex) {
 			LOG.warn("Failed to establish a connection with a client", ioex);
 			killClient(client, "Failed to establish a connection");
 			return null;
@@ -207,12 +209,11 @@ public class Clients implements ContextReceiver, Updateable {
 		return clients.size();
 	}
 
-	public Client getClient(String username) {
+	public Client getClient(final String username) {
 
 		Client theClient = null;
 
-		for (int i = 0; i < clients.size(); i++) {
-			Client toCheck = clients.get(i);
+		for (final Client toCheck : clients) {
 			if (toCheck.getAccount().getName().equals(username)) {
 				theClient = toCheck;
 				break;
@@ -221,59 +222,58 @@ public class Clients implements ContextReceiver, Updateable {
 
 		return theClient;
 	}
-	public Client getClient(Account account) {
+	public Client getClient(final Account account) {
 		return getClient(account.getName());
 	}
 
 	/** Returns null if index is out of bounds */
-	public Client getClient(int index) {
+	public Client getClient(final int index) {
 
 		try {
 			return clients.get(index);
-		} catch (IndexOutOfBoundsException e) {
+		} catch (final IndexOutOfBoundsException ex) {
 			return null;
 		}
 	}
 
 	/** Returns true if user is logged in */
-	public boolean isUserLoggedIn(Account acc) {
+	public boolean isUserLoggedIn(final Account acc) {
 		return (getClient(acc) != null);
 	}
 
-	public void sendToAllRegisteredUsers(String s) {
+	public void sendToAllRegisteredUsers(final String str) {
 
-		for (int i = 0; i < clients.size(); i++) {
-			Client toBeNotified = clients.get(i);
+		for (final Client toBeNotified : clients) {
 			if (toBeNotified.getAccount().getAccess().isAtLeast(
 					Account.Access.NORMAL))
 			{
-				toBeNotified.sendLine(s);
+				toBeNotified.sendLine(str);
 			}
 		}
 	}
 
 	/** Sends text to all registered users except for the client */
-	public void sendToAllRegisteredUsersExcept(Client client, String s) {
-
-		for (int i = 0; i < clients.size(); i++) {
-			Client toBeNotified = clients.get(i);
+	public void sendToAllRegisteredUsersExcept(
+			final Client client,
+			final String str)
+	{
+		for (final Client toBeNotified : clients) {
 			if ((toBeNotified.getAccount().getAccess().isAtLeast(
 					Account.Access.NORMAL)) && (toBeNotified != client))
 			{
 				continue;
 			}
-			toBeNotified.sendLine(s);
+			toBeNotified.sendLine(str);
 		}
 	}
 
-	public void sendToAllAdministrators(String s) {
+	public void sendToAllAdministrators(final String str) {
 
-		for (int i = 0; i < clients.size(); i++) {
-			Client toBeNotified = clients.get(i);
+		for (final Client toBeNotified : clients) {
 			if (toBeNotified.getAccount().getAccess().isAtLeast(
 					Account.Access.ADMIN))
 			{
-				toBeNotified.sendLine(s);
+				toBeNotified.sendLine(str);
 			}
 		}
 	}
@@ -282,11 +282,10 @@ public class Clients implements ContextReceiver, Updateable {
 	 * Notifies client of all statuses, including his own
 	 * (but only if they are different from 0)
 	 */
-	public void sendInfoOnStatusesToClient(Client client) {
+	public void sendInfoOnStatusesToClient(final Client client) {
 
 		client.beginFastWrite();
-		for (int i = 0; i < clients.size(); i++) {
-			Client toBeNotified = clients.get(i);
+		for (final Client toBeNotified : clients) {
 			if ((toBeNotified.getAccount().getAccess().isAtLeast(
 					Account.Access.NORMAL)) && toBeNotified.getStatus() != 0)
 			{
@@ -305,7 +304,7 @@ public class Clients implements ContextReceiver, Updateable {
 	 * Notifies all logged-in clients (including this client)
 	 * of the client's new status
 	 */
-	public void notifyClientsOfNewClientStatus(Client client) {
+	public void notifyClientsOfNewClientStatus(final Client client) {
 
 		sendToAllRegisteredUsers(String.format("CLIENTSTATUS %s %d",
 				client.getAccount().getName(),
@@ -317,11 +316,10 @@ public class Clients implements ContextReceiver, Updateable {
 	 * This list includes the client itself, assuming he is already logged in
 	 * and in the list.
 	 */
-	public void sendListOfAllUsersToClient(Client client) {
+	public void sendListOfAllUsersToClient(final Client client) {
 
 		client.beginFastWrite();
-		for (int i = 0; i < clients.size(); i++) {
-			Client toBeNotified = clients.get(i);
+		for (final Client toBeNotified : clients) {
 			if (toBeNotified.getAccount().getAccess().isAtLeast(
 					Account.Access.NORMAL))
 			{
@@ -347,16 +345,15 @@ public class Clients implements ContextReceiver, Updateable {
 	 * The new client is not notified, because he is already notified
 	 * by some other method.
 	 */
-	public void notifyClientsOfNewClientOnServer(Client client) {
+	public void notifyClientsOfNewClientOnServer(final Client client) {
 
-		String cmdNoId = String.format("ADDUSER %s %s %d",
+		final String cmdNoId = String.format("ADDUSER %s %s %d",
 				client.getAccount().getName(),
 				client.getCountry(),
 				client.getCpu());
-		String cmdWithId = cmdNoId + " " + client.getAccount().getId();
+		final String cmdWithId = cmdNoId + " " + client.getAccount().getId();
 
-		for (int i = 0; i < clients.size(); i++) {
-			Client toBeNotified = clients.get(i);
+		for (final Client toBeNotified : clients) {
 			if ((toBeNotified.getAccount().getAccess().isAtLeast(
 					Account.Access.NORMAL)) && (toBeNotified != client))
 			{
@@ -374,24 +371,26 @@ public class Clients implements ContextReceiver, Updateable {
 	 * He should also be notified through the JOINBATTLE command.
 	 * See the protocol description.
 	 */
-	public void notifyClientsOfNewClientInBattle(Battle battle, Client client) {
+	public void notifyClientsOfNewClientInBattle(
+			final Battle battle,
+			final Client client)
+	{
+		final StringBuilder cmd = new StringBuilder("JOINEDBATTLE ");
+		cmd
+				.append(battle.getId())
+				.append(' ').append(client.getAccount().getName());
 
-		StringBuilder cmd = new StringBuilder("JOINEDBATTLE ");
-		cmd.append(battle.getId());
-		cmd.append(" ").append(client.getAccount().getName());
-
-		String cmdNoScriptPassword = cmd.toString();
+		final String cmdNoScriptPassword = cmd.toString();
 
 		if (client.isScriptPassordSupported()
 				&& (!client.getScriptPassword().equals(
 				Client.NO_SCRIPT_PASSWORD)))
 		{
-			cmd.append(" ").append(client.getScriptPassword());
+			cmd.append(' ').append(client.getScriptPassword());
 		}
-		String cmdWithScriptPassword = cmd.toString();
+		final String cmdWithScriptPassword = cmd.toString();
 
-		for (int i = 0; i < clients.size(); i++) {
-			Client toBeNotified = clients.get(i);
+		for (final Client toBeNotified : clients) {
 			if (toBeNotified.getAccount().getAccess().isAtLeast(
 					Account.Access.NORMAL))
 			{
@@ -409,7 +408,7 @@ public class Clients implements ContextReceiver, Updateable {
 	 * Kills the client and its socket channel.
 	 * @see #killClient(Client client, String reason)
 	 */
-	public boolean killClient(Client client) {
+	public boolean killClient(final Client client) {
 		return killClient(client, null);
 	}
 
@@ -421,23 +420,23 @@ public class Clients implements ContextReceiver, Updateable {
 	 *   channel of this client's departure reason. It may be left blank ("") or
 	 *   be set to <code>null</code> to give no reason.
 	 */
-	public boolean killClient(Client client, String reason) {
+	public boolean killClient(final Client client, final String reason) {
 
-		int index = clients.indexOf(client);
+		final int index = clients.indexOf(client);
 		if (index == -1 || !client.isAlive()) {
 			return false;
 		}
 		client.disconnect();
 		clients.remove(index);
 		client.setAlive(false);
-		String reasonNonNull = ((reason == null) || reason.trim().isEmpty())
+		final String reasonNonNull = ((reason == null) || reason.trim().isEmpty())
 				? "Quit" : reason;
 
 		// let's remove client from all channels he is participating in:
 		client.leaveAllChannels(reasonNonNull);
 
 		if (client.getBattleID() != Battle.NO_BATTLE_ID) {
-			Battle battle = context.getBattles().getBattleByID(
+			final Battle battle = context.getBattles().getBattleByID(
 					client.getBattleID());
 			if (battle == null) {
 				LOG.error("Invalid battle ID. Server will now exit!");
@@ -457,7 +456,7 @@ public class Clients implements ContextReceiver, Updateable {
 			LOG.debug("Unregistered user killed");
 		}
 
-		Configuration conf = context.getService(Configuration.class);
+		final Configuration conf = context.getService(Configuration.class);
 		if (conf.getBoolean(ServerConfiguration.LAN_MODE)) {
 			context.getAccountsService().removeAccount(client.getAccount());
 		}
@@ -473,7 +472,7 @@ public class Clients implements ContextReceiver, Updateable {
 	 * since that would "broke" our loop, as we go from index 0 to the highest
 	 * index, which would be invalid as the highest index would decrease by 1.
 	 */
-	public void killClientDelayed(Client client, String reason) {
+	public void killClientDelayed(final Client client, final String reason) {
 
 		delayedKills.add(new KillJob(client, reason));
 		client.setHalfDead(true);
@@ -487,7 +486,7 @@ public class Clients implements ContextReceiver, Updateable {
 	public void processKillList() {
 
 		while (!delayedKills.isEmpty()) {
-			KillJob killJob = delayedKills.remove(0);
+			final KillJob killJob = delayedKills.remove(0);
 			killClient(killJob.getClient(), killJob.getReason());
 		}
 	}
@@ -511,7 +510,7 @@ public class Clients implements ContextReceiver, Updateable {
 	}
 
 	/** Adds client to the queue of clients who have more data to be sent */
-	public void enqueueDelayedData(Client client) {
+	public void enqueueDelayedData(final Client client) {
 		sendQueue.add(client);
 	}
 }

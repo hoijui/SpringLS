@@ -36,12 +36,12 @@ public class Engine {
 	private final int maxAllyTeams;
 
 
-	public Engine(int maxTeams, int maxAllyTeams) {
+	public Engine(final int maxTeams, final int maxAllyTeams) {
 
 		this.maxTeams = maxTeams;
 		this.maxAllyTeams = maxAllyTeams;
 	}
-	public Engine(int maxTeams) {
+	public Engine(final int maxTeams) {
 		this(maxTeams, maxTeams);
 	}
 	public Engine() {

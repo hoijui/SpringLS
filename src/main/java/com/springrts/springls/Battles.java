@@ -35,25 +35,25 @@ public class Battles implements ContextReceiver {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Battle.class);
 
-	private List<Battle> battles;
-	private Context context = null;
-
+	private final List<Battle> battles;
+	private Context context;
 
 	public Battles() {
+
 		this.battles = new ArrayList<Battle>();
+		this.context = null;
 	}
 
-
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 
 		this.context = context;
-		for (Battle battle : battles) {
+		for (final Battle battle : battles) {
 			battle.receiveContext(context);
 		}
 	}
 
-	public void verify(Battle battle) {
+	public void verify(final Battle battle) {
 
 		if (battle == null) {
 			LOG.error("Invalid battle ID. Server will now exit!");
@@ -69,14 +69,14 @@ public class Battles implements ContextReceiver {
 	 * If battle with id 'battleID' exist, it is returned,
 	 * or else null is returned.
 	 */
-	public Battle getBattleByID(int battleId) {
+	public Battle getBattleByID(final int battleId) {
 
 		Battle battle = null;
 
 		if (battleId != Battle.NO_BATTLE_ID) { // only used for speedup
-			for (int i = 0; i < battles.size(); i++) {
-				if (battles.get(i).getId() == battleId) {
-					battle = battles.get(i);
+			for (final Battle battle1 : battles) {
+				if (battle1.getId() == battleId) {
+					battle = battle1;
 					break;
 				}
 			}
@@ -86,23 +86,24 @@ public class Battles implements ContextReceiver {
 	}
 
 	/** Returns null if index is out of bounds */
-	public Battle getBattleByIndex(int index) {
+	public Battle getBattleByIndex(final int index) {
+
 		try {
 			return battles.get(index);
-		} catch (IndexOutOfBoundsException e) {
+		} catch (final IndexOutOfBoundsException ex) {
 			return null;
 		}
 	}
 
 	private static class BattleCloser implements Processor<Client> {
 		@Override
-		public void process(Client curClient) {
+		public void process(final Client curClient) {
 			curClient.setBattleID(Battle.NO_BATTLE_ID);
 		}
 	}
 
 	/** Will close given battle and notify all clients about it */
-	public void closeBattleAndNotifyAll(Battle battle) {
+	public void closeBattleAndNotifyAll(final Battle battle) {
 
 		battle.applyToClientsAndFounder(new BattleCloser());
 
@@ -116,7 +117,7 @@ public class Battles implements ContextReceiver {
 	 * This also checks if the client is the founder and closes the battle in
 	 * that case. All client's bots in this battle are removed as well.
 	 */
-	public boolean leaveBattle(Client client, Battle battle) {
+	public boolean leaveBattle(final Client client, final Battle battle) {
 
 		if (battle.getFounder() == client) {
 			closeBattleAndNotifyAll(battle);
@@ -138,14 +139,14 @@ public class Battles implements ContextReceiver {
 
 	private static class BattleJoiner implements Processor<Client> {
 
-		private int battleId;
+		private final int battleId;
 
-		BattleJoiner(int battleId) {
+		BattleJoiner(final int battleId) {
 			this.battleId = battleId;
 		}
 
 		@Override
-		public void process(Client curClient) {
+		public void process(final Client curClient) {
 			curClient.sendLine(String.format("JOINEDBATTLE %d %s", battleId,
 					curClient.getAccount().getName()));
 		}
@@ -158,11 +159,10 @@ public class Battles implements ContextReceiver {
 	public void sendInfoOnBattlesToClient(final Client client) {
 
 		client.beginFastWrite();
-		for (int i = 0; i < battles.size(); i++) {
-			final Battle battle = battles.get(i);
+		for (final Battle battle : battles) {
 			// make sure that clients behind NAT get local IPs and not external
 			// ones
-			boolean local = battle.getFounder().getIp().equals(client.getIp());
+			final boolean local = battle.getFounder().getIp().equals(client.getIp());
 			client.sendLine(battle.createBattleOpenedCommandEx(local));
 			// We have to send UPDATEBATTLEINFO command too,
 			// in order to tell the user how many spectators are in the battle,
@@ -184,21 +184,21 @@ public class Battles implements ContextReceiver {
 	 * battle attributes from it.
 	 * @return the created battle or 'null' on failure
 	 */
-	public Battle createBattleFromString(List<String> args, Client founder) {
+	public Battle createBattleFromString(final List<String> args, final Client founder) {
 
 		if (args.size() < 9) {
 			return null;
 		}
 
-		String[] parsed2 = Misc.makeSentence(args, 8).split("\t");
+		final String[] parsed2 = Misc.makeSentence(args, 8).split("\t");
 		if (parsed2.length != 3) {
 			return null;
 		}
-		String mapName = parsed2[0];
-		String title   = parsed2[1];
-		String gameName = parsed2[2];
+		final String mapName = parsed2[0];
+		final String title   = parsed2[1];
+		final String gameName = parsed2[2];
 
-		String pass = args.get(2);
+		final String pass = args.get(2);
 		if (!pass.equals("*") && !pass.matches("^[A-Za-z0-9_]+$")) {
 			// invalid characters in the password
 			return null;
@@ -232,16 +232,14 @@ public class Battles implements ContextReceiver {
 			return null;
 		}
 
-		Battle battle = new Battle(type, natType, founder, pass, port,
+		return new Battle(type, natType, founder, pass, port,
 				maxPlayers, hash, rank, maphash, mapName, title, gameName);
-
-		return battle;
 	}
 
 	/**
 	 * Will add this battle object to battle list
 	 */
-	public void addBattle(Battle battle) {
+	public void addBattle(final Battle battle) {
 
 		battles.add(battle);
 		battle.receiveContext(context);

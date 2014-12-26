@@ -39,22 +39,22 @@ public final class TASServer {
 
 	private TASServer() {}
 
-	public static void startServerInstance(Configuration configuration) {
+	public static void startServerInstance(final Configuration configuration) {
 
-		Framework framework = createFramework();
+		final Framework framework = createFramework();
 		if (framework == null) {
 			return;
 		}
 		try {
 			framework.start();
-		} catch (BundleException ex) {
+		} catch (final BundleException ex) {
 			LOG.error("Failed to start the OSGi framework", ex);
 			return;
 		}
 
 		framework.getBundleContext().registerService(Configuration.class.getName(), configuration, null);
 
-		Context context = new Context();
+		final Context context = new Context();
 		context.setFramework(framework);
 		context.init();
 		framework.getBundleContext().registerService(Context.class.getName(), context, null);
@@ -100,10 +100,10 @@ public final class TASServer {
 
 		Framework framework = null;
 
-		Iterator<FrameworkFactory> frameworkFactoryIterator
+		final Iterator<FrameworkFactory> frameworkFactoryIterator
 				= ServiceLoader.load(FrameworkFactory.class).iterator();
 		if (frameworkFactoryIterator.hasNext()) {
-			FrameworkFactory frameworkFactory = frameworkFactoryIterator.next();
+			final FrameworkFactory frameworkFactory = frameworkFactoryIterator.next();
 			framework = frameworkFactory.newFramework(createFrameworkConfig());
 		} else {
 			LOG.error("No OSGi framework implementation was found.");

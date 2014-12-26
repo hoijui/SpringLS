@@ -64,7 +64,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 	 */
 	public static final String KEY_NONE_2  = "*";
 
-	private String name;
+	private final String name;
 	/**
 	 * @see #TOPIC_NONE
 	 */
@@ -79,30 +79,32 @@ public class Channel implements ContextReceiver, LiveStateListener {
 	 */
 	private String key;
 	/** The clients participating in this channel */
-	private List<Client> clients;
+	private final List<Client> clients;
 	/**
 	 * Contains a list of user names which are muted
 	 * (not allowed to talk in the channel).
 	 */
-	private MuteList muteList = new MuteList(this);
+	private final MuteList muteList;
 	/** If not <code>null</code>, this channel gets logged to a file. */
 	private File logFile;
 	private boolean logging;
 	/** If not <code>null</code>, this channel gets logged to a file. */
 	private PrintStream fileLog;
-	private Context context = null;
+	private Context context;
 
 
-	public Channel(String name) {
+	public Channel(final String name) {
 
 		this.name = name;
 		topic = TOPIC_NONE;
 		topicAuthor = "";
 		key = KEY_NONE;
 		clients = new ArrayList<Client>();
+		muteList = new MuteList(this);
 		logFile = createDefaultActivityLogFilePath(name);
 		logging = false;
 		fileLog = null;
+		context = null;
 	}
 
 
@@ -112,17 +114,17 @@ public class Channel implements ContextReceiver, LiveStateListener {
 	 * @param channelName the name of the channel to query the log file for
 	 * @return local file-system path to a channels activity log file
 	 */
-	public static File createDefaultActivityLogFilePath(String channelName) {
+	public static File createDefaultActivityLogFilePath(final String channelName) {
 		return new File(LOG_FILES_DIR, "channel_" + channelName + ".log");
 	}
 
-	public static boolean isTopicNone(String topic) {
+	public static boolean isTopicNone(final String topic) {
 		return (topic.equals(TOPIC_NONE) || topic.equals(TOPIC_NONE_2));
 	}
 
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 
 		this.context = context;
 		actualiseToConfiguration();
@@ -142,9 +144,9 @@ public class Channel implements ContextReceiver, LiveStateListener {
 
 	private void actualiseToConfiguration() {
 
-		Configuration configuration =
+		final Configuration configuration =
 				context.getService(Configuration.class);
-		String channelsToLogRegex =
+		final String channelsToLogRegex =
 				configuration.getString(ServerConfiguration.CHANNELS_LOG_REGEX);
 		setLogging(name.matches(channelsToLogRegex));
 	}
@@ -173,7 +175,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 	 * @return returns true if the new topic has been set, false if the topic
 	 *   has been disabled.
 	 */
-	public boolean setTopic(String newTopic, String author) {
+	public boolean setTopic(final String newTopic, final String author) {
 
 		topicAuthor = author;
 		topicChangedTime = System.currentTimeMillis();
@@ -196,7 +198,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 	}
 
 	/** Sends 'msg' as a channel message to all clients on this channel */
-	public void broadcast(String msg) {
+	public void broadcast(final String msg) {
 
 		if (msg.trim().isEmpty()) {
 			// do not send empty messages
@@ -207,7 +209,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 	}
 
 	/** Adds new client to the list of clients of this channel */
-	public void addClient(Client client) {
+	public void addClient(final Client client) {
 
 		if (isClientInThisChannel(client)) {
 			// already in the channel!
@@ -217,11 +219,11 @@ public class Channel implements ContextReceiver, LiveStateListener {
 		clients.add(client);
 	}
 
-	public boolean removeClient(Client client) {
+	public boolean removeClient(final Client client) {
 		return clients.remove(client);
 	}
 
-	public boolean isClientInThisChannel(Client client) {
+	public boolean isClientInThisChannel(final Client client) {
 		return (clients.indexOf(client) != -1);
 	}
 
@@ -231,22 +233,22 @@ public class Channel implements ContextReceiver, LiveStateListener {
 	}
 
 	/** Returns null if index if out of bounds */
-	public Client getClient(int index) {
+	public Client getClient(final int index) {
 
 		try {
 			return clients.get(index);
-		} catch (IndexOutOfBoundsException ex) {
+		} catch (final IndexOutOfBoundsException ex) {
 			return null;
 		}
 	}
 
 	/** Sends a text to all clients in this channel */
-	public void sendLineToClients(String msg) {
+	public void sendLineToClients(final String msg) {
 
 		if (fileLog != null) {
 			// As DateFormats are generally not-thread save,
 			// we always create a new one.
-			DateFormat timeFormat = new SimpleDateFormat("<HH:mm:ss> ");
+			final DateFormat timeFormat = new SimpleDateFormat("<HH:mm:ss> ");
 			fileLog.println(timeFormat.format(new Date()));
 			fileLog.println(msg);
 		}
@@ -259,7 +261,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 		return !(key.equals(KEY_NONE) || key.equals(KEY_NONE_2));
 	}
 
-	public void setKey(String key) {
+	public void setKey(final String key) {
 		this.key = key;
 	}
 
@@ -292,7 +294,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 	}
 
 	// TODO use slf4j too?
-	public boolean setLogging(boolean enabled) {
+	public boolean setLogging(final boolean enabled) {
 
 		// only change if change is needed
 		if (enabled != isLogging()) {
@@ -308,7 +310,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 					fileLog.println(new SimpleDateFormat("dd/MM/yy")
 							.format(new Date()));
 					logging = true;
-				} catch (IOException ex) {
+				} catch (final IOException ex) {
 					try {
 						if (fileLog != null) {
 							fileLog.close();
@@ -317,7 +319,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 						} else if (fOut != null) {
 							fOut.close();
 						}
-					} catch (IOException ex2) {
+					} catch (final IOException ex2) {
 						LOG.warn("Failed to close buffered stream to channel"
 								+ " log-file " + logFile.getAbsolutePath(),
 								ex2);
@@ -330,7 +332,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 			} else {
 				try {
 					fileLog.close();
-				} catch (Exception ex) {
+				} catch (final Exception ex) {
 					LOG.warn("Failed to close buffered stream to channel"
 							+ " log-file " + logFile.getAbsolutePath(), ex);
 				}

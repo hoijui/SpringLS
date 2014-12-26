@@ -40,7 +40,7 @@ public class Battle implements ContextReceiver {
 	private static final Logger LOG = LoggerFactory.getLogger(Battle.class);
 
 	/** the id that the next battle will have */
-	private static int nextId;
+	private static int nextId; // FIXME BAD! make non-static and move to class BattleS
 
 	/**
 	 * This is used as a null kind of value,
@@ -48,37 +48,37 @@ public class Battle implements ContextReceiver {
 	 */
 	public static final int NO_BATTLE_ID = -1;
 	/** unique id */
-	private int id;
+	private final int id;
 	/** 0 = normal battle, 1 = battle replay */
-	private int type;
+	private final int type;
 	/** NAT traversal technique used by the host. Use 0 for none. */
-	private int natType;
+	private final int natType;
 	/** description set by the founder of the battle */
-	private String title;
+	private final String title;
 	/** founder (host) of the battle */
-	private Client founder;
+	private final Client founder;
 	/** clients without the founder (host) */
-	private List<Client> clients;
+	private final List<Client> clients;
 	/** bots added by clients participating in this battle */
-	private List<Bot> bots;
+	private final List<Bot> bots;
 	/** see protocol description for details */
-	private String gameName;
+	private final String gameName;
 	/** name of the map currently selected for this battle */
 	private String mapName;
 	/** see protocol description for details */
 	private int mapHash;
 	/** maximum number of players (including bots) that can participate */
-	private int maxPlayers;
+	private final int maxPlayers;
 	/** use restricted() method to find out if battle is password-protected */
-	private String password;
+	private final String password;
 	/** IP port number this battle will be hosted on (default is 8452). */
-	private int port;
+	private final int port;
 	/**
 	 * This is a checksum over all the content required to participate in
 	 * the to be played game.
 	 * See "Syncing" in the lobby protocol specs for more details.
 	 */
-	private int hashCode;
+	private final int hashCode;
 	/**
 	 * If 0, no rank limit is set.
 	 * If 1 or higher, only players with this rank (or higher)
@@ -88,9 +88,9 @@ public class Battle implements ContextReceiver {
 	 * because that means the game is open to all players
 	 * and you do not have to limit it in that case)
 	 */
-	private int rank;
+	private final int rank;
 	/** list of unit-definition names which are not allowed to be built */
-	private List<String> disabledUnits;
+	private final List<String> disabledUnits;
 	/** list of start rectangles */
 	private List<StartRect> startRects;
 	/**
@@ -99,7 +99,7 @@ public class Battle implements ContextReceiver {
 	 */
 	private boolean locked;
 	/**  */
-	private Map<String, String> scriptTags;
+	private final Map<String, String> scriptTags;
 	/**
 	 * contains lines of the script file.
 	 * This is only used if type == 1.
@@ -111,22 +111,22 @@ public class Battle implements ContextReceiver {
 	 * and notify all clients about it.
 	 * This is only used if type == 1.
 	 */
-	private List<String> tempReplayScript;
+	private final List<String> tempReplayScript;
+	private Context context;
 
-	private Context context = null;
-
-
-	@Override
-	public void receiveContext(Context context) {
-
-		this.context = context;
-		initStartRects();
-	}
-
-
-	public Battle(int type, int natType, Client founder, String password,
-			int port, int maxPlayers, int hashCode, int rank, int mapHash,
-			String mapName, String title, String gameName)
+	public Battle(
+			final int type,
+			final int natType,
+			final Client founder,
+			final String password,
+			final int port,
+			final int maxPlayers,
+			final int hashCode,
+			final int rank,
+			final int mapHash,
+			final String mapName,
+			final String title,
+			final String gameName)
 	{
 		this.id = nextId++;
 		this.type = type;
@@ -151,9 +151,16 @@ public class Battle implements ContextReceiver {
 		this.tempReplayScript = new ArrayList<String>();
 	}
 
+	@Override
+	public void receiveContext(final Context context) {
+
+		this.context = context;
+		initStartRects();
+	}
+
 	private void initStartRects() {
 
-		int maxAllyTeams = context.getEngine().getMaxAllyTeams();
+		final int maxAllyTeams = context.getEngine().getMaxAllyTeams();
 		this.startRects = new ArrayList<StartRect>(maxAllyTeams);
 		for (int at = 0; at < maxAllyTeams; at++) {
 			this.getStartRects().add(new StartRect());
@@ -173,9 +180,9 @@ public class Battle implements ContextReceiver {
 	 * what IP to use (local or external).
 	 * @see #createBattleOpenedCommand()
 	 */
-	public String createBattleOpenedCommandEx(boolean local) {
+	public String createBattleOpenedCommandEx(final boolean local) {
 
-		InetAddress addr;
+		final InetAddress addr;
 		if (local) {
 			addr = getFounder().getLocalIp();
 		} else {
@@ -203,12 +210,12 @@ public class Battle implements ContextReceiver {
 
 		private final Client client;
 
-		BattleStatusNotifyer(Client client) {
+		BattleStatusNotifyer(final Client client) {
 			this.client = client;
 		}
 
 		@Override
-		public void process(Client curClient) {
+		public void process(final Client curClient) {
 			if (curClient != client) {
 				client.sendLine(String.format("CLIENTBATTLESTATUS %s %d %d",
 						curClient.getAccount().getName(),
@@ -230,7 +237,7 @@ public class Battle implements ContextReceiver {
 	 * Notifies all clients in the battle (including the client)
 	 * about the new battle status of the client.
 	 */
-	public void notifyClientsOfBattleStatus(Client client) {
+	public void notifyClientsOfBattleStatus(final Client client) {
 
 		sendToAllClients(String.format("CLIENTBATTLESTATUS %s %d %d",
 				client.getAccount().getName(),
@@ -238,7 +245,7 @@ public class Battle implements ContextReceiver {
 				ProtocolUtil.colorJavaToSpring(client.getTeamColor())));
 	}
 
-	public void notifyClientJoined(Client client) {
+	public void notifyClientJoined(final Client client) {
 
 		// do the actuall joining and notifying
 		client.setDefaultBattleStatus();
@@ -256,11 +263,12 @@ public class Battle implements ContextReceiver {
 		if ((getNatType() == 1) || (getNatType() == 2)) {
 			// make sure that clients behind NAT get local IPs and not external
 			// ones
-			InetAddress ip = (getFounder().getIp().equals(client.getIp())
+			final InetAddress ipAddress
+					= (getFounder().getIp().equals(client.getIp())
 					? client.getLocalIp() : client.getIp());
 			getFounder().sendLine(String.format("CLIENTIPPORT %s %s %d",
 					client.getAccount().getName(),
-					ip.getHostAddress(),
+					ipAddress.getHostAddress(),
 					client.getUdpSourcePort()));
 		}
 
@@ -279,12 +287,12 @@ public class Battle implements ContextReceiver {
 
 		private final String message;
 
-		MessageSender(String message) {
+		MessageSender(final String message) {
 			this.message = message;
 		}
 
 		@Override
-		public void process(Client curClient) {
+		public void process(final Client curClient) {
 			curClient.sendLine(message);
 		}
 	}
@@ -305,16 +313,16 @@ public class Battle implements ContextReceiver {
 
 	public String clientsToString() {
 
-		String clientsString = null;
-
+		final String clientsString;
 		if (!clients.isEmpty()) {
-			StringBuilder sb = new StringBuilder();
-			for (Client curClient : clients) {
-				sb.append(" ").append(curClient.getAccount().getName());
+			final StringBuilder clientStringBuilder = new StringBuilder();
+			for (final Client curClient : clients) {
+				clientStringBuilder.append(' ')
+						.append(curClient.getAccount().getName());
 			}
 			// delete the initial " "
-			sb.deleteCharAt(0);
-			clientsString = sb.toString();
+			clientStringBuilder.deleteCharAt(0);
+			clientsString = clientStringBuilder.toString();
 		} else {
 			clientsString = "";
 		}
@@ -322,30 +330,29 @@ public class Battle implements ContextReceiver {
 		return clientsString;
 	}
 
-
-	public void applyToClients(Processor<? super Client> clientsProcessor) {
-
-		for (int c = 0; c < clients.size(); c++) {
-			clientsProcessor.process(clients.get(c));
+	public void applyToClients(final Processor<? super Client> clientsProcessor)
+	{
+		for (final Client client : clients) {
+			clientsProcessor.process(client);
 		}
 	}
 
 	public void applyToClientsAndFounder(
-			Processor<? super Client> clientsProcessor)
+			final Processor<? super Client> clientsProcessor)
 	{
 		applyToClients(clientsProcessor);
 		clientsProcessor.process(founder);
 	}
 
-	private void applyToBots(Processor<? super Bot> botsProcessor) {
+	private void applyToBots(final Processor<? super Bot> botsProcessor) {
 
-		for (int b = 0; b < bots.size(); b++) {
-			botsProcessor.process(bots.get(b));
+		for (final Bot bot : bots) {
+			botsProcessor.process(bot);
 		}
 	}
 
 	public void applyToTeamControllers(
-			Processor<? super TeamController> teamControllerProcessor)
+			final Processor<? super TeamController> teamControllerProcessor)
 	{
 		applyToClients(teamControllerProcessor);
 		teamControllerProcessor.process(founder);
@@ -360,11 +367,11 @@ public class Battle implements ContextReceiver {
 		return clients.size();
 	}
 
-	public boolean addClient(Client client) {
+	public boolean addClient(final Client client) {
 		return this.clients.add(client);
 	}
 
-	public boolean removeClient(Client client) {
+	public boolean removeClient(final Client client) {
 		return this.clients.remove(client);
 	}
 
@@ -381,7 +388,7 @@ public class Battle implements ContextReceiver {
 		private int count = 0;
 
 		@Override
-		public void process(Client curClient) {
+		public void process(final Client curClient) {
 			if (curClient.isSpectator()) {
 				count++;
 			}
@@ -400,7 +407,7 @@ public class Battle implements ContextReceiver {
 	 */
 	public int spectatorCount() {
 
-		SpectatorCounter spectatorCounter = new SpectatorCounter();
+		final SpectatorCounter spectatorCounter = new SpectatorCounter();
 		applyToClientsAndFounder(spectatorCounter);
 
 		return spectatorCounter.getCount();
@@ -410,21 +417,21 @@ public class Battle implements ContextReceiver {
 		return getClientsSize() + 1 - spectatorCount();
 	}
 
-	public boolean isClientInBattle(Client client) {
+	public boolean isClientInBattle(final Client client) {
 		return (client.equals(getFounder()) || clients.contains(client));
 	}
 
-	private void sendDisabledUnitsListToClient(Client client) {
+	private void sendDisabledUnitsListToClient(final Client client) {
 
 		if (getDisabledUnits().isEmpty()) {
 			// nothing to send
 			return;
 		}
 
-		StringBuilder line = new StringBuilder("DISABLEUNITS ");
+		final StringBuilder line = new StringBuilder("DISABLEUNITS ");
 		line.append(getDisabledUnits().get(0));
 		for (int i = 1; i < getDisabledUnits().size(); i++) {
-			line.append(" ").append(getDisabledUnits().get(i));
+			line.append(' ').append(getDisabledUnits().get(i));
 		}
 
 		client.sendLine(line.toString());
@@ -439,10 +446,9 @@ public class Battle implements ContextReceiver {
 	 * Returns Bot object of the specified bot, or <code>null</code>
 	 * if the bot does not exist
 	 */
-	public Bot getBot(String name) {
+	public Bot getBot(final String name) {
 
-		for (int i = 0; i < bots.size(); i++) {
-			Bot bot = bots.get(i);
+		for (final Bot bot : bots) {
 			if (bot.getName().equals(name)) {
 				return bot;
 			}
@@ -451,13 +457,13 @@ public class Battle implements ContextReceiver {
 	}
 
 	/** Returns <code>null</code> if index is out of bounds */
-	public Bot getBot(int index) {
+	public Bot getBot(final int index) {
 
-		Bot bot = null;
+		Bot bot;
 
 		try {
 			bot = bots.get(index);
-		} catch (IndexOutOfBoundsException ex) {
+		} catch (final IndexOutOfBoundsException ex) {
 			LOG.error("Failed fetching a bot by index", ex);
 			bot = null;
 		}
@@ -466,7 +472,7 @@ public class Battle implements ContextReceiver {
 	}
 
 	/** Adds the specified bot to the bot list, and informs other clients */
-	public void addBot(Bot bot) {
+	public void addBot(final Bot bot) {
 
 		bots.add(bot);
 
@@ -483,9 +489,9 @@ public class Battle implements ContextReceiver {
 	 * Removes the specified bot from the bot list if present, and informs other
 	 * clients.
 	 */
-	public boolean removeBot(Bot bot) {
+	public boolean removeBot(final Bot bot) {
 
-		boolean containedBot = bots.remove(bot);
+		final boolean containedBot = bots.remove(bot);
 
 		if (containedBot) {
 			sendToAllClients(String.format("REMOVEBOT %d %s", getId(),
@@ -496,25 +502,23 @@ public class Battle implements ContextReceiver {
 	}
 
 	/* Removes all bots owned by client */
-	public void removeClientBots(Client client) {
+	public void removeClientBots(final Client client) {
 
-		Set<Bot> clientsBots = new HashSet<Bot>();
-		for (int i = 0; i < bots.size(); i++) {
-			Bot bot = bots.get(i);
+		final Set<Bot> clientsBots = new HashSet<Bot>();
+		for (final Bot bot : bots) {
 			if (bot.getOwnerName().equals(client.getAccount().getName())) {
 				clientsBots.add(bot);
 			}
 		}
 
-		for (Bot bot : clientsBots) {
+		for (final Bot bot : clientsBots) {
 			removeBot(bot);
 		}
 	}
 
-	private void sendBotListToClient(Client client) {
+	private void sendBotListToClient(final Client client) {
 
-		for (int i = 0; i < bots.size(); i++) {
-			Bot bot = bots.get(i);
+		for (final Bot bot : bots) {
 			client.sendLine(String.format("ADDBOT %d %s %s %d %d %s",
 					getId(),
 					bot.getName(),
@@ -525,10 +529,10 @@ public class Battle implements ContextReceiver {
 		}
 	}
 
-	private void sendStartRectsListToClient(Client client) {
+	private void sendStartRectsListToClient(final Client client) {
 
 		for (int i = 0; i < getStartRects().size(); i++) {
-			StartRect curStartRect = getStartRects().get(i);
+			final StartRect curStartRect = getStartRects().get(i);
 			if (curStartRect.isEnabled()) {
 				client.sendLine(String.format("ADDSTARTRECT %d %d %d %d %d",
 						i,
@@ -540,7 +544,7 @@ public class Battle implements ContextReceiver {
 		}
 	}
 
-	private void sendScriptToClient(Client client) {
+	private void sendScriptToClient(final Client client) {
 
 		client.beginFastWrite();
 		client.sendLine("SCRIPTSTART");
@@ -553,8 +557,8 @@ public class Battle implements ContextReceiver {
 
 	public void sendScriptToAllExceptFounder() {
 
-		for (int i = 0; i < clients.size(); i++) {
-			sendScriptToClient(clients.get(i));
+		for (final Client client : clients) {
+			sendScriptToClient(client);
 		}
 	}
 
@@ -564,11 +568,12 @@ public class Battle implements ContextReceiver {
 	 */
 	private String joinScriptTags() {
 
-		StringBuilder joined = new StringBuilder();
+		final StringBuilder joined = new StringBuilder();
 
-		for (Map.Entry<String, String> e : getScriptTags().entrySet()) {
-			joined.append("\t");
-			joined.append(e.getKey()).append("=").append(e.getValue());
+		for (final Map.Entry<String, String> tag : getScriptTags().entrySet()) {
+			joined
+					.append('\t')
+					.append(tag.getKey()).append('=').append(tag.getValue());
 		}
 		// delete the initial "\t"
 		if (joined.length() > 0) {
@@ -578,7 +583,7 @@ public class Battle implements ContextReceiver {
 		return joined.toString();
 	}
 
-	private void sendScriptTagsToClient(Client client) {
+	private void sendScriptTagsToClient(final Client client) {
 
 		if (getScriptTags().isEmpty()) {
 			// nothing to send
@@ -648,7 +653,7 @@ public class Battle implements ContextReceiver {
 	 * name of the map currently selected for this battle
 	 * @param mapName the mapName to set
 	 */
-	public void setMapName(String mapName) {
+	public void setMapName(final String mapName) {
 		this.mapName = mapName;
 	}
 
@@ -712,7 +717,7 @@ public class Battle implements ContextReceiver {
 	 * see protocol description for details
 	 * @param mapHash the mapHash to set
 	 */
-	public void setMapHash(int mapHash) {
+	public void setMapHash(final int mapHash) {
 		this.mapHash = mapHash;
 	}
 
@@ -754,7 +759,7 @@ public class Battle implements ContextReceiver {
 	 * (until the lock is released by founder)
 	 * @param locked the locked to set
 	 */
-	public void setLocked(boolean locked) {
+	public void setLocked(final boolean locked) {
 		this.locked = locked;
 	}
 

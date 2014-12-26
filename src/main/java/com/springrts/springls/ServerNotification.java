@@ -42,11 +42,11 @@ public class ServerNotification {
 	 */
 	private StringBuilder message;
 
-	public ServerNotification(String title) {
+	public ServerNotification(final String title) {
 		this(title, "$" + Server.getApplicationName());
 	}
 
-	public ServerNotification(String title, String author, String firstLine) {
+	public ServerNotification(final String title, final String author, final String firstLine) {
 
 		this.time    = System.currentTimeMillis();
 		this.title   = title;
@@ -54,11 +54,11 @@ public class ServerNotification {
 		this.message = new StringBuilder(firstLine);
 	}
 
-	public ServerNotification(String title, String author) {
+	public ServerNotification(final String title, final String author) {
 		this(title, author, "");
 	}
 
-	public void addLine(String line) {
+	public void addLine(final String line) {
 		message.append(Misc.EOL).append(line);
 	}
 
@@ -67,21 +67,20 @@ public class ServerNotification {
 	 * threads with the same Exception object.
 	 * It has to be thread-safe, since multiple threads may call it.
 	 */
-	public void addException(Exception ex) {
+	public void addException(final Exception ex) {
 
 		message.append(ex.toString());
 
-		StackTraceElement[] trace = ex.getStackTrace();
-		for (int i = 0; i < trace.length; i++) {
-			message.append(Misc.EOL).append("\tat ")
-					.append(trace[i].toString());
+		final StackTraceElement[] trace = ex.getStackTrace();
+		for (final StackTraceElement traceElement : trace) {
+			message.append(Misc.EOL).append("\tat ").append(traceElement.toString());
 		}
 	}
 
 	@Override
 	public String toString() {
 
-		StringBuilder str = new StringBuilder();
+		final StringBuilder str = new StringBuilder();
 
 		str.append(getAuthor()).append(Misc.EOL);
 		str.append(getTitle()).append(Misc.EOL);
