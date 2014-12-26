@@ -39,17 +39,17 @@ public class RequestUpdateFileCommandProcessor extends AbstractCommandProcessor 
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		String version = Misc.makeSentence(args, 0);
-		UpdateProperties updateProperties = getService(UpdateProperties.class);
-		String response = updateProperties.getResponse(version);
+		final String version = Misc.makeSentence(args, 0);
+		final UpdateProperties updateProperties = getService(UpdateProperties.class);
+		final String response = updateProperties.getResponse(version);
 
 		// send a response to the client:
 		client.sendLine(response);

@@ -44,16 +44,16 @@ public class ReloadUpdatePropertiesCommandProcessor extends AbstractCommandProce
 	}
 
 	@Override
-	public boolean process(Client client, List<String> args)
+	public boolean process(final Client client, final List<String> args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = super.process(client, args);
+		final boolean checksOk = super.process(client, args);
 		if (!checksOk) {
 			return false;
 		}
 
-		UpdateProperties updateProperties = getService(UpdateProperties.class);
-		String updatePropsFile = UpdateProperties.DEFAULT_FILENAME;
+		final UpdateProperties updateProperties = getService(UpdateProperties.class);
+		final String updatePropsFile = UpdateProperties.DEFAULT_FILENAME;
 		if (updateProperties.read(updatePropsFile)) {
 			LOG.info("\"Update properties\" read from {}", updatePropsFile);
 			client.sendLine(String.format(

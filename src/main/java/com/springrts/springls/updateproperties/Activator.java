@@ -36,13 +36,14 @@ public class Activator implements BundleActivator {
 	private final Logger log = LoggerFactory.getLogger(Activator.class);
 
 	@Override
-	public void start(BundleContext context) {
+	public void start(final BundleContext context) {
 
-		Context springLsContext = Context.getService(context, Context.class);
+		final Context springLsContext
+				= Context.getService(context, Context.class);
 
-		UpdateProperties updateProperties = new UpdateProperties();
+		final UpdateProperties updateProperties = new UpdateProperties();
 		updateProperties.receiveContext(springLsContext);
-		String updatePropsFile = UpdateProperties.DEFAULT_FILENAME;
+		final String updatePropsFile = UpdateProperties.DEFAULT_FILENAME;
 		if (updateProperties.read(updatePropsFile)) {
 			log.info("\"Update properties\" read from {}", updatePropsFile);
 		}
@@ -63,6 +64,6 @@ public class Activator implements BundleActivator {
 	}
 
 	@Override
-	public void stop(BundleContext context) {
+	public void stop(final BundleContext context) {
 	}
 }

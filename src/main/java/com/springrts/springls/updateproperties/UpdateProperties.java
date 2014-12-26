@@ -55,7 +55,6 @@ public class UpdateProperties implements ContextReceiver {
 
 	private Properties updateProperties;
 
-
 	public UpdateProperties() {
 
 		context = null;
@@ -63,7 +62,7 @@ public class UpdateProperties implements ContextReceiver {
 	}
 
 	@Override
-	public void receiveContext(Context context) {
+	public void receiveContext(final Context context) {
 
 		this.context = context;
 	}
@@ -71,40 +70,40 @@ public class UpdateProperties implements ContextReceiver {
 		return context;
 	}
 
-	public boolean read(String fileName) {
+	public boolean read(final String fileName) {
 
 		boolean success = false;
 
 		updateProperties = new Properties();
 
-		File updatePropsFile = new File(fileName);
+		final File updatePropsFile = new File(fileName);
 		if (updatePropsFile.exists()) {
 			FileInputStream fStream = null;
 			try {
 				fStream = new FileInputStream(updatePropsFile);
 				updateProperties.loadFromXML(fStream);
 				success = true;
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				LOG.warn("Could not read from file '" + fileName + "'.", ex);
 			} finally {
 				if (fStream != null) {
 					try {
 						fStream.close();
-					} catch (IOException ex) {
+					} catch (final IOException ex) {
 						LOG.trace("Failed to close file input stream: "
 								+ fileName, ex);
 					}
 				}
 			}
 		} else {
-			Configuration conf = getContext().getService(Configuration.class);
-			String engineVersion = conf.getString(ServerConfiguration.ENGINE_VERSION);
+			final Configuration conf = getContext().getService(Configuration.class);
+			final String engineVersion = conf.getString(ServerConfiguration.ENGINE_VERSION);
 			// Not having update properties is only possibly a problem
 			// when we try to enforce a certain engine version.
 			if (!engineVersion.equals("*")) {
 				LOG.warn("Could not find file '{}';"
 						+ " not using any update properties.",
-						fileName.toString());
+						fileName);
 			}
 		}
 
@@ -119,7 +118,7 @@ public class UpdateProperties implements ContextReceiver {
 	 *   a full lobby protocol command, to be sent back to the client as is.
 	 *   it is guaranteed that <code>null</code> is never returned.
 	 */
-	public String getResponse(String engineVersion) {
+	public String getResponse(final String engineVersion) {
 
 		String response = updateProperties.getProperty(engineVersion);
 
