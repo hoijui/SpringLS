@@ -218,14 +218,17 @@ public class Battles implements ContextReceiver {
 			return null;
 		}
 
+		final boolean engineArgs = founder.getCompatFlags().contains("cl"); // NOTE lobby protocol "0.36+ cl"
+
 		final String[] sentenceArguments = Misc.makeSentence(args, 8).split("\t");
-		if (sentenceArguments.length != 5) { // FIXME without cl flag it has to be 3!
+		final int requiredSentences = engineArgs ? 5 : 3; // NOTE lobby protocol "0.36+ cl"
+		if (sentenceArguments.length != requiredSentences) {
 			return null;
 		}
 		int sentenceIndex = 0;
 		final String engineName;
 		final String engineVersion;
-		if (founder.getCompatFlags().contains("cl")) { // NOTE lobby protocol "0.36+ cl"
+		if (engineArgs) {
 			engineName = sentenceArguments[sentenceIndex++]; // For example: 'my spring'
 			engineVersion = sentenceArguments[sentenceIndex++]; // For example: '94.1.1-1062-g9d16c2d develop'
 		} else {
