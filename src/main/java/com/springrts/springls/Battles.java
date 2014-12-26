@@ -23,6 +23,7 @@ import com.springrts.springls.util.Processor;
 import com.springrts.springls.util.ProtocolUtil;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.configuration.Configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,14 +191,6 @@ public class Battles implements ContextReceiver {
 			return null;
 		}
 
-		final String[] parsed2 = Misc.makeSentence(args, 8).split("\t");
-		if (parsed2.length != 3) {
-			return null;
-		}
-		final String mapName = parsed2[0];
-		final String title   = parsed2[1];
-		final String gameName = parsed2[2];
-
 		final String pass = args.get(2);
 		if (!pass.equals("*") && !pass.matches("^[A-Za-z0-9_]+$")) {
 			// invalid characters in the password
@@ -225,6 +218,25 @@ public class Battles implements ContextReceiver {
 			return null;
 		}
 
+		final String[] sentenceArguments = Misc.makeSentence(args, 8).split("\t");
+		if (sentenceArguments.length != 5) { // FIXME without cl flag it has to be 3!
+			return null;
+		}
+		int sentenceIndex = 0;
+		final String engineName;
+		final String engineVersion;
+		if (founder.getCompatFlags().contains("cl")) { // NOTE lobby protocol "0.36+ cl"
+			engineName = sentenceArguments[sentenceIndex++]; // For example: 'my spring'
+			engineVersion = sentenceArguments[sentenceIndex++]; // For example: '94.1.1-1062-g9d16c2d develop'
+		} else {
+			engineName = "spring"; // default; the same value uberserver uses
+			final Configuration conf = context.getService(Configuration.class);
+			engineVersion = conf.getString(ServerConfiguration.ENGINE_VERSION);
+		}
+		final String mapName = sentenceArguments[sentenceIndex++];
+		final String title = sentenceArguments[sentenceIndex++];
+		final String gameName = sentenceArguments[sentenceIndex++];
+
 		if ((type < 0) || (type > 1)) {
 			return null;
 		}
@@ -233,7 +245,8 @@ public class Battles implements ContextReceiver {
 		}
 
 		return new Battle(type, natType, founder, pass, port,
-				maxPlayers, hash, rank, maphash, mapName, title, gameName);
+				maxPlayers, hash, rank, maphash, mapName, title, gameName,
+				engineName, engineVersion);
 	}
 
 	/**

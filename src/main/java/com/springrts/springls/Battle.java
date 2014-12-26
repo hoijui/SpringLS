@@ -61,6 +61,10 @@ public class Battle implements ContextReceiver {
 	private final List<Client> clients;
 	/** bots added by clients participating in this battle */
 	private final List<Bot> bots;
+	/** For example: 'my spring' */
+	private final String engineName;
+	/** For example: '94.1.1-1062-g9d16c2d develop' */
+	private final String engineVersion;
 	/** see protocol description for details */
 	private final String gameName;
 	/** name of the map currently selected for this battle */
@@ -126,7 +130,9 @@ public class Battle implements ContextReceiver {
 			final int mapHash,
 			final String mapName,
 			final String title,
-			final String gameName)
+			final String gameName,
+			final String engineName,
+			final String engineVersion)
 	{
 		this.id = nextId++;
 		this.type = type;
@@ -142,6 +148,8 @@ public class Battle implements ContextReceiver {
 		this.hashCode = hashCode;
 		this.rank = rank;
 		this.mapHash = mapHash;
+		this.engineName = engineName;
+		this.engineVersion = engineVersion;
 		this.gameName = gameName;
 		this.disabledUnits = new ArrayList<String>();
 		// we assume this by default. The client must make sure it is unlocked.
@@ -189,8 +197,23 @@ public class Battle implements ContextReceiver {
 			addr = getFounder().getIp();
 		}
 
+		final String sentences;
+		if (founder.getCompatFlags().contains("cl")) { // NOTE lobby protocol "0.36+ cl"
+			sentences = String.format("%s\t%s\t%s\t%s\t%s",
+				getEngineName(),
+				getEngineVersion(),
+				getMapName(),
+				getTitle(),
+				getGameName());
+		} else {
+			sentences = String.format("%s\t%s\t%s",
+				getMapName(),
+				getTitle(),
+				getGameName());
+		}
+
 		return String.format(
-				"BATTLEOPENED %d %d %d %s %s %d %d %d %d %d %s\t%s\t%s",
+				"BATTLEOPENED %d %d %d %s %s %d %d %d %d %d %s",
 				getId(),
 				getType(),
 				getNatType(),
@@ -201,9 +224,7 @@ public class Battle implements ContextReceiver {
 				ProtocolUtil.boolToNumber(restricted()),
 				getRank(),
 				getMapHash(),
-				getMapName(),
-				getTitle(),
-				getGameName());
+				sentences);
 	}
 
 	private static class BattleStatusNotifyer implements Processor<Client> {
@@ -719,6 +740,24 @@ public class Battle implements ContextReceiver {
 	 */
 	public void setMapHash(final int mapHash) {
 		this.mapHash = mapHash;
+	}
+
+	/**
+	 * For example 'my spring'.
+	 * See protocol description for details.
+	 * @return the engineName
+	 */
+	public String getEngineName() {
+		return engineName;
+	}
+
+	/**
+	 * For example '94.1.1-1062-g9d16c2d develop'.
+	 * See protocol description for details.
+	 * @return the engineVersion
+	 */
+	public String getEngineVersion() {
+		return engineVersion;
 	}
 
 	/**
