@@ -42,7 +42,7 @@ public class Activator implements BundleActivator {
 				= Context.getService(context, Context.class);
 
 		final UpdateProperties updateProperties = new UpdateProperties();
-		updateProperties.receiveContext(springLsContext);
+		updateProperties.setContext(springLsContext);
 		final String updatePropsFile = UpdateProperties.DEFAULT_FILENAME;
 		if (updateProperties.read(updatePropsFile)) {
 			log.info("\"Update properties\" read from {}", updatePropsFile);

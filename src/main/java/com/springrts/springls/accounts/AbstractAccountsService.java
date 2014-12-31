@@ -38,7 +38,7 @@ public abstract class AbstractAccountsService implements AccountsService {
 	}
 
 	@Override
-	public void receiveContext(final Context context) {
+	public void setContext(final Context context) {
 		this.context = context;
 	}
 	protected Context getContext() {

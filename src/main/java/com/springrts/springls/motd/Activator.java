@@ -40,7 +40,7 @@ public class Activator implements BundleActivator {
 				= Context.getService(context, Context.class);
 
 		final MessageOfTheDay messageOfTheDay = new MessageOfTheDay();
-		messageOfTheDay.receiveContext(springLsContext);
+		messageOfTheDay.setContext(springLsContext);
 
 		final boolean contentAvailable = messageOfTheDay.read();
 

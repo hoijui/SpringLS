@@ -44,7 +44,7 @@ public class Activator implements BundleActivator {
 
 		final Statistics statistics = new Statistics();
 
-		statistics.receiveContext(springLsContext);
+		statistics.setContext(springLsContext);
 		springLsContext.addContextReceiver(statistics);
 
 		context.registerService(new String[] {

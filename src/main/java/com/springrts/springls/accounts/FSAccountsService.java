@@ -235,7 +235,7 @@ public class FSAccountsService extends AbstractAccountsService {
 		final List<Account> accountsCopy = new ArrayList<Account>(accounts);
 		final File accsFile = new File(ACCOUNTS_INFO_FILEPATH);
 		saveAccountsThread = new FSSaveAccountsThread(accsFile, accountsCopy);
-		saveAccountsThread.receiveContext(getContext());
+		saveAccountsThread.setContext(getContext());
 		saveAccountsThread.start();
 
 		if (block) {

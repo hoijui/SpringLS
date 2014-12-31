@@ -124,7 +124,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 
 
 	@Override
-	public void receiveContext(final Context context) {
+	public void setContext(final Context context) {
 
 		this.context = context;
 		actualiseToConfiguration();

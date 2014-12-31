@@ -45,11 +45,11 @@ public class Battles implements ContextReceiver {
 	}
 
 	@Override
-	public void receiveContext(final Context context) {
+	public void setContext(final Context context) {
 
 		this.context = context;
 		for (final Battle battle : battles) {
-			battle.receiveContext(context);
+			battle.setContext(context);
 		}
 	}
 
@@ -242,6 +242,6 @@ public class Battles implements ContextReceiver {
 	public void addBattle(final Battle battle) {
 
 		battles.add(battle);
-		battle.receiveContext(context);
+		battle.setContext(context);
 	}
 }

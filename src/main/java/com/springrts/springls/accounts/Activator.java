@@ -53,7 +53,7 @@ public class Activator implements BundleActivator {
 			springLsContext.getServerThread().closeServerAndExit();
 		}
 
-		accounts.receiveContext(springLsContext);
+		accounts.setContext(springLsContext);
 		accounts.loadAccounts();
 
 		springLsContext.setAccountsService(accounts);

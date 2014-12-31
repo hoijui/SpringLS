@@ -105,11 +105,11 @@ public class Clients implements ContextReceiver, Updateable { // XXX support the
 	}
 
 	@Override
-	public void receiveContext(final Context context) {
+	public void setContext(final Context context) {
 
 		this.context = context;
 		for (final Client client : clients) {
-			client.receiveContext(context);
+			client.setContext(context);
 		}
 	}
 	private Context getContext() {
@@ -180,7 +180,7 @@ public class Clients implements ContextReceiver, Updateable { // XXX support the
 			final int sendBufferSize)
 	{
 		final Client client = new Client(chan);
-		client.receiveContext(context);
+		client.setContext(context);
 		clients.add(client);
 
 		// register the channel with the selector

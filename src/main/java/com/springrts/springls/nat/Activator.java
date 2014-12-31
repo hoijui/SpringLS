@@ -38,7 +38,7 @@ public class Activator implements BundleActivator {
 
 		final NatHelpServer natHelpServer = new NatHelpServer();
 
-		natHelpServer.receiveContext(springLsContext);
+		natHelpServer.setContext(springLsContext);
 		natHelpServer.startServer();
 
 		springLsContext.addContextReceiver(natHelpServer);

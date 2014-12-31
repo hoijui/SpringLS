@@ -96,7 +96,7 @@ public class FloodProtection implements FloodProtectionService, Updateable,
 	}
 
 	@Override
-	public void receiveContext(final Context context) {
+	public void setContext(final Context context) {
 		this.context = context;
 	}
 	protected Context getContext() {

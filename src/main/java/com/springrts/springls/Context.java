@@ -101,7 +101,7 @@ public class Context implements LiveStateListener {
 	public void push() {
 
 		for (final ContextReceiver contextReceiver : contextReceivers) {
-			contextReceiver.receiveContext(this);
+			contextReceiver.setContext(this);
 		}
 	}
 

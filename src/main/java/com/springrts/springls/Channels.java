@@ -70,11 +70,11 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 	}
 
 	@Override
-	public void receiveContext(final Context context) {
+	public void setContext(final Context context) {
 
 		this.context = context;
 		for (final Channel channel : channels) {
-			channel.receiveContext(context);
+			channel.setContext(context);
 		}
 	}
 
@@ -143,7 +143,7 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 			// channel already exists!
 			return false;
 		}
-		channel.receiveContext(context);
+		channel.setContext(context);
 		channels.add(channel);
 		return true;
 	}

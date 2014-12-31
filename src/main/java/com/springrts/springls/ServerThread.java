@@ -165,7 +165,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	}
 
 	@Override
-	public void receiveContext(final Context context) {
+	public void setContext(final Context context) {
 
 		this.context = context;
 

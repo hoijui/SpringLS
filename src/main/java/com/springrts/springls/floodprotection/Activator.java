@@ -42,7 +42,7 @@ public class Activator implements BundleActivator {
 				= Context.getService(context, Context.class);
 
 		final FloodProtection floodProtection = new FloodProtection();
-		floodProtection.receiveContext(springLsContext);
+		floodProtection.setContext(springLsContext);
 
 		context.registerService(new String[] {
 				FloodProtectionService.class.getName(),

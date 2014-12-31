@@ -75,7 +75,7 @@ public class CommandProcessors implements ContextReceiver {
 	}
 
 	@Override
-	public void receiveContext(final Context context) {
+	public void setContext(final Context context) {
 		this.context = context;
 	}
 
@@ -166,7 +166,7 @@ public class CommandProcessors implements ContextReceiver {
 		final String cmdName = CommandProcessors.extractCommandName(
 				cmdProcessor.getClass());
 
-		cmdProcessor.receiveContext(Context.getService(bundleContext,
+		cmdProcessor.setContext(Context.getService(bundleContext,
 				Context.class));
 
 		final Dictionary dict = new Hashtable();

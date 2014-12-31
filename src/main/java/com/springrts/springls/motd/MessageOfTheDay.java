@@ -54,7 +54,7 @@ public class MessageOfTheDay implements ContextReceiver {
 	}
 
 	@Override
-	public void receiveContext(final Context context) {
+	public void setContext(final Context context) {
 		this.context = context;
 	}
 
