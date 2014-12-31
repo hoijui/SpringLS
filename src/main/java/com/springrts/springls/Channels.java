@@ -195,7 +195,7 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 			client.sendLine(msg.toString());
 		}
 
-		// send the topic:
+		// send the topic
 		if (chan.isTopicSet()) {
 			client.sendLine(String.format("CHANNELTOPIC %s %s %d %s",
 					chan.getName(),
@@ -259,7 +259,7 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 		if (!channame.matches("^[A-Za-z0-9_\\[\\]]+$")) {
 			return "Channel name contains invalid characters";
 		}
-		// everything is OK:
+		// everything is OK
 		return null;
 	}
 }
