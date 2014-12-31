@@ -252,8 +252,8 @@ public class Channel implements ContextReceiver, LiveStateListener {
 			fileLog.println(timeFormat.format(new Date()));
 			fileLog.println(msg);
 		}
-		for (int i = 0; i < clients.size(); i++) {
-			clients.get(i).sendLine(msg);
+		for (final Client client : clients) {
+			client.sendLine(msg);
 		}
 	}
 
