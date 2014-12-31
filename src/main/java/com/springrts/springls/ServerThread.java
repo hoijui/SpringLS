@@ -423,6 +423,17 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 		return true;
 	}
 
+	/**
+	 * @see #executeCommand(Client, int, String, List)
+	 */
+	public boolean executeCommand(
+			final Client client,
+			final String commandName,
+			final List<String> args)
+			throws CommandProcessingException
+	{
+		return executeCommand(client, Client.NO_MSG_ID, commandName, args);
+	}
 
 	@Override
 	public void update() {
