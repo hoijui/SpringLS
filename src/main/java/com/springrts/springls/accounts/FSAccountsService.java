@@ -28,7 +28,7 @@ import java.io.Reader;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -64,15 +64,13 @@ public class FSAccountsService extends AbstractAccountsService {
 	 * (TreeMap class implements efficient Red-Black trees)
 	 * @see mapNoCase
 	 */
-	private static final SortedMap<String, Account> map // FIXME this can not be static!
-			= new TreeMap<String, Account>(COMPARATOR_STR);
+	private final Map<String, Account> map;
 
 	/**
 	 * Same as 'map', only that this ignores case.
 	 * @see map
 	 */
-	private static final SortedMap<String, Account> mapNoCase // FIXME this can not be static!
-			= new TreeMap<String, Account>(COMPARATOR_STR_IGNORE_CASE);
+	private final Map<String, Account> mapNoCase;
 
 	public FSAccountsService() {
 
@@ -80,6 +78,8 @@ public class FSAccountsService extends AbstractAccountsService {
 		saveAccountsThread = null;
 		biggestAccountId = 1000;
 		lastSaveAccountsTime = System.currentTimeMillis();
+		map = new TreeMap<String, Account>(COMPARATOR_STR);
+		mapNoCase = new TreeMap<String, Account>(COMPARATOR_STR_IGNORE_CASE);
 	}
 
 	@Override

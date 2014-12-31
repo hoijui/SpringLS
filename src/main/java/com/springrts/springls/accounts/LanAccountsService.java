@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -40,15 +41,13 @@ public class LanAccountsService extends AbstractAccountsService {
 	 * (TreeMap class implements efficient Red-Black trees)
 	 * @see mapNoCase
 	 */
-	private static final TreeMap<String, Account> map // FIXME this can not be static!
-			= new TreeMap<String, Account>(COMPARATOR_STR);
+	private final Map<String, Account> map;
 
 	/**
 	 * Same as 'map', only that this ignores case.
 	 * @see map
 	 */
-	private static final TreeMap<String, Account> mapNoCase // FIXME this can not be static!
-			= new TreeMap<String, Account>(COMPARATOR_STR_IGNORE_CASE);
+	private final Map<String, Account> mapNoCase;
 
 
 	public LanAccountsService() {
@@ -58,6 +57,8 @@ public class LanAccountsService extends AbstractAccountsService {
 		// if multiple threads are going to access it.
 		accounts = new ArrayList<Account>();
 		biggestAccountId = 1000;
+		map = new TreeMap<String, Account>(COMPARATOR_STR);
+		mapNoCase = new TreeMap<String, Account>(COMPARATOR_STR_IGNORE_CASE);
 	}
 
 
