@@ -95,6 +95,11 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	}
 
 	@Override
+	public boolean isUsingNamedArguments() {
+		return false;
+	}
+
+	@Override
 	public void setContext(final Context context) {
 		this.context = context;
 	}

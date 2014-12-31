@@ -35,6 +35,19 @@ public interface CommandProcessor extends ContextReceiver {
 	String NAME_PROPERTY = "Command-Name";
 
 	/**
+	 * Indicates whether this command uses named or indexed arguments.
+	 * Only some of the newer commands use named arguments,
+	 * and usually only the ones not used very frequently.
+	 * Named arguments cost a bit of extra bandwidth,
+	 * but make it easier for protocol changes to be backwards compatible.
+	 * For more details about named arguments,
+	 * please see the protocol description.
+	 * @return true if the command uses named arguments,
+	 *   false if it uses indexed arguments
+	 */
+	boolean isUsingNamedArguments();
+
+	/**
 	 * Process one call of the command.
 	 * This is invoked whenever a command with the name specified
 	 * in <code>SupportedCommand</code> is received from a client.
