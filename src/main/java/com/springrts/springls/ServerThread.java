@@ -83,7 +83,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	 * Contains a list of deprecated commands, for example:
 	 * "WHITELIST" -> "deprecated feature: white-listing"
 	 */
-	private static Map<String, DeprecatedCommand> deprecatedCommands = null;
+	private final Map<String, DeprecatedCommand> deprecatedCommands;
 
 	/**
 	 * The size of the ByteBuffer used to read data from the socket channel.
@@ -117,43 +117,41 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 
 	public ServerThread() {
 
+		this.deprecatedCommands = createDefaultDeprecatedCommands();
 		this.context = null;
 		this.readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE);
 		this.updateables = new ArrayList<Updateable>();
-		initDeprecatedCommands();
 	}
 
-	// TODO make all this stuff non-static
 	private static void add(
 			final Map<String, DeprecatedCommand> deprecatedCommands,
 			final DeprecatedCommand command)
 	{
 		deprecatedCommands.put(command.getName(), command);
 	}
-	private void initDeprecatedCommands() {
 
-		if (deprecatedCommands == null) {
-			final Map<String, DeprecatedCommand> tmpDeprecatedCommands
+	private static Map<String, DeprecatedCommand> createDefaultDeprecatedCommands() {
+
+		final Map<String, DeprecatedCommand> deprecatedCommands
 					= new HashMap<String, DeprecatedCommand>();
 
-			add(tmpDeprecatedCommands, new DeprecatedCommand(
-					"WHITELIST",
-					"IP white-listing is disabled"));
-			add(tmpDeprecatedCommands, new DeprecatedCommand(
-					"UNWHITELIST",
-					"IP white-listing is disabled"));
-			add(tmpDeprecatedCommands, new DeprecatedCommand(
-					"RETRIEVELATESTBANLIST",
-					"Fetching ban entries is not needed anymore."
-					+ " Therefore, this is a no-op now."));
-			add(tmpDeprecatedCommands, new DeprecatedCommand(
-					"OUTPUTDBDRIVERSTATUS",
-					"This command is not supported anymore,"
-					+ " as JPA is used for DB access for bans."
-					+ " Therefore, this is a no-op now."));
+		add(deprecatedCommands, new DeprecatedCommand(
+				"WHITELIST",
+				"IP white-listing is disabled"));
+		add(deprecatedCommands, new DeprecatedCommand(
+				"UNWHITELIST",
+				"IP white-listing is disabled"));
+		add(deprecatedCommands, new DeprecatedCommand(
+				"RETRIEVELATESTBANLIST",
+				"Fetching ban entries is not needed anymore."
+				+ " Therefore, this is a no-op now."));
+		add(deprecatedCommands, new DeprecatedCommand(
+				"OUTPUTDBDRIVERSTATUS",
+				"This command is not supported anymore,"
+				+ " as JPA is used for DB access for bans."
+				+ " Therefore, this is a no-op now."));
 
-			deprecatedCommands = tmpDeprecatedCommands;
-		}
+		return deprecatedCommands;
 	}
 
 	public void addUpdateable(final Updateable updateable) {
