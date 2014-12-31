@@ -360,26 +360,54 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 		final String[] commands = commandClean.split(" ");
 		commands[0] = commands[0].toUpperCase();
 
+		final List<String> args = new ArrayList<String>(Arrays.asList(commands));
+		args.remove(0); // remvoe the command-name
+
+		try {
+			return executeCommand(client, msgId, commands[0], args);
+		} catch (final CommandProcessingException ex) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Failed to handle command from client \""
+						+ client.toString() +"\": \""
+						+ Misc.makeSentence(commands) + "\"",
+						ex);
+			}
+			return false;
+		}
+	}
+
+	/**
+	 * Executes a command for a certain client.
+	 * Note: this method is not synchronized!
+	 * Note2: this method may be called recursively!
+	 * @param client the client for which the command should be executed
+	 *   /which sent the command
+	 * @param commandName the plain text command name to be executed for the
+	 *   client
+	 * @param args the command arguments, in order
+	 * @return <code>true</code> if the command is valid and was executed
+	 *   successfully, <code>false</code> otherwise
+	 */
+	public boolean executeCommand(
+			final Client client,
+			final int msgId,
+			final String commandName,
+			final List<String> args)
+			throws CommandProcessingException
+	{
 		client.setSendMsgId(msgId);
 
 		try {
-			final CommandProcessor cmdProcessor = getContext().getCommandProcessors().get(commands[0]);
+			final CommandProcessor cmdProcessor
+					= getContext().getCommandProcessors().get(commandName);
 			if (cmdProcessor != null) {
-				final List<String> args = new ArrayList<String>(Arrays.asList(commands));
-				args.remove(0);
-				try {
-					final boolean ret = cmdProcessor.process(client, args);
-					if (!ret) {
-						return false;
-					}
-				} catch (final CommandProcessingException ex) {
-					LOG.debug(cmdProcessor.getClass().getCanonicalName()
-							+ " failed to handle command from client: \""
-							+ Misc.makeSentence(commands) + "\"", ex);
+				final boolean ret = cmdProcessor.process(client, args);
+				if (!ret) {
 					return false;
 				}
-			} else if (deprecatedCommands.containsKey(commands[0])) {
-				final DeprecatedCommand deprecatedCommand = deprecatedCommands.get(commands[0]);
+			} else if (deprecatedCommands.containsKey(commandName)) {
+				final DeprecatedCommand deprecatedCommand
+						= deprecatedCommands.get(commandName);
 				client.sendLine(String.format(
 						"SERVERMSG Command %s is deprecated: %s",
 						deprecatedCommand.getName(),
