@@ -128,7 +128,7 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			// by the affected client
 			final List<String> joinBattleArgs = new ArrayList<String>(1);
 			joinBattleArgs.add(destinationBattleIdStr);
-			getContext().getCommandProcessors().get("JOINBATTLE").process(affectedClient, joinBattleArgs);
+			getContext().getServerThread().executeCommand(affectedClient, "JOINBATTLE", joinBattleArgs);
 		}
 
 		return true;
