@@ -49,9 +49,9 @@ public class FSAccountsService extends AbstractAccountsService {
 	// note: ArrayList is not synchronized!
 	// Use Collections.synchronizedList(...) instead,
 	// if multiple threads are going to access it
-	private final List<Account> accounts = new ArrayList<Account>();
-	private FSSaveAccountsThread saveAccountsThread = null;
-	private int biggestAccountId = 1000;
+	private final List<Account> accounts;
+	private FSSaveAccountsThread saveAccountsThread;
+	private int biggestAccountId;
 
 	/**
 	 * Time we last saved accounts info to disk.
@@ -73,6 +73,14 @@ public class FSAccountsService extends AbstractAccountsService {
 	 */
 	private static final SortedMap<String, Account> mapNoCase // FIXME this can not be static!
 			= new TreeMap<String, Account>(COMPARATOR_STR_IGNORE_CASE);
+
+	public FSAccountsService() {
+
+		accounts = new ArrayList<Account>();
+		saveAccountsThread = null;
+		biggestAccountId = 1000;
+		lastSaveAccountsTime = System.currentTimeMillis();
+	}
 
 	@Override
 	public boolean isReadyToOperate() {
