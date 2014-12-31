@@ -230,17 +230,17 @@ public class Channel implements ContextReceiver, LiveStateListener {
 		return clients.remove(client);
 	}
 
-	public boolean isClientInThisChannel(final Client client) {
+	public boolean isClientInThisChannel(final Client client) { // TODO rather return an unmodifiable List?
 		return (clients.indexOf(client) != -1);
 	}
 
 	/** Returns number of clients in this channel */
-	public int getClientsSize() {
+	public int getClientsSize() { // TODO rather return an unmodifiable List?
 		return clients.size();
 	}
 
-	/** Returns null if index if out of bounds */
-	public Client getClient(final int index) {
+	/** Returns null if index is out of bounds */
+	public Client getClient(final int index) { // TODO rather return an unmodifiable List?
 
 		try {
 			return clients.get(index);
