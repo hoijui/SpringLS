@@ -186,15 +186,15 @@ public class Statistics implements ContextReceiver, Updateable {
 			final Clients clients = context.getClients();
 			final AccountsService accounts = context.getAccountsService();
 			out.write(now("HHmmss"));
-			out.write(" ");
+			out.write(' ');
 			out.write(String.valueOf(clients.getClientsSize()));
-			out.write(" ");
+			out.write(' ');
 			out.write(String.valueOf(activeBattlesCount));
-			out.write(" ");
+			out.write(' ');
 			out.write(String.valueOf(accounts.getAccountsSize()));
-			out.write(" ");
+			out.write(' ');
 			out.write(String.valueOf(accounts.getActiveAccountsSize()));
-			out.write(" ");
+			out.write(' ');
 			out.write(topGames);
 			out.write(Misc.EOL);
 		} catch (final IOException ex) {
