@@ -62,15 +62,15 @@ public final class AccountUtils {
 		from.loadAccounts();
 		final List<Account> accounts = from.fetchAllAccounts();
 		long time = System.currentTimeMillis() - begin;
-		System.out.println("Loading of " + accounts.size() +
-				" accounts done in " + time + "ms.");
+		System.out.println("Loading of " + accounts.size()
+				+ " accounts done in " + time + "ms.");
 
 		System.out.println("Saving ...");
 		begin = System.currentTimeMillis();
 		to.addAccounts(accounts);
 		time = System.currentTimeMillis() - begin;
-		System.out.println("Saving of " + accounts.size() +
-				" accounts done in " + time + "ms.");
+		System.out.println("Saving of " + accounts.size()
+				+ " accounts done in " + time + "ms.");
 
 		System.out.println("done.");
 	}
