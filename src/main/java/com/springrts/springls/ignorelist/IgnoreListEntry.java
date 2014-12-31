@@ -32,7 +32,7 @@ import javax.persistence.Table;
  * @author hoijui
  */
 @Entity
-@Table(name = "BanEntries") TODO;
+@Table(name = "BanEntries") //TODO;
 @NamedQueries({
 	@NamedQuery(name = "ban_size",        query = "SELECT count(b.id) FROM BanEntry b"),
 	@NamedQuery(name = "ban_size_active", query = "SELECT count(b.id) FROM BanEntry b WHERE ((b.enabled = TRUE) AND (b.expireDate IS NULL OR b.expireDate > CURRENT_TIMESTAMP))"),
