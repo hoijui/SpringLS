@@ -361,7 +361,7 @@ final class IP2Country implements IP2CountryService {
 	/** Will save given IP2County table to disk */
 	public void saveDatabase(
 			final TreeMap<IPRange, IPRange> resolveTable,
-			final String fileName) 
+			final String fileName)
 			throws IOException
 	{
 		PrintWriter out = null;

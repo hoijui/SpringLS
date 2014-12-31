@@ -40,7 +40,7 @@ public class Activator implements BundleActivator {
 	@Override
 	public void start(final BundleContext context) {
 
-		final Context springLsContext 
+		final Context springLsContext
 				= Context.getService(context, Context.class);
 
 		final AccountsService accounts = createAccountsService(springLsContext);
