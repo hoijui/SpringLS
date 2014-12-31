@@ -113,7 +113,10 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 	}
 
 	/**
-	 * Returns <code>null</code> if channel does not exist (is not open)
+	 * Returns the channel with the given name.
+	 * @param chanName the name of the channel we are looking for
+	 * @return the channel if found,
+	 *   <code>null</code> if the channel does not exist (is not open)
 	 */
 	public Channel getChannel(final String chanName) {
 
@@ -126,7 +129,11 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 	}
 
 	/**
-	 * Returns <code>null</code> if index is out of bounds
+	 * Returns the channel at a given index.
+	 * @param index the index of the channel we are looking for
+	 *   in the list of all channels
+	 * @return the channel if found,
+	 *   <code>null</code> if index is out of bounds
 	 */
 	public Channel getChannel(final int index) {
 
@@ -149,8 +156,10 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 	}
 
 	/**
-	 * Removes channel from channel list.
-	 * @return <code>true</code> if channel was found
+	 * Removes a channel from the list of all channels.
+	 * @param chan the channel to be removed
+	 * @return <code>true</code> if channel was found and removed,
+	 *   <code>false</code> otherwise
 	 */
 	public boolean removeChannel(final Channel chan) {
 
@@ -164,8 +173,10 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 	}
 
 	/**
-	 * Sends information about all clients in a channel to  a specific client.
+	 * Sends information about all clients in a channel to a specific client.
 	 * Also sets the topic of the channel for that client.
+	 * @param chan from where to assemble the list of clients to send info about
+	 * @param client to receive info about all the clients in chan
 	 */
 	public boolean sendChannelInfoToClient(
 			final Channel chan,
@@ -210,7 +221,8 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 	}
 
 	/**
-	 * Sends a list of all open channels to a client
+	 * Sends a list of all open channels to a client.
+	 * @param client to receive info about all open channels
 	 */
 	public void sendChannelListToClient(final Client client) {
 
@@ -245,8 +257,10 @@ public class Channels implements ContextReceiver, LiveStateListener, Updateable
 	}
 
 	/**
-	 * Returns <code>null</code> if the channel name is valid,
-	 * an error description otherwise.
+	 * Checks whether a string may serve as a valid name for a channel.
+	 * @param channame possible channel name to check for validity
+	 * @return <code>null</code> if the channel name is valid,
+	 *   an error description otherwise.
 	 */
 	public String isChanNameValid(final String channame) {
 

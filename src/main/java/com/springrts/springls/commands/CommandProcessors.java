@@ -126,7 +126,7 @@ public class CommandProcessors implements ContextReceiver {
 	/**
 	 * Instantiates a single CommandProcessor.
 	 * @param cmdProcessorClass the class to instantiate
-	 * @throws Exception if loading failed, for whatever reason
+	 * @throws IllegalArgumentException if loading failed, for whatever reason
 	 */
 	public static CommandProcessor load(
 			final Class<? extends CommandProcessor> cmdProcessorClass)
@@ -157,11 +157,12 @@ public class CommandProcessors implements ContextReceiver {
 	/**
 	 * Adds a command processor.
 	 * @param cmdProcessor to be added
-	 * @throws Exception if name extraction fails
+	 * @throws IllegalArgumentException if name extraction fails
 	 */
 	public static void add(
 			final BundleContext bundleContext,
 			final CommandProcessor cmdProcessor)
+			throws IllegalArgumentException
 	{
 		final String cmdName = CommandProcessors.extractCommandName(
 				cmdProcessor.getClass());

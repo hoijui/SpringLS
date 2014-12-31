@@ -128,7 +128,7 @@ public interface AccountsService extends ContextReceiver, LiveStateListener,
 
 	/**
 	 * Returns an empty set if no account has the given email set.
-	 * @params email email to look for, case is ignored
+	 * @param email E-Mail address to look for, case is ignored
 	 */
 	List<Account> findAccountsByEmail(String email);
 

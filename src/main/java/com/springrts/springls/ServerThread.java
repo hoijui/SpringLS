@@ -51,7 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Runs the thread that handles connections by and messages sent from clients.
+ * Runs the thread that handles connections by, and messages sent from clients.
  * @author Betalord
  * @author hoijui
  */
@@ -322,8 +322,15 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	}
 
 	/**
+	 * Executes a command as if it was received from a certain client.
 	 * Note: this method is not synchronized!
 	 * Note2: this method may be called recursively!
+	 * @param command the plain text command to be executed for the client,
+	 *   including command name and arguments
+	 * @param client the client for which the command should be executed
+	 *   /which sent the command
+	 * @return <code>true</code> if the command is valid and was executed
+	 *   successfully, <code>false</code> otherwise
 	 */
 	public boolean executeCommand(final String command, final Client client) {
 
@@ -607,6 +614,9 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 
 	/**
 	 * Creates a simple account with administrator rights.
+	 * @param username user-name for the account to be created
+	 * @param password password for the account to be created
+	 * @return the newly created account
 	 */
 	private static Account createAdmin(final String username, final String password) {
 

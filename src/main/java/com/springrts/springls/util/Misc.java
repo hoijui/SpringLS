@@ -153,7 +153,7 @@ public final class Misc {
 
 	/**
 	 * Converts time (in milliseconds) to a string like this:
-	 * "<x> days, <y> hours and <z> minutes"
+	 * "{dd} days, {hh} hours and {mm} minutes"
 	 */
 	public static String timeToDHM(final long duration) {
 

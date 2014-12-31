@@ -44,7 +44,7 @@ public class Channel implements ContextReceiver, LiveStateListener {
 
 	private static final String LOG_FILES_DIR  = "./";
 	/**
-	 * A channel with this topic -> topic is disabled for this channel.
+	 * A channel with this topic means the topic is disabled for this channel.
 	 * @see #getTopic()
 	 */
 	public static final String TOPIC_NONE  = "";
@@ -54,7 +54,8 @@ public class Channel implements ContextReceiver, LiveStateListener {
 	 */
 	public static final String TOPIC_NONE_2  = "*";
 	/**
-	 * A channel with this key -> channel is not locked, so anyone can join.
+	 * A channel with this key means the channel is not locked,
+	 * so anyone can join.
 	 * @see #getKey()
 	 */
 	public static final String KEY_NONE  = "";
@@ -197,7 +198,10 @@ public class Channel implements ContextReceiver, LiveStateListener {
 		return !isTopicNone(topic);
 	}
 
-	/** Sends 'msg' as a channel message to all clients on this channel */
+	/**
+	 * Sends a message as a channel message to all clients on this channel.
+	 * @param msg message to be sent to all clients in this channel.
+	 */
 	public void broadcast(final String msg) {
 
 		if (msg.trim().isEmpty()) {
@@ -208,7 +212,10 @@ public class Channel implements ContextReceiver, LiveStateListener {
 		sendLineToClients(String.format("CHANNELMESSAGE %s %s", name, msg));
 	}
 
-	/** Adds new client to the list of clients of this channel */
+	/**
+	 * Adds a new client to the list of clients in this channel.
+	 * @param client to be added to the clients of this channel
+	 */
 	public void addClient(final Client client) {
 
 		if (isClientInThisChannel(client)) {
@@ -242,7 +249,10 @@ public class Channel implements ContextReceiver, LiveStateListener {
 		}
 	}
 
-	/** Sends a text to all clients in this channel */
+	/**
+	 * Sends a message to all clients in this channel.
+	 * @param msg message to be sent
+	 */
 	public void sendLineToClients(final String msg) {
 
 		if (fileLog != null) {

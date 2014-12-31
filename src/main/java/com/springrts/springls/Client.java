@@ -418,13 +418,16 @@ public class Client extends TeamController implements ContextReceiver {
 	}
 
 	/**
-	 * joins client to <chanName> channel. If channel with that name
-	 * does not exist, it is created. Method returns channel object as a result.
-	 * If client is already in the channel, it returns null as a result.
-	 * This method does not check for a correct key in case the channel is
-	 * locked, caller of this method should do that before calling it.
+	 * Joins the client to a channel.
+	 * If a channel with that name does not exist, it is created.
+	 * This method does not check for a correct key,
+	 * in case the channel is locked.
+	 * The caller of this method should do that before calling it.
 	 * This method also does not do any notifying of other clients in the
-	 * channel, the caller must do all that.
+	 * channel. The caller must do all that.
+	 * @param chanName name of the channel to be joined
+	 * @return the joined channel or <code>null</code>,
+	 *   if the client already was in the channel
 	 */
 	public Channel joinChannel(final String chanName) {
 
@@ -446,8 +449,10 @@ public class Client extends TeamController implements ContextReceiver {
 	 * Removes this client from a specific channel and notifies all other
 	 * clients in that channel about it.
 	 * If this was the last client in the channel, then the channel is removed
-	 * from channels list.
-	 * @param reason may be left blank ("") if no reason is to be given.
+	 * from the channels list.
+	 * @param chan the channel to be left
+	 * @param reason the reason for leaving the channel.
+	 *   may be left blank ("") if no reason is to be given.
 	 */
 	public boolean leaveChannel(final Channel chan, final String reason) {
 
@@ -481,9 +486,12 @@ public class Client extends TeamController implements ContextReceiver {
 	}
 
 	/**
-	 * Calls leaveChannel() for every channel client is participating in.
-	 * Also notifies all clients of his departure.
-	 * Also see comments for leaveChannel() method.
+	 * Calls {@link #leaveChannel} for every channel the client is participating
+	 * in.
+	 * Also notifies all clients of the departure.
+	 * @see #leaveChannel
+	 * @param reason the reason for leaving all channels.
+	 *   may be left blank ("") if no reason is to be given.
 	 */
 	public void leaveAllChannels(final String reason) {
 
@@ -494,9 +502,10 @@ public class Client extends TeamController implements ContextReceiver {
 	}
 
 	/**
-	 * Will search the list of channels this user is participating in
-	 * and return the specified channel or 'null' if client is not participating
-	 * in this channel.
+	 * Return the channels object if the client is participating in it.
+	 * @param chanName name of the channel to look for
+	 * @return the specified channel, or <code>null</code>,
+	 *   if the client is not participating in this channel.
 	 */
 	public Channel getChannel(final String chanName) {
 

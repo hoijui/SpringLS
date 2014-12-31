@@ -46,19 +46,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Statistics file format:
- * <time> <#active-clients> <#active-battles> <#accounts> <#active-accounts> <list-of-games>
- * where <time> is of form: "hhmmss"
- * and "active battles" are battles that are in-game and have 2 or more players
- * in it and <list-of-games> is a list of first k games (where k is 0 or greater)
- * with frequencies of active battles using these games. Example: XTA 0.66 15.
- * Note that delimiter in <list-of-games> is TAB and not SPACE! See code for more
- * info.
+ * Main hub for storing and retrieving statistics.
+ * Statistics file format:<br>
+ * {time} {#active-clients} {#active-battles} {#accounts} {#active-accounts} {list-of-games}<br>
+ * where:<br>
+ * {time} is of form "hhmmss"<br>
+ * {#active-battles} are battles that are in-game and have 2 or more players in it<br>
+ * {list-of-games} is a list of the first k games
+ * (where k greater then or equal to 0) with the frequencies of active battles
+ * using these games.
+ * Example: XTA 0.66 15.
+ * Note that delimiter in {list-of-games} is TAB and not SPACE!<br>
+ * See code for more info.
  *
- * Aggregated statistics file format:
- * <date> <time> <#active-clients> <#active-battles> <#accounts> <#active-accounts> <list-of-games>
- * where <date> is of form: "ddMMyy"
- * and all other fields are of same format as those from normal statistics file.
+ * Aggregated statistics file format:<br>
+ * {date} {time} {#active-clients} {#active-battles} {#accounts} {#active-accounts} {list-of-games}<br>
+ * where:<br>
+ * {date} is of form "ddMMyy"<br>
+ * and all other fields are of same format as those from the normal statistics
+ * file.
  *
  * @author Betalord
  * @author hoijui

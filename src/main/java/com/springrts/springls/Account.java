@@ -81,13 +81,13 @@ public class Account implements Serializable, Cloneable {
 	/**
 	 * Player ranks, based on in-game time.
 	 * Current rank categories:
-	 * < 5h = newbie
+	 * 0h - 5h = newbie
 	 * 5h - 15h = beginner
 	 * 15h - 30h = avarage
 	 * 30h - 100h = above avarage
 	 * 100h - 300h = experienced player
 	 * 300h - 1000h = highly experienced player
-	 * > 1000h = veteran
+	 * 1000h - ... = veteran
 	 */
 	public static enum Rank {
 		Newbie            (0),
