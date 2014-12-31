@@ -38,7 +38,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.configuration.Configuration;
@@ -416,62 +415,6 @@ public class Statistics implements ContextReceiver, Updateable {
 		}
 
 		return createGamePopularityString(gameBattles);
-	}
-
-	private static class GameBattles implements Comparable<GameBattles> {
-
-		public static final Comparator<GameBattles> BATTLES_COMPARATOR
-				= new Comparator<GameBattles>() {
-			@Override
-			public int compare(final GameBattles gameBattles1, final GameBattles gameBattles2) {
-				return gameBattles1.getBattles() - gameBattles2.getBattles();
-			}
-		};
-
-		private final String name;
-		private int battles;
-
-		GameBattles(final String name, final int battles) {
-
-			this.name = name;
-			this.battles = battles;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public int getBattles() {
-			return battles;
-		}
-
-		public void addBattles(final int additionalBattles) {
-			this.battles += additionalBattles;
-		}
-
-		@Override
-		public int compareTo(final GameBattles other) {
-			return getName().compareTo(other.getName());
-		}
-
-		@Override
-		public boolean equals(final Object other) {
-
-			if (other instanceof String) {
-				return getName().equals((String) other);
-			} else if (other instanceof GameBattles) {
-				return getName().equals(((GameBattles) other).getName());
-			} else {
-				return false;
-			}
-		}
-
-		@Override
-		public int hashCode() {
-			int hash = 7;
-			hash = 23 * hash + (this.name != null ? this.name.hashCode() : 0);
-			return hash;
-		}
 	}
 
 	/**
