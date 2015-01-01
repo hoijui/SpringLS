@@ -135,7 +135,6 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			try {
 				// we transform unsigned 32 bit integer to a signed one
 				userId = (int) Long.parseLong(args2.get(1), 16);
-				compFlagsIndex++;
 			} catch (NumberFormatException ex) {
 				// We assume that the userID field was left out,
 				// as it is optional, and consider compFlags to be at index 1.
