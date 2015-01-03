@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * Lets an administrator re-initialize the internal IP2Country database from a
  * specified data-source file.
+ * NOTE This command is SpringLS specific, not part of the official lobby protocol!
  * @author hoijui
  */
 @SupportedCommand("UPDATEIP2COUNTRY")

@@ -30,6 +30,7 @@ import java.util.List;
 
 /**
  * Lets an administrator convert an IP into a (2-chars wide) country code.
+ * NOTE This command is SpringLS specific, not part of the official lobby protocol!
  * @author hoijui
  */
 @SupportedCommand("IP2COUNTRY")

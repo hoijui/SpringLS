@@ -30,6 +30,7 @@ import java.util.List;
 /**
  * Allows an administrator to change the latest (stable) engine version,
  * which is generally required to play online.
+ * NOTE This command is SpringLS specific, not part of the official lobby protocol!
  * @author hoijui
  */
 @SupportedCommand("SETLATESTSPRINGVERSION")

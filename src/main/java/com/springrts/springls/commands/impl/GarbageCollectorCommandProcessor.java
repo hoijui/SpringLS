@@ -28,6 +28,7 @@ import java.util.List;
 /**
  * Allows an administrator to force-run the garbage collector, to possibly free
  * free memory in the Java Virtual Machine instance.
+ * NOTE This command is SpringLS specific, not part of the official lobby protocol!
  * @author hoijui
  */
 @SupportedCommand("CALLGARBAGECOLLECTOR")
