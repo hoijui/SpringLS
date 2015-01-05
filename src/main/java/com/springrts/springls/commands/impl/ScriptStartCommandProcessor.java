@@ -39,6 +39,7 @@ import java.util.List;
  * @author hoijui
  */
 @SupportedCommand("SCRIPTSTART")
+@Deprecated
 public class ScriptStartCommandProcessor extends AbstractCommandProcessor {
 
 	public ScriptStartCommandProcessor() {
