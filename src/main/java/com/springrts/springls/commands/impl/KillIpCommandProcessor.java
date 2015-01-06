@@ -40,7 +40,7 @@ public class KillIpCommandProcessor extends AbstractCommandProcessor {
 	public KillIpCommandProcessor() {
 		super(
 				new CommandArguments(
-						new Argument("ipAddress")),
+						new Argument("ipAddress")), // TODO use converter here!
 				Account.Access.ADMIN);
 	}
 

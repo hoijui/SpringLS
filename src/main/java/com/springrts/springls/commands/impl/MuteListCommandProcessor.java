@@ -38,7 +38,7 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 	public MuteListCommandProcessor() {
 		super(
 				new CommandArguments(
-						new Argument("chanelName")),
+						new Argument("channelName")),
 				Account.Access.NORMAL);
 	}
 
@@ -59,13 +59,13 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String chanelName = (String)args.getWords().get(0);
+		final String channelName = (String)args.getWords().get(0);
 
-		final Channel chan = getContext().getChannels().getChannel(chanelName);
+		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
 			client.sendLine(String.format(
 					"SERVERMSG MUTELIST failed: Channel #%s does not exist!",
-					chanelName));
+					channelName));
 			return false;
 		}
 

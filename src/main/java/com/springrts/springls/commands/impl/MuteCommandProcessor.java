@@ -38,7 +38,7 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 	public MuteCommandProcessor() {
 		super(
 				new CommandArguments(
-						new Argument("chanelName"),
+						new Argument("channelName"),
 						new Argument("username"),
 						new Argument("minutes", Long.class, Argument.PARSER_TO_LONG),
 						new Argument("option", true)),
@@ -56,14 +56,14 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String chanelName = (String)args.getWords().get(0);
+		final String channelName = (String)args.getWords().get(0);
 		final String username = (String)args.getWords().get(1);
 
-		final Channel chan = getContext().getChannels().getChannel(chanelName);
+		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
 			client.sendLine(String.format(
 					"SERVERMSG %s failed: Channel #%s does not exist!",
-					getCommandName(), chanelName));
+					getCommandName(), channelName));
 			return false;
 		}
 

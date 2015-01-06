@@ -40,7 +40,7 @@ public class FindIpCommandProcessor extends AbstractCommandProcessor {
 	public FindIpCommandProcessor() {
 		super(
 				new CommandArguments(
-						new Argument("ipAddress")),
+						new Argument("ipAddress")), // TODO use converter here!
 				Account.Access.PRIVILEGED);
 	}
 

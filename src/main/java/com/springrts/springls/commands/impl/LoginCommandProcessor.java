@@ -82,7 +82,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 						new Argument("username"),
 						new Argument("password"),
 						new Argument("cpu", Integer.class, Argument.PARSER_TO_INTEGER),
-						new Argument("localIp")
+						new Argument("localIp") // TODO use converter here!
 						}),
 						new Argument("lobbyVersion"),
 						new Argument("userId"/*, Long.class, Argument.PARSER_TO_LONG*/, true),

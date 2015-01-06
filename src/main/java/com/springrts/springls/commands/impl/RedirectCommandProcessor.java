@@ -39,7 +39,7 @@ public class RedirectCommandProcessor extends AbstractCommandProcessor {
 	public RedirectCommandProcessor() {
 		super(
 				new CommandArguments(
-						new Argument("redirectIp")),
+						new Argument("redirectIp")), // TODO use converter here!
 				Account.Access.ADMIN);
 	}
 
