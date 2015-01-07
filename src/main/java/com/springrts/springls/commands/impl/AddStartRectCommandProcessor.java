@@ -74,11 +74,7 @@ public class AddStartRectCommandProcessor extends AbstractCommandProcessor {
 
 		final StartRect startRect = battle.getStartRects().get(allyno);
 		if (startRect.isEnabled()) {
-			client.sendLine(String.format(
-					"SERVERMSG Error: inconsistent data (%s command)."
-					+ " You will now be disconnected ...", getCommandName()));
-			getContext().getClients().killClient(client,
-					"Quit: inconsistent data");
+			client.sendLine("SERVERMSG Error: inconsistent data (%s command)");
 			return false;
 		}
 
