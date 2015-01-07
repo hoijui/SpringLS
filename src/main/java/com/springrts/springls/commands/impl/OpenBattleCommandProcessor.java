@@ -58,6 +58,7 @@ public class OpenBattleCommandProcessor extends AbstractCommandProcessor {
 						new Argument("gameName")
 						),
 				Account.Access.NORMAL);
+		setToClientErrorCommandName("OPENBATTLEFAILED");
 	}
 
 	/**
@@ -123,15 +124,11 @@ public class OpenBattleCommandProcessor extends AbstractCommandProcessor {
 			throws CommandProcessingException
 	{
 		if (client.getBattleID() != Battle.NO_BATTLE_ID) {
-			client.sendLine("OPENBATTLEFAILED You are already hosting a battle!"
-					);
-			return false;
+			processingError(client, "You are already hosting a battle!");
 		}
 		final Battle battle = createBattleFromString(args, client);
 		if (battle == null) {
-			client.sendLine("OPENBATTLEFAILED Invalid command format or bad"
-					+ " arguments");
-			return false;
+			processingError(client, "Invalid command format or bad arguments");
 		}
 		getContext().getBattles().addBattle(battle);
 		client.setDefaultBattleStatus();

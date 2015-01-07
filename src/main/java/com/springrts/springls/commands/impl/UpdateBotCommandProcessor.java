@@ -65,7 +65,7 @@ public class UpdateBotCommandProcessor extends AbstractCommandProcessor {
 
 		final Bot bot = battle.getBot(botName);
 		if (bot == null) {
-			return false;
+			processingError();
 		}
 
 		// only bot owner and battle host are allowed to update bot:
@@ -73,7 +73,7 @@ public class UpdateBotCommandProcessor extends AbstractCommandProcessor {
 				|| client.getAccount().getName().equals(
 				battle.getFounder().getAccount().getName())))
 		{
-			return false;
+			processingError();
 		}
 
 		bot.setBattleStatus(battleStatus);

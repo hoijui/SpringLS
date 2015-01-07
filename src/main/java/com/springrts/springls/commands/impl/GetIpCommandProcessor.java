@@ -50,7 +50,7 @@ public class GetIpCommandProcessor extends AbstractCommandProcessor {
 
 		final Client targetClient = getContext().getClients().getClient(username);
 		if (targetClient == null) {
-			return false;
+			processingError();
 		}
 
 		client.sendLine(String.format("SERVERMSG %s's IP is %s",

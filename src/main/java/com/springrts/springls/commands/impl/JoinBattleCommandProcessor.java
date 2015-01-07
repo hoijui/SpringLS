@@ -43,6 +43,7 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 						new Argument("password", true),
 						new Argument("scriptPassword", true)),
 				Account.Access.NORMAL);
+		setToClientErrorCommandName("JOINBATTLEFAILED");
 	}
 
 	@Override
@@ -56,41 +57,35 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 		try {
 			battleID = Integer.parseInt(battleIdStr);
 		} catch (NumberFormatException e) {
-			client.sendLine("JOINBATTLEFAILED No battle ID!");
-			return false;
+			processingError(client, "No battle ID!");
 		}
 
 		if (client.getBattleID() != Battle.NO_BATTLE_ID) {
 			// ca not join a battle if we are already participating in one
-			client.sendLine("JOINBATTLEFAILED Cannot participate in multiple"
+			processingError(client, "Cannot participate in multiple"
 					+ " battles at the same time!");
-			return false;
 		}
 
 		final Battle battle = getContext().getBattles().getBattleByID(battleID);
 
 		if (battle == null) {
-			client.sendLine("JOINBATTLEFAILED Invalid battle ID!");
-			return false;
+			processingError(client, "Invalid battle ID!");
 		}
 
 		if (battle.restricted()) {
 			if (args.getWords().size() < 2) {
-				client.sendLine("JOINBATTLEFAILED Password required");
-				return false;
+				processingError(client, "Password required");
 			}
 
 			final String password = (String)args.getWords().get(1);
 
 			if (!battle.getPassword().equals(password)) {
-				client.sendLine("JOINBATTLEFAILED Invalid password");
-				return false;
+				processingError(client, "Invalid password");
 			}
 		}
 
 		if (battle.isLocked()) {
-			client.sendLine("JOINBATTLEFAILED You cannot join locked battles!");
-			return false;
+			processingError(client, "You cannot join locked battles!");
 		}
 
 		if (args.getWords().size() > 2) {

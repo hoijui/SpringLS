@@ -62,10 +62,10 @@ public class KickFromBattleCommandProcessor extends AbstractCommandProcessor {
 
 		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
-			return false;
+			processingError();
 		}
 		if (!battle.isClientInBattle(target)) {
-			return false;
+			processingError();
 		}
 
 		battle.sendToAllClients(String.format(

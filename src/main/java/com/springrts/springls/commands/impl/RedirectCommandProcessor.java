@@ -52,7 +52,7 @@ public class RedirectCommandProcessor extends AbstractCommandProcessor {
 		final String redirectIpStr = (String)args.getWords().get(0);
 		final InetAddress redirectIp = Misc.parseIp(redirectIpStr);
 		if (redirectIp == null) {
-			return false;
+			processingError();
 		}
 		getContext().getServer().setRedirectAddress(redirectIp);
 		getContext().getClients().sendToAllRegisteredUsers(

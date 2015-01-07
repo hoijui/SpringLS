@@ -59,10 +59,10 @@ public class JoinBattleDenyCommandProcessor extends AbstractCommandProcessor {
 		final String username = (String)args.getWords().get(0);
 		final Client joiningClient = getContext().getClients().getClient(username);
 		if (joiningClient == null) {
-			return false;
+			processingError();
 		}
 		if (joiningClient.getRequestedBattleID() != client.getBattleID()) {
-			return false;
+			processingError();
 		}
 		joiningClient.setRequestedBattleID(Battle.NO_BATTLE_ID);
 		if (!args.getSentences().isEmpty()) {

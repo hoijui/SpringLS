@@ -88,6 +88,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 						new Argument("userId"/*, Long.class, Argument.PARSER_TO_LONG*/, true),
 						new Argument("compFlags", true)
 						));
+		setToClientErrorCommandName("DENIED");
 
 		// TODO cleanup nicely at server shutdown?
 		failedLoginsPurger = new Timer("Failed Login Purger");
@@ -114,8 +115,8 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		if (client.getAccount().getAccess() != Account.Access.NONE) {
-			client.sendLine("DENIED Already logged in");
-			return false; // user with accessLevel > 0 can not re-login
+			// user with accessLevel > 0 can not re-login
+			processingError(client, "Already logged in");
 		}
 
 		final String username = (String)args.getWords().get(0);
@@ -124,8 +125,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 				&& getContext().getAccountsService().getAccount(username)
 				.getAccess().isLessThen(Account.Access.PRIVILEGED))
 		{
-			client.sendLine("DENIED Sorry, logging in is currently disabled");
-			return false;
+			processingError(client, "Sorry, logging in is currently disabled");
 		}
 
 		processInner(client, args);
@@ -194,13 +194,11 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 		} else {
 			localIp = Misc.parseIp(localIpStr);
 			if (localIp == null) {
-				client.sendLine("SERVERMSG Invalid IP address: " + localIpStr);
-				return false;
+				processingError(client, "Invalid IP address: " + localIpStr);
 			}
 		}
 
-		doLogin(client, lobbyVersion, userId, username, password, cpu,
-				localIp);
+		doLogin(client, lobbyVersion, userId, username, password, cpu, localIp);
 	}
 
 	private void doLogin(
@@ -211,11 +209,11 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			final String password,
 			final int cpu,
 			final InetAddress localIp)
+			throws CommandProcessingException
 	{
-		final boolean validAccount = validateAccount(client, userId, username,
-				password);
+		final boolean validAccount = validateAccount(client, userId, username, password);
 		if (!validAccount) {
-			return false;
+			processingError();
 		}
 
 		// set client's status:

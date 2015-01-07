@@ -65,7 +65,7 @@ public class SayPrivateCommandProcessor extends AbstractSayCommandProcessor {
 
 		final Client target = getContext().getClients().getClient(channelName);
 		if (target == null) {
-			return false;
+			processingError();
 		}
 
 		checkFlooding(client, message);

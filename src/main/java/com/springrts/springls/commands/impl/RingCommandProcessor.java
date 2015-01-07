@@ -58,7 +58,7 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 			// and only clients who are participating in their battle
 			final Client target = getContext().getClients().getClient(username);
 			if (target == null) {
-				return false;
+				processingError();
 			}
 
 			if (client.getBattleID() == Battle.NO_BATTLE_ID) {
@@ -96,7 +96,7 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 			// privileged users can ring anyone
 			final Client target = getContext().getClients().getClient(username);
 			if (target == null) {
-				return false;
+				processingError();
 			}
 
 			target.sendLine(String.format("RING %s",

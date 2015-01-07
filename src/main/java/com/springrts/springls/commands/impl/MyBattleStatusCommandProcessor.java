@@ -58,7 +58,7 @@ public class MyBattleStatusCommandProcessor extends AbstractCommandProcessor {
 		final int newBattleStatus = (Integer)args.getWords().get(0);
 		final Color newTeamColor = (Color)args.getWords().get(1);
 
-		return setBattleStatus(client, battle, newBattleStatus, newTeamColor);
+		setBattleStatus(client, battle, newBattleStatus, newTeamColor);
 	}
 
 	private static class AllyTeamAndColorAligner
@@ -82,7 +82,7 @@ public class MyBattleStatusCommandProcessor extends AbstractCommandProcessor {
 		}
 	}
 
-	private boolean setBattleStatus(
+	private void setBattleStatus(
 			final Client client,
 			final Battle battle,
 			final int newBattleStatus,
@@ -108,7 +108,5 @@ public class MyBattleStatusCommandProcessor extends AbstractCommandProcessor {
 		battle.applyToTeamControllers(new AllyTeamAndColorAligner(client));
 
 		battle.notifyClientsOfBattleStatus(client);
-
-		return true;
 	}
 }

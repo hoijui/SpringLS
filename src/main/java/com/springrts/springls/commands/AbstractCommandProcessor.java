@@ -43,6 +43,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	private final boolean battleRequired;
 	private final boolean battleFounderRequired;
 //	private boolean sendingServerMsgOnError;
+	private String toClientErrorCommandName;
 	private final List<CommandProcessingExceptionListener> parsingExceptionListeners;
 
 	protected AbstractCommandProcessor(
@@ -59,6 +60,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 		this.battleRequired = battleRequired;
 		this.battleFounderRequired = battleFounderRequired;
 //		this.sendingServerMsgOnError = false;
+		this.toClientErrorCommandName = "SERVERMSG";
 		this.parsingExceptionListeners
 				= new LinkedList<CommandProcessingExceptionListener>();
 //		this.argsNamed = new HashSet<NamedArgument>(Arrays.asList(argsNamed));
@@ -173,7 +175,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	public String getCommandName() {
 		return this.commandName;
 	}
-	
+
 //	protected void setSendingServerMsgOnError(final boolean sendingServerMsgOnError) {
 //		this.sendingServerMsgOnError = sendingServerMsgOnError;
 //	}
@@ -181,6 +183,14 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 //	protected boolean isSendingServerMsgOnError() {
 //		return this.sendingServerMsgOnError;
 //	}
+
+	protected void setToClientErrorCommandName(final String toClientErrorCommandName) {
+		this.toClientErrorCommandName = toClientErrorCommandName;
+	}
+
+	protected String getToClientErrorCommandName() {
+		return this.toClientErrorCommandName;
+	}
 
 	/**
 	 * Returns the command as it was given to the server.
@@ -326,9 +336,18 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 //		} catch (CommandParsingException ex) {
 //			fireParsingExceptionOccurred(ex);
 //		}
-//		
+//
 //		return parsedArgs;
 //	}
+
+	protected void processingError(final Client client, final String message)
+			throws CommandProcessingException
+	{
+//		if (isSendingServerMsgOnError()) {
+			client.sendLine(toClientErrorCommandName + ' ' + message);
+//		}
+		processingError(message);
+	}
 
 	protected void processingError(final String message)
 			throws CommandProcessingException
@@ -336,13 +355,8 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 		throw new CommandProcessingException(getCommandName(), message);
 	}
 
-	protected void processingError(final Client client, final String message)
-			throws CommandProcessingException
-	{
-//		if (isSendingServerMsgOnError()) {
-			client.sendLine("SERVERMSG " + message);
-//		}
-		processingError(message);
+	protected void processingError() throws CommandProcessingException {
+		processingError("<NO-MESSAGE>");
 	}
 
 	/**

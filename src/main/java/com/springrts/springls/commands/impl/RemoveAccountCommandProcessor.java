@@ -49,7 +49,7 @@ public class RemoveAccountCommandProcessor extends AbstractCommandProcessor {
 		final String username = (String)args.getWords().get(0);
 
 		if (!getContext().getAccountsService().removeAccount(username)) {
-			return false;
+			processingError();
 		}
 
 		// if any user is connected to this account, kick him:

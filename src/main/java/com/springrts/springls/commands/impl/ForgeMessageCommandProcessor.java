@@ -59,7 +59,7 @@ public class ForgeMessageCommandProcessor extends AbstractCommandProcessor {
 		final Client targetClient
 				= getContext().getClients().getClient(username);
 		if (targetClient == null) {
-			return false;
+			processingError();
 		}
 
 		targetClient.sendLine(message);

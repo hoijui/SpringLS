@@ -59,15 +59,15 @@ public class ForceSpectatorModeCommandProcessor
 
 		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
-			return false;
+			processingError();
 		}
 		if (!battle.isClientInBattle(target)) {
-			return false;
+			processingError();
 		}
 
 		if (target.isSpectator()) {
 			// no need to change this, it is already set to spectator mode!
-			return false;
+			processingError();
 		}
 
 		target.setSpectator(true);

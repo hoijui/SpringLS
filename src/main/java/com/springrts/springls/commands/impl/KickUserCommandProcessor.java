@@ -63,7 +63,7 @@ public class KickUserCommandProcessor extends AbstractCommandProcessor {
 			reason = "";
 		}
 		if (target == null) {
-			return false;
+			processingError();
 		}
 		final String broadcastMsg = String.format(
 				"<%s> has kicked <%s> from server%s",

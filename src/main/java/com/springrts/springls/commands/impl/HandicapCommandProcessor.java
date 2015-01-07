@@ -61,15 +61,15 @@ public class HandicapCommandProcessor extends AbstractCommandProcessor {
 
 		// FIXME: handicap can be [-100, float_max], common: [-100, 100]
 		if ((handicap < 0) || (handicap > 100)) {
-			return false;
+			processingError();
 		}
 
 		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
-			return false;
+			processingError();
 		}
 		if (!battle.isClientInBattle(target)) {
-			return false;
+			processingError();
 		}
 
 		target.setHandicap(handicap);

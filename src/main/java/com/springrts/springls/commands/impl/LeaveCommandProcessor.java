@@ -52,7 +52,7 @@ public class LeaveCommandProcessor extends AbstractCommandProcessor {
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
-			return false;
+			processingError();
 		}
 
 		client.leaveChannel(chan, "");

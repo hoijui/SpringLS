@@ -66,7 +66,7 @@ public class ForgeReverseMessageCommandProcessor extends AbstractCommandProcesso
 
 		final Client targetClient = getContext().getClients().getClient(username);
 		if (targetClient == null) {
-			return false;
+			processingError();
 		}
 
 		getContext().getServerThread().executeCommand(message, targetClient);
