@@ -48,16 +48,11 @@ public class JoinCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String channelName = (String)args.getWords().get(0);
 		final String channelKey = (String)args.getSentences().get(0);
 
@@ -92,7 +87,5 @@ public class JoinCommandProcessor extends AbstractCommandProcessor {
 		client.sendLine(String.format("JOIN %s", channelName));
 		getContext().getChannels().sendChannelInfoToClient(chan, client);
 		getContext().getChannels().notifyClientsOfNewClientInChannel(chan, client);
-
-		return true;
 	}
 }

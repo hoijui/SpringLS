@@ -43,21 +43,14 @@ public class AdminBroadcastCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String message = (String) args.getSentences().get(0);
 		getContext().getClients().sendToAllAdministrators(
 				"SERVERMSG [broadcast to all admins]: "
 				+ message);
-
-		return true;
 	}
 }

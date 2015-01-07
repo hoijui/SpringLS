@@ -45,7 +45,7 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -62,10 +62,9 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		if (client.getCompatFlags().contains("cl")) { // NOTE lobby protocol "0.36+ cl"
-			client.sendLine("SERVERMSG Command " + getCommandName()
+			processingError(client, "Command " + getCommandName()
 					+ " was removed after lobby protocol version 0.36"
 					+ " with the 'cl' flag");
-			return false;
 		}
 
 		final int userId = (Integer)args.getWords().get(0);
@@ -75,8 +74,7 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 			// we transform an unsigned 32 bit integer to a signed one
 			userId = (int) tempUserId;
 		} catch (final NumberFormatException ex) {
-			client.sendLine("SERVERMSG Bad USERID command - userID field should be an integer");
-			return false;
+			processingError(client, "Bad USERID command - userID field should be an integer");
 		}
 
 		client.getAccount().setLastUserId(userId);
@@ -86,8 +84,7 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 						client.getAccount().getName());
 		if (!mergeOk) {
 			// FIXME set back?
-			client.sendLine("SERVERMSG Failed saving last userid to persistent storage");
-			return false;
+			processingError(client, "Failed saving last User ID to persistent storage");
 		}
 
 		// add server notification:
@@ -95,7 +92,5 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 		srvNotif.addLine(String.format("<%s> has generated a new user ID: %s(%d)",
 				client.getAccount().getName(), userIdStr, userId));
 		getContext().getServerNotifications().addNotification(srvNotif);
-
-		return true;
 	}
 }

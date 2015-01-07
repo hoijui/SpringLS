@@ -46,7 +46,7 @@ public class AddNotificationCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -70,9 +70,7 @@ public class AddNotificationCommandProcessor extends AbstractCommandProcessor {
 		{
 			client.sendLine("SERVERMSG Notification added.");
 		} else {
-			client.sendLine("SERVERMSG Error while adding notification! Notification not added.");
+			processingError(client, "Error while adding notification! Notification not added.");
 		}
-
-		return true;
 	}
 }

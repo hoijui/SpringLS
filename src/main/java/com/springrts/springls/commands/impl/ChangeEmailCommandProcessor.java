@@ -44,16 +44,11 @@ public class ChangeEmailCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String newEmail = (String)args.getWords().get(0);
 
 		Account toChange = client.getAccount();
@@ -61,16 +56,14 @@ public class ChangeEmailCommandProcessor extends AbstractCommandProcessor {
 			final String username = (String)args.getWords().get(1);
 			toChange = getContext().getAccountsService().getAccount(username);
 			if (toChange == null) {
-				client.sendLine(String.format(
-						"SERVERMSG Error: User <%s> not found!", username));
-				return false;
+				processingError(client, String.format(
+						"Error: User <%s> not found!", username));
 			}
 			if (!toChange.equals(client.getAccount())
 					&& !client.getAccount().getAccess().isAtLeast(Account.Access.PRIVILEGED))
 			{
-				client.sendLine(
-						"SERVERMSG Error: You need to be moderator to change the email of an other user!");
-				return false;
+				processingError(client,
+						"Error: You need to be moderator to change the email of an other user!");
 			}
 		}
 
@@ -81,7 +74,5 @@ public class ChangeEmailCommandProcessor extends AbstractCommandProcessor {
 		client.sendLine(String.format(
 				"SERVERMSG You have successfully changed the E-Mail address for user <%s>.",
 				toChange.getName()));
-
-		return true;
 	}
 }

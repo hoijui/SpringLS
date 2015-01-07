@@ -43,7 +43,7 @@ public class CreateAccountCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -64,28 +64,24 @@ public class CreateAccountCommandProcessor extends AbstractCommandProcessor {
 
 		String valid = Account.isOldUsernameValid(username);
 		if (valid != null) {
-			client.sendLine(String.format(
-					"SERVERMSG Invalid username (reason: %s)", valid));
-			return false;
+			processingError(client, String.format(
+					"Invalid username (reason: %s)", valid));
 		}
 
 		// validate password:
 		valid = Account.isPasswordValid(password);
 		if (valid != null) {
-			client.sendLine(String.format(
-					"SERVERMSG Invalid password (reason: %s)", valid));
-			return false;
+			processingError(client, String.format(
+					"Invalid password (reason: %s)", valid));
 		}
 		Account account
 				= getContext().getAccountsService().findAccountNoCase(username);
 		if (account != null) {
-			client.sendLine("SERVERMSG Account already exists");
-			return false;
+			processingError(client, "Account already exists");
 		}
 		if (Account.RESERVED_NAMES.contains(username)) {
-			client.sendLine("SERVERMSG Invalid account name - you are trying"
+			processingError(client, "Invalid account name - you are trying"
 					+ " to register a reserved account name");
-			return false;
 		}
 		account = new Account(username, password, client.getIp(),
 				client.getCountry());
@@ -93,6 +89,5 @@ public class CreateAccountCommandProcessor extends AbstractCommandProcessor {
 		// let's save new accounts info to disk
 		getContext().getAccountsService().saveAccounts(false);
 		client.sendLine("SERVERMSG Account created.");
-		return true;
 	}
 }

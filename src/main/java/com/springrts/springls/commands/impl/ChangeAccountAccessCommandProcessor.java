@@ -43,23 +43,18 @@ public class ChangeAccountAccessCommandProcessor extends AbstractCommandProcesso
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 		final int newAccessBifField = (Integer)args.getWords().get(1);
 
 		Account account
 				= getContext().getAccountsService().getAccount(username);
 		if (account == null) {
-			return false;
+			processingError("No account found for user-name \""+ username + "\"");
 		}
 
 		final int oldAccessBitField = account.getAccessBitField();
@@ -72,10 +67,9 @@ public class ChangeAccountAccessCommandProcessor extends AbstractCommandProcesso
 		if (mergeOk) {
 			account = accountNew;
 		} else {
-			client.sendLine(String.format(
-					"SERVERMSG Changing ACCESS for account <%s> failed.",
+			processingError(client, String.format(
+					"Changing ACCESS for account <%s> failed.",
 					account.getName()));
-			return false;
 		}
 
 		getContext().getAccountsService().saveAccounts(false); // save changes
@@ -89,7 +83,7 @@ public class ChangeAccountAccessCommandProcessor extends AbstractCommandProcesso
 				"SERVERMSG You have changed ACCESS for <%s> successfully.",
 				account.getName()));
 
-		// add server notification:
+		// add server notification
 		final ServerNotification srvNotif = new ServerNotification(
 				"Account access changed by admin");
 		srvNotif.addLine(String.format(
@@ -98,7 +92,5 @@ public class ChangeAccountAccessCommandProcessor extends AbstractCommandProcesso
 		srvNotif.addLine(String.format("Old access code: %d. New code: %d",
 				oldAccessBitField, newAccessBifField));
 		getContext().getServerNotifications().addNotification(srvNotif);
-
-		return true;
 	}
 }

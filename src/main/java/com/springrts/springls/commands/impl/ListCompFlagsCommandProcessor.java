@@ -36,16 +36,11 @@ public class ListCompFlagsCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final StringBuilder compFlagsCommand = new StringBuilder("COMPFLAGS");
 		for (final String compFlag
 				: getContext().getServer().getSupportedCompFlags())
@@ -54,7 +49,5 @@ public class ListCompFlagsCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		client.sendLine(compFlagsCommand.toString());
-
-		return true;
 	}
 }

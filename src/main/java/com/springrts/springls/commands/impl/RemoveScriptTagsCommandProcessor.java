@@ -47,7 +47,7 @@ public class RemoveScriptTagsCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -77,7 +77,5 @@ public class RemoveScriptTagsCommandProcessor extends AbstractCommandProcessor {
 
 		// relay the command
 		battle.sendToAllClients(lowerKeyCommand.toString());
-
-		return true;
 	}
 }

@@ -46,16 +46,11 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 
 		if (client.getAccount().getAccess().isLessThen(Account.Access.PRIVILEGED)) {
@@ -67,22 +62,20 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 			}
 
 			if (client.getBattleID() == Battle.NO_BATTLE_ID) {
-				client.sendLine(String.format(
-						"SERVERMSG %s command failed: You can only ring players"
+				processingError(client, String.format(
+						"%s command failed: You can only ring players"
 						+ " participating in your own battle!",
 						getCommandName()));
-				return false;
 			}
 
 			final Battle battle = getBattle(client);
 			getContext().getBattles().verify(battle);
 
 			if (!battle.isClientInBattle(target)) {
-				client.sendLine(String.format(
-						"SERVERMSG %s command failed: You do not have"
+				processingError(client, String.format(
+						"%s command failed: You do not have"
 						+ " permission to ring players other than those"
 						+ " participating in your battle!", getCommandName()));
-				return false;
 			}
 
 			// only host can ring players participating in his own battle,
@@ -90,12 +83,11 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 			if ((client != battle.getFounder())
 					&& (target != battle.getFounder()))
 			{
-				client.sendLine(String.format(
-						"SERVERMSG %s command failed: You can ring only battle"
+				processingError(client, String.format(
+						"%s command failed: You can ring only battle"
 						+ " host, or if you are the battle host, only players"
 						+ " participating in your own battle!",
 						getCommandName()));
-				return false;
 			}
 
 			target.sendLine(String.format("RING %s",
@@ -110,7 +102,5 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 			target.sendLine(String.format("RING %s",
 					client.getAccount().getName()));
 		}
-
-		return true;
 	}
 }

@@ -51,16 +51,11 @@ public class MyStatusCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final int newStatus = (Integer)args.getWords().get(0);
 
 		final boolean oldInGame = client.isInGame();
@@ -115,7 +110,5 @@ public class MyStatusCommandProcessor extends AbstractCommandProcessor {
 			}
 		}
 		getContext().getClients().notifyClientsOfNewClientStatus(client);
-
-		return true;
 	}
 }

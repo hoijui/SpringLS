@@ -18,14 +18,12 @@
 package com.springrts.springls.commands;
 
 
-import com.springrts.springls.Client;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +43,9 @@ public class CommandArguments {
 	 * which still may support (or not) named arguments in the future.
 	 */
 	private final boolean usingNamedArguments;
+	private final boolean supportingUnknownNamedArguments = true;
 	private final List<IndexedArgument> words;
+	private final int optionalWords;
 	/**
 	 * Whether the command supports variable words.
 	 * If true, then the command supports a variable amount of word arguments.
@@ -53,6 +53,7 @@ public class CommandArguments {
 	 */
 	private final boolean supportingVariableWords;
 	private final List<IndexedArgument> sentences;
+	private final int optionalSentences;
 	/**
 	 * Whether the command supports variable sentences.
 	 * If true, then the command supports a variable amount of sentence
@@ -60,7 +61,6 @@ public class CommandArguments {
 	 */
 	private final boolean supportingVariableSentences;
 	private final Set<NamedArgument> namedArgs;
-	private final List<ParsingExceptionListener> parsingExceptionListeners;
 
 	public CommandArguments(final boolean usingNamedArguments) {
 
@@ -76,7 +76,8 @@ public class CommandArguments {
 			this.sentences = Collections.EMPTY_LIST;
 			this.namedArgs = null;
 		}
-		this.parsingExceptionListeners = new LinkedList<ParsingExceptionListener>();
+		this.optionalWords = 0;
+		this.optionalSentences = 0;
 	}
 
 	public CommandArguments(
@@ -85,11 +86,12 @@ public class CommandArguments {
 	{
 		this.usingNamedArguments = false;
 		this.words = Collections.unmodifiableList(Arrays.asList(words));
+		this.optionalWords = countOptional(this.words);
 		this.supportingVariableWords = supportingVariableWords;
 		this.sentences = Collections.EMPTY_LIST;
+		this.optionalSentences = 0;
 		this.supportingVariableSentences = false;
 		this.namedArgs = null;
-		this.parsingExceptionListeners = new LinkedList<ParsingExceptionListener>();
 	}
 
 	public CommandArguments(final IndexedArgument... words) {
@@ -103,23 +105,20 @@ public class CommandArguments {
 	{
 		this.usingNamedArguments = false;
 		this.words = Collections.unmodifiableList(words);
+		this.optionalWords = countOptional(this.words);
 		this.supportingVariableWords = false;
 		this.sentences = Collections.unmodifiableList(Arrays.asList(sentences));
+		this.optionalSentences = countOptional(this.sentences);
 		this.supportingVariableSentences = supportingVariableSentences;
 		this.namedArgs = null;
-		if (!this.sentences.isEmpty()) {
-			for (final IndexedArgument word : words) {
-				if (word.isOptional()) {
-					throw new IllegalArgumentException(
-							"Due to arguments separators"
-							+ " (SPACE for words, TAB for sentences),"
-							+ " it is not possible to use sentence arguments"
-							+ " together with a variable ammount of word"
-							+ " arguments");
-				}
-			}
+		if ((optionalWords > 0)  && !this.sentences.isEmpty()) {
+			throw new IllegalArgumentException(
+					"Due to arguments separators"
+					+ " (SPACE for words, TAB for sentences),"
+					+ " it is not possible to use sentence arguments"
+					+ " together with a variable ammount of word"
+					+ " arguments");
 		}
-		this.parsingExceptionListeners = new LinkedList<ParsingExceptionListener>();
 	}
 
 	public CommandArguments(
@@ -133,28 +132,25 @@ public class CommandArguments {
 
 		this.usingNamedArguments = true;
 		this.words = null;
+		this.optionalWords = 0;
 		this.supportingVariableWords = false;
 		this.sentences = null;
+		this.optionalSentences = 0;
 		this.supportingVariableSentences = false;
 		this.namedArgs = Collections.unmodifiableSet(new HashSet<NamedArgument>(
 				Arrays.asList(namedArgs)));
-		this.parsingExceptionListeners = new LinkedList<ParsingExceptionListener>();
 	}
 
-	public void addParsingExceptionListener(final ParsingExceptionListener lst) {
-		parsingExceptionListeners.add(lst);
-	}
+	private static int countOptional(final List<? extends IndexedArgument> arguments) {
 
-	public void removeParsingExceptionListener(final ParsingExceptionListener lst) {
-		parsingExceptionListeners.remove(lst);
-	}
-
-	private void fireParsingExceptionOccurred(final CommandParsingException exception) {
-
-		final ParsingExceptionEvent evt = new ParsingExceptionEvent(this, exception);
-		for (final ParsingExceptionListener lst : parsingExceptionListeners) {
-			lst.parsingExceptionOccurred(evt);
+		int optional = 0;
+		for (final IndexedArgument argument : arguments) {
+			if (argument.isOptional()) {
+				optional++;
+			}
 		}
+
+		return optional;
 	}
 
 	private static class StringToParse implements Iterator<String> {
@@ -205,42 +201,66 @@ public class CommandArguments {
 		}
 	}
 
-	private Object convert(final Client client, final IndexedArgument arg, final String valueStr) {
-
+	private Object convert(
+			final String commandName,
+			final IndexedArgument arg,
+			final String valueStr)
+			throws CommandParsingException
+	{
 		try {
 			final Object convertedValue = arg.getValueParser().parse(valueStr);
 			return convertedValue;
 		} catch (final Exception ex) {
-			if (client != null) {
-				TODO;
-				client.sendLine("SERVERMSG Bad USERID command - userID field should be an integer"); // USERID @Deprecated
-				client.sendLine("SERVERMSG Invalid 'mode' parameter (has to be 0 or 1)!"); // SETBOTMODE
-				{ // REMOVESTARTRECT
-					client.sendLine(String.format(
-							"SERVERMSG Serious error: inconsistent data (%s command)."
-							+ " You will now be disconnected ...", getCommandName()));
-					getContext().getClients().killClient(client,
-							"Quit: inconsistent data");
-				}
-				client.sendLine(String.format(
-						"SERVERMSG %s failed: Invalid argument - should be an integer",
-						getCommandName())); // MUTE
-				client.sendLine("SERVERMSG LONGTIMETODATE failed: invalid argument."); // LONGTIMETODATE
-				client.sendLine("DENIED <cpu> field should be an integer"); // LOGIN
-				client.sendLine("JOINBATTLEFAILED No battle ID!"); // JOINBATTLE
-				client.sendLine("SERVERMSG Invalid IP address/range: " + ipAddress); // IP2COUNTRY
-				client.sendLine(String.format(
-						"FORCEJOINBATTLEFAILED %s %s", userName,
-						"Invalid destination battle ID (needs to be an integer): " + destinationBattleIdStr)); // FORCEJOINBATTLE
-			}
-			log.trace("TODO"); TODO;
-			return null;
+//			if (client != null) {
+//				TODO;
+//				client.sendLine("SERVERMSG Bad USERID command - userID field should be an integer"); // USERID @Deprecated
+//				client.sendLine("SERVERMSG Invalid 'mode' parameter (has to be 0 or 1)!"); // SETBOTMODE
+//				{ // REMOVESTARTRECT
+//					client.sendLine(String.format(
+//							"SERVERMSG Serious error: inconsistent data (%s command)."
+//							+ " You will now be disconnected ...", getCommandName()));
+//					getContext().getClients().killClient(client,
+//							"Quit: inconsistent data");
+//				}
+//				client.sendLine(String.format(
+//						"SERVERMSG %s failed: Invalid argument - should be an integer",
+//						getCommandName())); // MUTE
+//				client.sendLine("SERVERMSG LONGTIMETODATE failed: invalid argument."); // LONGTIMETODATE
+//				client.sendLine("DENIED <cpu> field should be an integer"); // LOGIN
+//				client.sendLine("JOINBATTLEFAILED No battle ID!"); // JOINBATTLE
+//				client.sendLine("SERVERMSG Invalid IP address/range: " + ipAddress); // IP2COUNTRY
+//				client.sendLine(String.format(
+//						"FORCEJOINBATTLEFAILED %s %s", userName,
+//						"Invalid destination battle ID (needs to be an integer): " + destinationBattleIdStr)); // FORCEJOINBATTLE
+//			}
+//			log.trace("TODO"); TODO;
+
+			throw new CommandArgumentParsingException(commandName, arg, "Failed to convert", ex);
 		}
 	}
 
-	public ParsedCommandArguments parse(final Client client, final String command, final int argsStartIndex) {
+	public ParsedCommandArguments parse(
+			final String commandName,
+			final String command,
+			final int argsStartIndex)
+			throws CommandParsingException
+	{
+		final StringToParse input
+				= new StringToParse(command, argsStartIndex, ' ');
+//		try {
+			return parse(commandName, command, input);
+//		} catch (final CommandParsingException ex) {
+//			fireParsingExceptionOccurred(ex);
+//			return null;
+//		}
+	}
 
-		final StringToParse input = new StringToParse(command, argsStartIndex, ' ');
+	private ParsedCommandArguments parse(
+			final String commandName,
+			final String command,
+			final StringToParse input)
+			throws CommandParsingException
+	{
 		if (isUsingNamedArguments()) {
 			input.setDelimiter('\t');
 			if (!input.hasNext()) {
@@ -256,9 +276,10 @@ public class CommandArguments {
 				final String nameValuePair = input.next();
 				final String[] nameAndValue = nameValuePair.split("=", 2);
 				if (nameAndValue.length != 2) {
-					fireParsingExceptionOccurred(new CommandParsingException(
-							"Not a valid named argument format: \"" + nameValuePair + "\""));
-					return null;
+					throw new CommandParsingException(
+							commandName,
+							"Not a valid named argument format: \""
+									+ nameValuePair + "\"");
 				}
 				parsedNamedArgs.put(nameAndValue[0].trim(), nameAndValue[1]);
 			}
@@ -270,26 +291,41 @@ public class CommandArguments {
 				final String definedName = definedArgument.getName();
 				final String valueStr = (String)parsedNamedArgs.get(definedName);
 				if (definedName != null) {
-					final Object convertedValue = convert(client, definedArgument, valueStr);
+					final Object convertedValue = convert(commandName, definedArgument, valueStr);
 					parsedNamedArgs.put(definedName, convertedValue);
 					parsedNamedArgsKeysCopy.remove(definedName);
 				} else if (!definedArgument.isOptional()) {
-					fireParsingExceptionOccurred(new CommandParsingException(String.format(
+//					log.debug("Missing required named argument {} in command \"{}\"",
+//							definedArgument.getName(),
+//							command);
+//					return null;
+					throw new CommandArgumentParsingException(
+							commandName,
+							definedArgument,
+							String.format(
 							"Missing required named argument %s in command \"%s\"",
 							definedArgument.getName(),
-							command);
-					log.debug("Missing required named argument {} in command \"{}\"",
-							definedArgument.getName(),
-							command);
-					return null;
+							command));
 				}
 			}
 
 			// check if unknown keys are present
-			if (!parsedNamedArgsKeysCopy.isEmpty() && log.isDebugEnabled()) {
-				log.debug("Unknown named arguments {} in command \"{}\"",
-						parsedNamedArgsKeysCopy.toString(),
-						command);
+			if (!parsedNamedArgsKeysCopy.isEmpty()) {
+				if (supportingUnknownNamedArguments) {
+					if (log.isDebugEnabled()) {
+						log.debug(
+								"Unknown named arguments {} in command \"{}\"",
+								parsedNamedArgsKeysCopy.toString(),
+								command);
+					}
+				} else {
+					throw new CommandParsingException(
+							commandName,
+							String.format(
+							"Unknown named arguments %s in command \"%s\"",
+							parsedNamedArgsKeysCopy.toString(),
+							command));
+				}
 			}
 
 			return new ParsedCommandArguments(command, parsedNamedArgs);
@@ -314,15 +350,22 @@ public class CommandArguments {
 				if (wordsIt.hasNext()) {
 					curWord = wordsIt.next();
 				}
-				final Object convertedValue = convert(client, curWord, parsedWord);
+				final Object convertedValue = convert(commandName, curWord, parsedWord);
 				parsedWords.add(convertedValue);
 			}
 			// check if required ones are present
-			if (parsedWords.size() < getWords().size()) {
-				log.debug("Missing {} required word argument(s) in command \"{}\"",
-						getWords().size() - parsedWords.size(),
-						command);
-				return null;
+			final int requiredWords = getWords().size() - optionalWords;
+			if (parsedWords.size() < requiredWords) {
+//				log.debug("Missing {} required word argument(s) in command \"{}\"",
+//						requiredWords - parsedWords.size(),
+//						command);
+//				return null;
+				throw new CommandParsingException(
+						commandName,
+						String.format(
+						"Missing %d required word argument(s) in command \"%s\"",
+						requiredWords - parsedWords.size(),
+						command));
 			}
 
 			// parse & convert sentences
@@ -338,15 +381,22 @@ public class CommandArguments {
 				if (wordsIt.hasNext()) {
 					curSentence = sentenceIt.next();
 				}
-				final Object convertedValue = convert(client, curSentence, parsedSentence);
+				final Object convertedValue = convert(commandName, curSentence, parsedSentence);
 				parsedSentences.add(convertedValue);
 			}
 			// check if required ones are present
-			if (parsedSentences.size() < getSentences().size()) {
-				log.debug("Missing {} required sentence argument(s) in command \"{}\"",
-						getSentences().size() - parsedSentences.size(),
-						command);
-				return null;
+			final int requiredSentences = getSentences().size() - optionalSentences;
+			if (parsedSentences.size() < requiredSentences) {
+//				log.debug("Missing {} required sentence argument(s) in command \"{}\"",
+//						requiredSentences - parsedSentences.size(),
+//						command);
+//				return null;
+				throw new CommandParsingException(
+						commandName,
+						String.format(
+						"Missing %d required sentence argument(s) in command \"%s\"",
+						requiredSentences - parsedSentences.size(),
+						command));
 			}
 
 			return new ParsedCommandArguments(

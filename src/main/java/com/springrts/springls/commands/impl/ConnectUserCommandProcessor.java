@@ -47,16 +47,11 @@ public class ConnectUserCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String userName = (String)args.getWords().get(0);
 		final Client affectedClient
 				= getContext().getClients().getClient(userName);
@@ -97,7 +92,5 @@ public class ConnectUserCommandProcessor extends AbstractCommandProcessor {
 				: String.format("CONNECTUSER %s %s", ipAndPort, scriptPassword);
 
 		affectedClient.sendLine(successResponseMessage);
-
-		return true;
 	}
 }

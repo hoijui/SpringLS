@@ -43,35 +43,27 @@ public class SetBotModeCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final int mode = (Integer)args.getWords().get(1);
 		try {
 			mode = Integer.parseInt(args.get(1));
 		} catch (final NumberFormatException ex) {
-			client.sendLine("SERVERMSG Invalid 'mode' parameter (has to be 0 or 1)!");
-			return false;
+			processingError(client, "Invalid 'mode' parameter (has to be 0 or 1)!");
 		}
 		if ((mode != 0) && (mode != 1)) {
-			client.sendLine("SERVERMSG Invalid 'mode' parameter (has to be 0 or 1)!");
-			return false;
+			processingError(client, "Invalid 'mode' parameter (has to be 0 or 1)!");
 		}
 
 		final String userName = (String)args.getWords().get(0);
 
 		final Account acc = getContext().getAccountsService().getAccount(userName);
 		if (acc == null) {
-			client.sendLine(String.format("SERVERMSG User <%s> not found!",
+			processingError(client, String.format("User <%s> not found!",
 					userName));
-			return false;
 		}
 
 		final boolean wasBot = acc.isBot();
@@ -81,16 +73,13 @@ public class SetBotModeCommandProcessor extends AbstractCommandProcessor {
 				.mergeAccountChanges(acc, acc.getName());
 		if (!mergeOk) {
 			acc.setBot(wasBot);
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: Failed saving to persistent storage.",
+			processingError(client, String.format(
+					"%s failed: Failed saving to persistent storage.",
 					getCommandName()));
-			return false;
 		}
 
 		client.sendLine(String.format(
 				"SERVERMSG Bot mode set to %d for user <%s>",
 				mode, acc.getName()));
-
-		return true;
 	}
 }

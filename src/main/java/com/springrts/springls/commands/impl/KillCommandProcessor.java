@@ -41,16 +41,11 @@ public class KillCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 
 		final Client target = getContext().getClients().getClient(username);
@@ -58,7 +53,5 @@ public class KillCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 		getContext().getClients().killClient(target);
-
-		return true;
 	}
 }

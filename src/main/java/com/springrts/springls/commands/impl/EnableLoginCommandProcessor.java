@@ -41,16 +41,11 @@ public class EnableLoginCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		if (!args.getWords().isEmpty()) {
 			final boolean enableLogin = (Boolean)args.getWords().get(0);
 			getContext().getServer().setLoginEnabled(enableLogin);
@@ -59,7 +54,5 @@ public class EnableLoginCommandProcessor extends AbstractCommandProcessor {
 				"SERVERMSG The LOGIN command is %s for non-moderators",
 				getContext().getServer().isLoginEnabled()
 				? "enabled" : "disabled"));
-
-		return true;
 	}
 }

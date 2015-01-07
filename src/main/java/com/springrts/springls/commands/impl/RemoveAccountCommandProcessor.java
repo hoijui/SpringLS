@@ -41,16 +41,11 @@ public class RemoveAccountCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 
 		if (!getContext().getAccountsService().removeAccount(username)) {
@@ -71,7 +66,5 @@ public class RemoveAccountCommandProcessor extends AbstractCommandProcessor {
 		client.sendLine(String.format(
 				"SERVERMSG You have successfully removed <%s> account!",
 				username));
-
-		return true;
 	}
 }

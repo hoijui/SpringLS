@@ -45,16 +45,11 @@ public class ReloadUpdatePropertiesCommandProcessor extends AbstractCommandProce
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final UpdateProperties updateProperties = getService(UpdateProperties.class);
 		final String updatePropsFile = UpdateProperties.DEFAULT_FILENAME;
 		if (updateProperties.read(updatePropsFile)) {
@@ -67,7 +62,5 @@ public class ReloadUpdatePropertiesCommandProcessor extends AbstractCommandProce
 					"SERVERMSG Unable to load \"Update properties\" from %s!",
 					updatePropsFile));
 		}
-
-		return true;
 	}
 }

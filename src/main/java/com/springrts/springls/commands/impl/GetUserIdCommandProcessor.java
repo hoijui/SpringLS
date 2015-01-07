@@ -44,29 +44,21 @@ public class GetUserIdCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 
 		final Account account
 				= getContext().getAccountsService().getAccount(username);
 		if (account == null) {
-			client.sendLine(String.format("SERVERMSG User <%s> not found!",
+			processingError(client, String.format("User <%s> not found!",
 					username));
-			return false;
 		}
 
 		client.sendLine(String.format("SERVERMSG Last user ID for <%s> was %d",
 				username, account.getLastUserId()));
-
-		return true;
 	}
 }

@@ -45,25 +45,19 @@ public class GetLastLoginTimeCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 
 		final Account acc = getContext().getAccountsService().getAccount(username);
 		if (acc == null) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: <%s> not found!",
+			processingError(client, String.format(
+					"%s failed: <%s> not found!",
 					getCommandName(),
 					username));
-			return false;
 		}
 
 		if (getContext().getClients().getClient(acc.getName()) == null) {
@@ -79,7 +73,5 @@ public class GetLastLoginTimeCommandProcessor extends AbstractCommandProcessor {
 			client.sendLine(String.format("SERVERMSG <%s> is currently online",
 					acc.getName()));
 		}
-
-		return true;
 	}
 }

@@ -37,18 +37,12 @@ public class UpTimeCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		client.sendLine("SERVERMSG Server's uptime is "
 				+ Misc.timeToDHM(getContext().getServer().getUpTime()));
-		return true;
 	}
 }

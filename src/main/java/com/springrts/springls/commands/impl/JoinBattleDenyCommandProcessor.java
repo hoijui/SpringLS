@@ -51,16 +51,11 @@ public class JoinBattleDenyCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 		final Client joiningClient = getContext().getClients().getClient(username);
 		if (joiningClient == null) {
@@ -77,7 +72,5 @@ public class JoinBattleDenyCommandProcessor extends AbstractCommandProcessor {
 		} else {
 			joiningClient.sendLine("JOINBATTLEFAILED Denied by battle founder");
 		}
-
-		return true;
 	}
 }

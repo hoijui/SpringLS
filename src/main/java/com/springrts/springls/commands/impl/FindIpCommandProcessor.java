@@ -45,16 +45,11 @@ public class FindIpCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		boolean found = false;
 
 		// NOTE In the past, this command allowed to specify a range of IPs,
@@ -65,8 +60,7 @@ public class FindIpCommandProcessor extends AbstractCommandProcessor {
 
 		final InetAddress addr = Misc.parseIp(ipAddress);
 		if (addr == null) {
-			client.sendLine("SERVERMSG Invalid IP address: " + ipAddress);
-			return false;
+			processingError(client, "Invalid IP address: " + ipAddress);
 		}
 
 		for (int i = 0; i < getContext().getClients().getClientsSize(); i++) {
@@ -98,7 +92,5 @@ public class FindIpCommandProcessor extends AbstractCommandProcessor {
 			client.sendLine("SERVERMSG No client is/was recently using IP: "
 					+ ipAddress);
 		}
-
-		return true;
 	}
 }

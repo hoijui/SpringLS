@@ -47,16 +47,11 @@ public class SayExCommandProcessor extends AbstractSayCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String channelName = (String)args.getWords().get(0);
 		final String message = (String)args.getSentences().get(0);
 
@@ -73,7 +68,5 @@ public class SayExCommandProcessor extends AbstractSayCommandProcessor {
 				channel.getName(),
 				client.getAccount().getName(),
 				message));
-
-		return true;
 	}
 }

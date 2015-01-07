@@ -59,7 +59,7 @@ public class SetScriptTagsCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -91,8 +91,6 @@ public class SetScriptTagsCommandProcessor extends AbstractCommandProcessor {
 		if (scriptTagsClean.length() > 0) {
 			battle.sendToAllClients("SETSCRIPTTAGS " + scriptTagsClean);
 		}
-
-		return true;
 	}
 
 	private static Map<String, String> parseScriptTags(final String keyValuePairs) {

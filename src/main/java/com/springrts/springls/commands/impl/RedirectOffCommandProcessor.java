@@ -37,16 +37,11 @@ public class RedirectOffCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		getContext().getServer().disableRedirect();
 		getContext().getClients().sendToAllRegisteredUsers(
 				"BROADCAST Server has left redirection mode");
@@ -58,7 +53,5 @@ public class RedirectOffCommandProcessor extends AbstractCommandProcessor {
 				"Admin <%s> has disabled redirection mode.",
 				client.getAccount().getName()));
 		getContext().getServerNotifications().addNotification(srvNotif);
-
-		return true;
 	}
 }

@@ -45,7 +45,7 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -68,27 +68,24 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 		final String newPassword = (String)args.getWords().get(1);
 
 		if (getConfiguration().getBoolean(ServerConfiguration.LAN_MODE)) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: You can not change your password"
+			processingError(client, String.format(
+					"%s failed: You can not change your password"
 					+ " while the server is running in LAN mode!",
 					getCommandName()));
-			return false;
 		}
 
 		if (!oldPassword.equals(client.getAccount().getPassword())) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: The old password is incorrect!",
+			processingError(client, String.format(
+					"%s failed: The old password is incorrect!",
 					getCommandName()));
-			return false;
 		}
 
 		// validate password:
 		final String valid = Account.isPasswordValid(newPassword);
 		if (valid != null) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: Invalid password (reason: %s)",
+			processingError(client, String.format(
+					"%s failed: Invalid password (reason: %s)",
 					getCommandName(), valid));
-			return false;
 		}
 
 		final String oldPasswd = client.getAccount().getPassword();
@@ -98,17 +95,14 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 				client.getAccount().getName());
 		if (!mergeOk) {
 			client.getAccount().setPassword(oldPasswd);
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: Failed saving to persistent storage.",
+			processingError(client, String.format(
+					"%s failed: Failed saving to persistent storage.",
 					getCommandName()));
-			return false;
 		}
 
 		// let's save new accounts info to disk
 		getContext().getAccountsService().saveAccounts(false);
 		client.sendLine("SERVERMSG Your password has been successfully updated!"
 				);
-
-		return true;
 	}
 }

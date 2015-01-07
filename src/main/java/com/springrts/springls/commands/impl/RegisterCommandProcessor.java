@@ -44,7 +44,7 @@ public class RegisterCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -144,6 +144,5 @@ public class RegisterCommandProcessor extends AbstractCommandProcessor {
 		getContext().getAccountsService().saveAccounts(false);
 
 		client.sendLine("REGISTRATIONACCEPTED");
-		return true;
 	}
 }

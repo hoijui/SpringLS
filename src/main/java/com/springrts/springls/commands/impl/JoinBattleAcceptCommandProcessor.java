@@ -46,16 +46,11 @@ public class JoinBattleAcceptCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		if (client.getBattleID() == Battle.NO_BATTLE_ID) {
 			return false;
 		}
@@ -75,7 +70,5 @@ public class JoinBattleAcceptCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		battle.notifyClientJoined(joiningClient);
-
-		return true;
 	}
 }

@@ -42,16 +42,11 @@ public class GetInGameTimeCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		if (args.getWords().isEmpty()) {
 			client.sendLine(String.format(
 					"SERVERMSG Your in-game time is %d minutes.",
@@ -69,17 +64,14 @@ public class GetInGameTimeCommandProcessor extends AbstractCommandProcessor {
 			final Account account
 					= getContext().getAccountsService().getAccount(username);
 			if (account == null) {
-				client.sendLine(String.format(
-						"SERVERMSG %s failed: user %s not found!",
+				processingError(client, String.format(
+						"%s failed: user %s not found!",
 						getCommandName(), username));
-				return false;
 			}
 
 			client.sendLine(String.format(
 					"SERVERMSG %s's in-game time is %d minutes.",
 					account.getName(), account.getInGameTimeInMins()));
 		}
-
-		return true;
 	}
 }

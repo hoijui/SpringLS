@@ -47,7 +47,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -68,28 +68,25 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 		final String newUsername = (String)args.getSentences().get(0);
 
 		if (getConfiguration().getBoolean(ServerConfiguration.LAN_MODE)) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: You cannot rename your account while"
+			processingError(client, String.format(
+					"%s failed: You cannot rename your account while"
 					+ " the server is running in LAN mode, since you have no"
 					+ " persistent account!", getCommandName()));
-			return false;
 		}
 
 		// validate new user name
 		final String valid = Account.isOldUsernameValid(newUsername);
 		if (valid != null) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: Invalid username (reason: %s)",
+			processingError(client, String.format(
+					"%s failed: Invalid username (reason: %s)",
 					getCommandName(), valid));
-			return false;
 		}
 
 		final Account account = getContext().getAccountsService().findAccountNoCase(newUsername);
 		if ((account != null) && (account != client.getAccount())) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: Account with same username already exists!",
+			processingError(client, String.format(
+					"%s failed: Account with same username already exists!",
 					getCommandName()));
-			return false;
 		}
 
 		final String oldName = client.getAccount().getName();
@@ -102,8 +99,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 		if (mergeOk) {
 			client.setAccount(accountNew);
 		} else {
-			client.sendLine("SERVERMSG Your account renaming failed.");
-			return false;
+			processingError(client, "Your account renaming failed.");
 		}
 
 		// make sure all mutes are accordingly adjusted to the new userName:
@@ -132,7 +128,5 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 				"User <%s> has renamed his account to <%s>",
 				oldName, client.getAccount().getName()));
 		getContext().getServerNotifications().addNotification(srvNotif);
-
-		return true;
 	}
 }

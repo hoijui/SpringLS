@@ -41,23 +41,17 @@ public class GetLastIpCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 
 		final Account acc = getContext().getAccountsService().getAccount(username);
 		if (acc == null) {
-			client.sendLine(String.format("SERVERMSG User %s not found!",
+			processingError(client, String.format("User %s not found!",
 					username));
-			return false;
 		}
 
 		final boolean online = getContext().getClients().isUserLoggedIn(acc);
@@ -66,7 +60,5 @@ public class GetLastIpCommandProcessor extends AbstractCommandProcessor {
 				username,
 				acc.getLastIpAsString(),
 				(online ? "online" : "offline")));
-
-		return true;
 	}
 }

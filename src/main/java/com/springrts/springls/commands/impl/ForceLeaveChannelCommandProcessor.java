@@ -51,7 +51,7 @@ public class ForceLeaveChannelCommandProcessor
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -73,24 +73,21 @@ public class ForceLeaveChannelCommandProcessor
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
-			client.sendLine(String.format(
-					"SERVERMSG Error: Channel does not exist: %s",
+			processingError(client, String.format(
+					"Error: Channel does not exist: %s",
 					channelName));
-			return false;
 		}
 
 		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
-			client.sendLine(String.format(
-					"SERVERMSG Error: <%s> not found!", username));
-			return false;
+			processingError(client, String.format(
+					"Error: <%s> not found!", username));
 		}
 
 		if (!chan.isClientInThisChannel(target)) {
-			client.sendLine(String.format(
-					"SERVERMSG Error: <%s> is not in the channel #%s!",
+			processingError(client, String.format(
+					"Error: <%s> is not in the channel #%s!",
 					username, chan.getName()));
-			return false;
 		}
 
 		String reason = null;
@@ -107,7 +104,5 @@ public class ForceLeaveChannelCommandProcessor
 				client.getAccount().getName(),
 				(reason == null) ? "" : " " + reason));
 		target.leaveChannel(chan, "kicked from channel");
-
-		return true;
 	}
 }

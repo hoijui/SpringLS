@@ -44,16 +44,11 @@ public class ChangeAccountPasswordCommandProcessor
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 		final String password = (String)args.getWords().get(1);
 
@@ -73,10 +68,9 @@ public class ChangeAccountPasswordCommandProcessor
 				.mergeAccountChanges(account, account.getName());
 		if (!mergeOk) {
 			account.setPassword(oldPasswd);
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: Failed saving to persistent storage.",
+			processingError(client, String.format(
+					"%s failed: Failed saving to persistent storage.",
 					getCommandName()));
-			return false;
 		}
 
 		getContext().getAccountsService().saveAccounts(false); // save changes
@@ -88,7 +82,5 @@ public class ChangeAccountPasswordCommandProcessor
 				"Admin <%s> has changed password for account <%s>",
 				client.getAccount().getName(), account.getName()));
 		getContext().getServerNotifications().addNotification(srvNotif);
-
-		return true;
 	}
 }

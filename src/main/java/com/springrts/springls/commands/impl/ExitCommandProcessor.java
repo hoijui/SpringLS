@@ -41,23 +41,16 @@ public class ExitCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String reason
 				= args.getSentences().isEmpty()
 				? "Clean exit"
 				: (String)args.getSentences().get(0);
 
 		getContext().getClients().killClient(client, reason);
-
-		return true;
 	}
 }

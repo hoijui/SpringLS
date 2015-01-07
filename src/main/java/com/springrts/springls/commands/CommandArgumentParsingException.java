@@ -22,20 +22,32 @@ package com.springrts.springls.commands;
  * TODO add class description here
  * @author hoijui
  */
-public class CommandParsingException extends CommandProcessingException {
+public class CommandArgumentParsingException extends CommandParsingException {
 
-	public CommandParsingException(
+	private final IndexedArgument argument;
+
+	public CommandArgumentParsingException(
 			final String commandName,
+			final IndexedArgument argument,
 			final String message)
 	{
 		super(commandName, message);
+
+		this.argument = argument;
 	}
 
-	public CommandParsingException(
+	public CommandArgumentParsingException(
 			final String commandName,
+			final IndexedArgument argument,
 			final String message,
 			final Throwable cause)
 	{
 		super(commandName, message, cause);
+
+		this.argument = argument;
+	}
+
+	public IndexedArgument getArgument() {
+		return argument;
 	}
 }

@@ -43,16 +43,11 @@ public class FloodLevelCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String type = (String)args.getWords().get(0);
 
 		final FloodProtection floodProtection
@@ -81,7 +76,5 @@ public class FloodLevelCommandProcessor extends AbstractCommandProcessor {
 						bytes));
 			}
 		}
-
-		return true;
 	}
 }

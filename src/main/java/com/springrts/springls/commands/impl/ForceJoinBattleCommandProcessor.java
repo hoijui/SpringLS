@@ -46,16 +46,11 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String userName = (String)args.getWords().get(0);
 		final Client affectedClient = getContext().getClients().getClient(userName);
 		if (affectedClient == null) {
@@ -140,7 +135,5 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 //			getContext().getServerThread().executeCommand(affectedClient, "JOINBATTLE", joinBattleArgs);
 			getContext().getServerThread().executeCommand(affectedClient, "JOINBATTLE", destinationBattleIdStr);
 		}
-
-		return true;
 	}
 }

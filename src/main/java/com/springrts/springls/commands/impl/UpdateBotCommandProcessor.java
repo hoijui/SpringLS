@@ -50,16 +50,11 @@ public class UpdateBotCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final Battle battle = getBattle(client);
 
 		final String botName = (String)args.getWords().get(0);
@@ -92,7 +87,5 @@ public class UpdateBotCommandProcessor extends AbstractCommandProcessor {
 				bot.getName(),
 				bot.getBattleStatus(),
 				ProtocolUtil.colorJavaToSpring(bot.getTeamColor())));
-
-		return true;
 	}
 }

@@ -54,16 +54,11 @@ public class UpdateBattleInfoCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final Battle battle = getBattle(client);
 
 		final int spectatorCount = (Integer)args.getWords().get(0);
@@ -74,7 +69,7 @@ public class UpdateBattleInfoCommandProcessor extends AbstractCommandProcessor {
 		int maphash;
 		try {
 			maphash = Integer.decode(mapHashStr);
-		} catch (NumberFormatException ex) {
+		} catch (final NumberFormatException ex) {
 			return false;
 		}
 
@@ -88,7 +83,5 @@ public class UpdateBattleInfoCommandProcessor extends AbstractCommandProcessor {
 				ProtocolUtil.boolToNumber(battle.isLocked()),
 				maphash,
 				battle.getMapName()));
-
-		return true;
 	}
 }

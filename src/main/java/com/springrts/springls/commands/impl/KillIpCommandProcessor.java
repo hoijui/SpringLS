@@ -45,16 +45,11 @@ public class KillIpCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		// NOTE In the past, this command allowed to specify a range of IPs,
 		//   by specifying a radix like "192.168.*.*".
 		//   Support for this has been removed.
@@ -63,8 +58,7 @@ public class KillIpCommandProcessor extends AbstractCommandProcessor {
 
 		final InetAddress addr = Misc.parseIp(ipAddress);
 		if (addr == null) {
-			client.sendLine("SERVERMSG Invalid IP address: " + ipAddress);
-			return false;
+			processingError(client, "Invalid IP address: " + ipAddress);
 		}
 
 		for (int i = 0; i < getContext().getClients().getClientsSize(); i++) {
@@ -73,7 +67,5 @@ public class KillIpCommandProcessor extends AbstractCommandProcessor {
 				getContext().getClients().killClient(curClient);
 			}
 		}
-
-		return true;
 	}
 }

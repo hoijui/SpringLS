@@ -43,16 +43,11 @@ public class TestLoginCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String userName = (String)args.getWords().get(0);
 		final String password = (String)args.getWords().get(1);
 
@@ -67,7 +62,5 @@ public class TestLoginCommandProcessor extends AbstractCommandProcessor {
 		// or if user is banned.
 		// We only verify if login info is correct
 		client.sendLine("TESTLOGINACCEPT");
-
-		return true;
 	}
 }

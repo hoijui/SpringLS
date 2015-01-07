@@ -43,32 +43,25 @@ public class UnmuteCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String channelName = (String)args.getWords().get(0);
 		final String username = (String)args.getWords().get(1);
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: Channel #%s does not exist!",
+			processingError(client, String.format(
+					"%s failed: Channel #%s does not exist!",
 					getCommandName(), channelName));
-			return false;
 		}
 
 		if (!chan.getMuteList().isMuted(username)) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: User <%s> is not on the mute list!",
+			processingError(client, String.format(
+					"%s failed: User <%s> is not on the mute list!",
 					getCommandName(), username));
-			return false;
 		}
 
 		chan.getMuteList().unmute(username);
@@ -77,7 +70,5 @@ public class UnmuteCommandProcessor extends AbstractCommandProcessor {
 				username, chan.getName()));
 		chan.broadcast(String.format("<%s> has unmuted <%s>",
 				client.getAccount().getName(), username));
-
-		return true;
 	}
 }

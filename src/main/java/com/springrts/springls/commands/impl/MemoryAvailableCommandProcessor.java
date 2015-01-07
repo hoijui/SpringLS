@@ -38,20 +38,13 @@ public class MemoryAvailableCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		client.sendLine(String.format(
 				"SERVERMSG Amount of free memory in the Java Virtual Machine:"
 				+ " %d bytes", Runtime.getRuntime().freeMemory()));
-
-		return true;
 	}
 }

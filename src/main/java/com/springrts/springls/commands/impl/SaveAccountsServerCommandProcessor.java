@@ -36,19 +36,12 @@ public class SaveAccountsServerCommandProcessor extends AbstractCommandProcessor
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		getContext().getAccountsService().saveAccounts(false);
 		client.sendLine("SERVERMSG Accounts will be saved in a background thread.");
-
-		return true;
 	}
 }

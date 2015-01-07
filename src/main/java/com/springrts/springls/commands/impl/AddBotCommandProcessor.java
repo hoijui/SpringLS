@@ -52,16 +52,11 @@ public class AddBotCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final Battle battle = getBattle(client);
 
 		final String botName = (String)args.getWords().get(0);
@@ -70,20 +65,16 @@ public class AddBotCommandProcessor extends AbstractCommandProcessor {
 		final String specifier = (String)args.getSentences().get(0);
 
 		if (!Bot.isValidName(botName)) {
-			client.sendLine("SERVERMSG Bad bot name. Try another!");
-			return false;
+			processingError(client, "Bad bot name. Try another!");
 		}
 
 		if (battle.getBot(botName) != null) {
-			client.sendLine("SERVERMSG Bot name already assigned."
+			processingError(client, "Bot name already assigned."
 					+ " Choose another!");
-			return false;
 		}
 
 		final Bot bot = new Bot(botName, client.getAccount().getName(),
 				specifier, battleStatus, teamColor);
 		battle.addBot(bot);
-
-		return true;
 	}
 }

@@ -22,6 +22,7 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.Context;
+import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.configuration.Configuration;
 import org.osgi.framework.BundleContext;
@@ -41,6 +42,8 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	private final Account.Access accessMin;
 	private final boolean battleRequired;
 	private final boolean battleFounderRequired;
+//	private boolean sendingServerMsgOnError;
+	private final List<CommandProcessingExceptionListener> parsingExceptionListeners;
 
 	protected AbstractCommandProcessor(
 			final CommandArguments arguments,
@@ -55,6 +58,9 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 		this.accessMin = accessMin;
 		this.battleRequired = battleRequired;
 		this.battleFounderRequired = battleFounderRequired;
+//		this.sendingServerMsgOnError = false;
+		this.parsingExceptionListeners
+				= new LinkedList<CommandProcessingExceptionListener>();
 //		this.argsNamed = new HashSet<NamedArgument>(Arrays.asList(argsNamed));
 //		if (battleFounderRequired && !battleRequired) {
 //			throw new IllegalArgumentException("The client can never be founder"
@@ -167,6 +173,14 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	public String getCommandName() {
 		return this.commandName;
 	}
+	
+//	protected void setSendingServerMsgOnError(final boolean sendingServerMsgOnError) {
+//		this.sendingServerMsgOnError = sendingServerMsgOnError;
+//	}
+//
+//	protected boolean isSendingServerMsgOnError() {
+//		return this.sendingServerMsgOnError;
+//	}
 
 	/**
 	 * Returns the command as it was given to the server.
@@ -284,13 +298,90 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 		return ((battle != null) && (battle.getFounder() == client));
 	}
 
+	protected void addParsingExceptionListener(final CommandProcessingExceptionListener lst) {
+		parsingExceptionListeners.add(lst);
+	}
+
+	protected void removeParsingExceptionListener(final CommandProcessingExceptionListener lst) {
+		parsingExceptionListeners.remove(lst);
+	}
+
+	protected void fireParsingExceptionOccurred(final CommandProcessingException exception) {
+
+		final CommandProcessingExceptionEvent evt = new CommandProcessingExceptionEvent(this, exception);
+		for (final CommandProcessingExceptionListener lst : parsingExceptionListeners) {
+			lst.parsingExceptionOccurred(evt);
+		}
+	}
+
+//	@Override
+//	public ParsedCommandArguments parseArguments(
+//			Client client,
+//			String command,
+//			int argsStartIndex)
+//	{
+//		ParsedCommandArguments parsedArgs = null;
+//		try {
+//			parsedArgs = getArguments().parse(client, command, argsStartIndex);
+//		} catch (CommandParsingException ex) {
+//			fireParsingExceptionOccurred(ex);
+//		}
+//		
+//		return parsedArgs;
+//	}
+
+	protected void processingError(final String message)
+			throws CommandProcessingException
+	{
+		throw new CommandProcessingException(getCommandName(), message);
+	}
+
+	protected void processingError(final Client client, final String message)
+			throws CommandProcessingException
+	{
+//		if (isSendingServerMsgOnError()) {
+			client.sendLine("SERVERMSG " + message);
+//		}
+		processingError(message);
+	}
+
 	/**
-	 * Perform common checks.
+	 * Process one instance of the command.
+	 * @param client
+	 * @param args
+	 */
+	protected abstract void process(
+			Client client,
+			ParsedCommandArguments args)
+			throws CommandProcessingException;
+
+	/**
+	 * Perform common checks and pre-parse the arguments.
 	 * @param client
 	 * @param args
 	 */
 	@Override
-	public boolean process(
+	public void process(
+			final Client client,
+			final String commandClean,
+			final int argsStartIndex)
+			throws CommandProcessingException
+	{
+		try {
+			// parse command args
+			final ParsedCommandArguments parsedArgs = getArguments().parse(
+					getCommandName(), commandClean, argsStartIndex);
+
+			runPreProcessChecks(client, parsedArgs);
+
+			process(client, parsedArgs);
+		} catch (final CommandProcessingException ex) {
+			fireParsingExceptionOccurred(ex);
+			throw ex;
+		}
+	}
+
+	private void runPreProcessChecks(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -329,7 +420,5 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 			throw new CommandProcessingException(getCommandName(),
 					"This command requires the issuing client to in a battle");
 		}
-
-		return true;
 	}
 }

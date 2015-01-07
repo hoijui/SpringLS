@@ -45,31 +45,25 @@ public class SetChannelKeyCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String channelName = (String)args.getWords().get(0);
 		final String key = (String)args.getWords().get(1);
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
-			client.sendLine(String.format(
-					"SERVERMSG Error: Channel does not exist: %s",
+			processingError(client, String.format(
+					"Error: Channel does not exist: %s",
 					channelName));
-			return false;
 		}
 
 		if (key.equals("*")) {
 			if (!chan.isLocked()) {
-				client.sendLine("SERVERMSG Error: Unable to unlock channel - channel is not locked!");
-				return false;
+				processingError(client,
+						"Error: Unable to unlock channel - channel is not locked!");
 			}
 			chan.setKey(Channel.KEY_NONE);
 			chan.broadcast(String.format("<%s> has just unlocked #%s",
@@ -77,9 +71,8 @@ public class SetChannelKeyCommandProcessor extends AbstractCommandProcessor {
 					chan.getName()));
 		} else {
 			if (!key.matches("^[A-Za-z0-9_]+$")) {
-				client.sendLine(String.format(
-						"SERVERMSG Error: Invalid key: %s", key));
-				return false;
+				processingError(client, String.format("Error: Invalid key: %s",
+						key));
 			}
 			chan.setKey(key);
 			chan.broadcast(String.format(
@@ -87,7 +80,5 @@ public class SetChannelKeyCommandProcessor extends AbstractCommandProcessor {
 					client.getAccount().getName(),
 					chan.getName()));
 		}
-
-		return true;
 	}
 }

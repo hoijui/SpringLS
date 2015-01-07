@@ -46,40 +46,32 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String channelName = (String)args.getWords().get(0);
 		final String username = (String)args.getWords().get(1);
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: Channel #%s does not exist!",
+			processingError(client, String.format(
+					"%s failed: Channel #%s does not exist!",
 					getCommandName(), channelName));
-			return false;
 		}
 
 		if (chan.getMuteList().isMuted(username)) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: User <%s> is already muted. Unmute first!",
+			processingError(client, String.format(
+					"%s failed: User <%s> is already muted. Unmute first!",
 					getCommandName(), username));
-			return false;
 		}
 
 		final Account targetAccount = getContext().getAccountsService().getAccount(username);
 		if (targetAccount == null) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: User <%s> does not exist",
+			processingError(client, String.format(
+					"%s failed: User <%s> does not exist",
 					getCommandName(), username));
-			return false;
 		}
 
 		boolean muteByIP = false;
@@ -88,10 +80,9 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 			if (option.toUpperCase().equals("IP")) {
 				muteByIP = true;
 			} else {
-				client.sendLine(String.format(
-						"SERVERMSG %s failed: Invalid argument: \"%s\"",
+				processingError(client, String.format(
+						"%s failed: Invalid argument: \"%s\"",
 						getCommandName(), option));
-				return false;
 			}
 		}
 
@@ -99,10 +90,9 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 		try {
 			minutes = Long.parseLong(args.get(2));
 		} catch (final NumberFormatException ex) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: Invalid argument - should be an integer",
+			processingError(client, String.format(
+					"%s failed: Invalid argument - should be an integer",
 					getCommandName()));
-			return false;
 		}
 
 		final InetAddress muteIp = muteByIP ? targetAccount.getLastIp() : null;
@@ -113,7 +103,5 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 				username, chan.getName()));
 		chan.broadcast(String.format("<%s> has muted <%s>",
 				client.getAccount().getName(), username));
-
-		return true;
 	}
 }

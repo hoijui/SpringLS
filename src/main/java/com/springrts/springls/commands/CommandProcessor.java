@@ -20,7 +20,6 @@ package com.springrts.springls.commands;
 
 import com.springrts.springls.Client;
 import com.springrts.springls.ContextReceiver;
-import java.util.List;
 
 /**
  * A Command processor is responsible for handling a single type of command,
@@ -34,33 +33,43 @@ public interface CommandProcessor extends ContextReceiver {
 	 */
 	String NAME_PROPERTY = "Command-Name";
 
-//	/**
-//	 * Indicates whether this command uses named or indexed arguments.
-//	 * Only some of the newer commands use named arguments,
-//	 * and usually only the ones not used very frequently.
-//	 * Named arguments cost a bit of extra bandwidth,
-//	 * but make it easier for protocol changes to be backwards compatible.
-//	 * For more details about named arguments,
-//	 * please see the protocol description.
-//	 * @return true if the command uses named arguments,
-//	 *   false if it uses indexed arguments
-//	 */
-//	boolean isUsingNamedArguments();
-
 	/**
 	 * Returns a description of the arguments supported by this command.
 	 * @return supported arguments constellation
 	 */
 	CommandArguments getArguments();
 
+//	/**
+//	 * Returns a handler for parsing exceptions.
+//	 * It will be used for handling command arguments parsing
+//	 * and command handling exceptions.
+//	 * @return a handler, or <code>null</code>, if the default handler
+//	 *   should be used
+//	 */
+//	CommandParsingExceptionListener getExceptionHandler();
+//
+//	/**
+//	 * Parses the commands arguments from a command string.
+//	 * @return the commands parsed arguments,
+//	 *   or <code>null</code> in case of an error
+//	 */
+//	ParsedCommandArguments parseArguments(
+//			Client client,
+//			String command,
+//			int argsStartIndex);
+
 	/**
 	 * Process one call of the command.
 	 * This is invoked whenever a command with the name specified
 	 * in <code>SupportedCommand</code> is received from a client.
-	 * @param args arguments to the command, this does not include the command
-	 *   name its self
+//	 * @param args arguments to the command, this does not include the command
+//	 *   name its self
+	 * @param commandClean the plain text command to be executed for the client,
+	 *   already trimmed
+	 * @param argsStartIndex the starting index of arguments in commandClean,
+	 *   or -1, if there are none
 	 * @return true, if the command was valid and successfully executed
 	 */
-	boolean process(Client client, ParsedCommandArguments args)
+	void process(Client client, String commandClean, int argsStartIndex)
 			throws CommandProcessingException;
 }

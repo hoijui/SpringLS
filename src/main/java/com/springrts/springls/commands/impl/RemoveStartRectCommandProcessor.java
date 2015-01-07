@@ -47,16 +47,11 @@ public class RemoveStartRectCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final Battle battle = getBattle(client);
 
 		final int allyno = (Integer)args.getWords().get(0);
@@ -81,7 +76,5 @@ public class RemoveStartRectCommandProcessor extends AbstractCommandProcessor {
 
 		battle.sendToAllExceptFounder(String.format("REMOVESTARTRECT %d",
 				allyno));
-
-		return true;
 	}
 }

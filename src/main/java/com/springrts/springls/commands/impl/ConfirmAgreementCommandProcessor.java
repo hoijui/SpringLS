@@ -45,16 +45,11 @@ public class ConfirmAgreementCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		client.getAccount().setAgreementAccepted(true);
 		final boolean mergeOk = getContext().getAccountsService()
 				.mergeAccountChanges(client.getAccount(),
@@ -64,7 +59,5 @@ public class ConfirmAgreementCommandProcessor extends AbstractCommandProcessor {
 					+ " storage for user: {}", client.getAccount().getName());
 			return false;
 		}
-
-		return true;
 	}
 }

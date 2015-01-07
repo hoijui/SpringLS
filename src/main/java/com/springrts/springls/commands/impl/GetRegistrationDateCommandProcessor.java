@@ -46,24 +46,18 @@ public class GetRegistrationDateCommandProcessor
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String userName = (String)args.getWords().get(0);
 
 		final Account account
 				= getContext().getAccountsService().getAccount(userName);
 		if (account == null) {
-			client.sendLine(String.format("SERVERMSG User <%s> not found!",
+			processingError(client, String.format("User <%s> not found!",
 					userName));
-			return false;
 		}
 
 		// As DateFormats are generally not-thread save,
@@ -74,7 +68,5 @@ public class GetRegistrationDateCommandProcessor
 				"SERVERMSG Registration timestamp for <%s> is %d (%s)",
 				userName, account.getRegistrationDate(),
 				dateTimeFormat.format(new Date(account.getRegistrationDate()))));
-
-		return true;
 	}
 }

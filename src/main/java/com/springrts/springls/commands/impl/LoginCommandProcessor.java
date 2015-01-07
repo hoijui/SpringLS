@@ -97,7 +97,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -128,10 +128,10 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		return processInner(client, args);
+		processInner(client, args);
 	}
 
-	private boolean processInner(
+	private void processInner(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -199,11 +199,11 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			}
 		}
 
-		return doLogin(client, lobbyVersion, userId, username, password, cpu,
+		doLogin(client, lobbyVersion, userId, username, password, cpu,
 				localIp);
 	}
 
-	private boolean doLogin(
+	private void doLogin(
 			final Client client,
 			final String lobbyVersion,
 			final int userId,
@@ -253,8 +253,6 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 		getContext().getClients().notifyClientsOfNewClientStatus(client);
 
 		LOG.debug("User just logged in: {}", client.getAccount().getName());
-
-		return true;
 	}
 
 	private boolean validateAccount(

@@ -19,23 +19,12 @@ package com.springrts.springls.commands;
 
 
 import java.util.EventListener;
-import java.util.EventObject;
 
 /**
  * TODO add class description here
  * @author hoijui
  */
-public class ParsingExceptionEvent extends EventObject {
+public interface CommandProcessingExceptionListener extends EventListener {
 
-	private final CommandParsingException exception;
-
-	public ParsingExceptionEvent(final Object source, final CommandParsingException exception) {
-		super(source);
-
-		this.exception = exception;
-	}
-
-	public CommandParsingException getException() {
-		return exception;
-	}
+	void parsingExceptionOccurred(CommandProcessingExceptionEvent evt);
 }

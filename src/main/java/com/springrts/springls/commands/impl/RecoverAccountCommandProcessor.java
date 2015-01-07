@@ -51,16 +51,11 @@ public class RecoverAccountCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String email = (String)args.getWords().get(0);
 		final String emailLower = email.toLowerCase();
 
@@ -84,8 +79,6 @@ public class RecoverAccountCommandProcessor extends AbstractCommandProcessor {
 			// no account has the given email assigned to it
 			return false;
 		}
-
-		return true;
 	}
 
 	private void sendRecoverEmail(final String email, final List<Account> toRecover) {

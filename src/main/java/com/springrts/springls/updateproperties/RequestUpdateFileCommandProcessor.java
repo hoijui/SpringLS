@@ -44,16 +44,11 @@ public class RequestUpdateFileCommandProcessor extends AbstractCommandProcessor 
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		if (client.getCompatFlags().contains("cl")) { // NOTE lobby protocol "0.36+ cl"
 			client.sendLine("SERVERMSG Command " + getCommandName()
 					+ " was removed after lobby protocol version 0.36"
@@ -72,7 +67,5 @@ public class RequestUpdateFileCommandProcessor extends AbstractCommandProcessor 
 		if (response.substring(0, 12).equalsIgnoreCase("SERVERMSGBOX")) {
 			getContext().getClients().killClient(client);
 		}
-
-		return true;
 	}
 }

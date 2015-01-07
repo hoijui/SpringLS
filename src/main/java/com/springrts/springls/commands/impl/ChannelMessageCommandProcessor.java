@@ -47,29 +47,21 @@ public class ChannelMessageCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String channelName = (String)args.getWords().get(0);
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
-			client.sendLine(String.format(
-					"SERVERMSG %s failed: Channel #%s does not exist!",
+			processingError(client, String.format(
+					"%s failed: Channel #%s does not exist!",
 					getCommandName(), channelName));
-			return false;
 		}
 
 		final String message = (String)args.getSentences().get(0);
 		chan.broadcast(message);
-
-		return true;
 	}
 }

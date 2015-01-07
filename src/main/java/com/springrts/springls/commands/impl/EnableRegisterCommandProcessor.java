@@ -41,16 +41,11 @@ public class EnableRegisterCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		if (!args.getWords().isEmpty()) {
 			final boolean enableRegistration = (Boolean)args.getWords().get(0);
 			getContext().getAccountsService()
@@ -59,7 +54,5 @@ public class EnableRegisterCommandProcessor extends AbstractCommandProcessor {
 		client.sendLine(String.format("SERVERMSG The REGISTER command is %s",
 				getContext().getAccountsService().isRegistrationEnabled()
 				? "enabled" : "disabled"));
-
-		return true;
 	}
 }

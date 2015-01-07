@@ -43,16 +43,11 @@ public class LeaveCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String channelName = (String)args.getWords().get(0);
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);
@@ -61,7 +56,5 @@ public class LeaveCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		client.leaveChannel(chan, "");
-
-		return true;
 	}
 }

@@ -47,23 +47,17 @@ public class LongTimeToDateCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final long time = (Long) args.getWords().get(0);
 		try {
 			time = Long.parseLong(args.get(0));
 		} catch (final Exception ex) {
-			client.sendLine("SERVERMSG " + getCommandName()
+			processingError(client, getCommandName()
 					+ " failed: invalid argument."); // TODO remove final '.'
-			return false;
 		}
 
 		// As DateFormats are generally not-thread save,
@@ -75,7 +69,5 @@ public class LongTimeToDateCommandProcessor extends AbstractCommandProcessor {
 				"SERVERMSG %s result: %s",
 				getCommandName(),
 				dateTimeFormat.format(new Date(time))));
-
-		return true;
 	}
 }

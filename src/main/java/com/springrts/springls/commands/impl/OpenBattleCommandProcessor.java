@@ -117,16 +117,11 @@ public class OpenBattleCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		if (client.getBattleID() != Battle.NO_BATTLE_ID) {
 			client.sendLine("OPENBATTLEFAILED You are already hosting a battle!"
 					);
@@ -161,6 +156,5 @@ public class OpenBattleCommandProcessor extends AbstractCommandProcessor {
 		// notify client that he successfully opened a new battle
 		client.sendLine("OPENBATTLE " + battle.getId());
 		client.sendLine("REQUESTBATTLESTATUS");
-		return true;
 	}
 }

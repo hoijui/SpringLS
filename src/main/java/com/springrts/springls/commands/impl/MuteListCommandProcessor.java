@@ -43,7 +43,7 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -52,7 +52,7 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 		try {
 			checksOk = super.process(client, args);
 		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
-			client.sendLine("SERVERMSG MUTELIST failed: Invalid arguments!");
+			processingError(client, "SERVERMSG MUTELIST failed: Invalid arguments!");
 			throw ex;
 		}
 		if (!checksOk) {
@@ -63,10 +63,9 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
-			client.sendLine(String.format(
-					"SERVERMSG MUTELIST failed: Channel #%s does not exist!",
+			processingError(client, String.format(
+					"MUTELIST failed: Channel #%s does not exist!",
 					channelName));
-			return false;
 		}
 
 		client.sendLine(String.format("MUTELISTBEGIN %s", chan.getName()));
@@ -86,7 +85,5 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		client.sendLine("MUTELISTEND");
-
-		return true;
 	}
 }

@@ -53,16 +53,11 @@ public class AddStartRectCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final Battle battle = getBattle(client);
 
 		final int allyno = (Integer) args.getWords().get(0);
@@ -87,8 +82,7 @@ public class AddStartRectCommandProcessor extends AbstractCommandProcessor {
 
 		final StartRect startRect = battle.getStartRects().get(allyno);
 		if (startRect.isEnabled()) {
-			client.sendLine("SERVERMSG Error: inconsistent data (%s command)");
-			return false;
+			processingError(client, "Error: inconsistent data (%s command)");
 		}
 
 		startRect.setEnabled(true);
@@ -100,7 +94,5 @@ public class AddStartRectCommandProcessor extends AbstractCommandProcessor {
 		battle.sendToAllExceptFounder(String.format(
 				"ADDSTARTRECT %d %d %d %d %d",
 				allyno, left, top, right, bottom));
-
-		return true;
 	}
 }

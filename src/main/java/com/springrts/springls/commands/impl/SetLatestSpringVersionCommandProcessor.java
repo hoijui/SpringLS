@@ -46,7 +46,7 @@ public class SetLatestSpringVersionCommandProcessor extends AbstractCommandProce
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
@@ -69,7 +69,5 @@ public class SetLatestSpringVersionCommandProcessor extends AbstractCommandProce
 
 		client.sendLine("SERVERMSG Latest spring version has been set to "
 				+ engineVersion);
-
-		return true;
 	}
 }

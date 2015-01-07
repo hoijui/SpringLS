@@ -39,16 +39,11 @@ public class GarbageCollectorCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		long time = System.nanoTime();
 		System.gc();
 		time = (System.nanoTime() - time) / 1000000;
@@ -56,7 +51,5 @@ public class GarbageCollectorCommandProcessor extends AbstractCommandProcessor {
 		client.sendLine(String.format(
 				"SERVERMSG Garbage collector invoked (time taken: %d ms)",
 				time));
-
-		return true;
 	}
 }

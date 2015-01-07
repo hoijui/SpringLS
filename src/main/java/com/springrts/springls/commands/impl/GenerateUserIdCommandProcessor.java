@@ -45,21 +45,15 @@ public class GenerateUserIdCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		if (client.getCompatFlags().contains("cl")) { // NOTE lobby protocol "0.36+ cl"
-			client.sendLine("SERVERMSG Command " + getCommandName()
+			processingError(client, "Command " + getCommandName()
 					+ " was removed after lobby protocol version 0.36"
 					+ " with the 'cl' flag");
-			return false;
 		}
 
 		final String username = (String)args.getWords().get(0);
@@ -67,17 +61,14 @@ public class GenerateUserIdCommandProcessor extends AbstractCommandProcessor {
 		final Client targetClient
 				= getContext().getClients().getClient(username);
 		if (targetClient == null) {
-			client.sendLine(String.format(
-					"SERVERMSG <%s> not found or is not currently online!",
+			processingError(client, String.format(
+					"<%s> not found or is not currently online!",
 					username));
-			return false;
 		}
 		targetClient.sendLine("ACQUIREUSERID");
 
 		client.sendLine("SERVERMSG ACQUIREUSERID command was dispatched."
 				+ " The server will notify of response via the notification"
 				+ " system.");
-
-		return true;
 	}
 }

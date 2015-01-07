@@ -47,16 +47,11 @@ public class Ip2CountryCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final InetAddress address = (InetAddress)args.getWords().get(0);
 		if (address == null) {
 			client.sendLine("SERVERMSG Invalid IP address/range: " + ipAddress);
@@ -70,7 +65,5 @@ public class Ip2CountryCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		client.sendLine("SERVERMSG Country = " + country);
-
-		return true;
 	}
 }

@@ -44,16 +44,11 @@ public class RedirectCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String redirectIpStr = (String)args.getWords().get(0);
 		final InetAddress redirectIp = Misc.parseIp(redirectIpStr);
 		if (redirectIp == null) {
@@ -70,7 +65,5 @@ public class RedirectCommandProcessor extends AbstractCommandProcessor {
 				"Admin <%s> has enabled redirection mode. New address: %s",
 				client.getAccount().getName(), redirectIpStr));
 		getContext().getServerNotifications().addNotification(srvNotif);
-
-		return true;
 	}
 }

@@ -46,16 +46,11 @@ public class KillAllCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		String reason = "Disconnected by server";
 		if (!args.getSentences().isEmpty()) {
 			reason += ", reason: " + (String)args.getSentences().get(0);
@@ -65,7 +60,5 @@ public class KillAllCommandProcessor extends AbstractCommandProcessor {
 		while (clients.getClientsSize() > 0) {
 			clients.killClient(clients.getClient(0), reason);
 		}
-
-		return true;
 	}
 }

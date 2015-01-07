@@ -19,11 +19,9 @@ package com.springrts.springls;
 
 
 import com.springrts.springls.accounts.AccountsService;
-import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.CommandProcessor;
-import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.floodprotection.FloodProtectionService;
 import com.springrts.springls.nat.NatHelpServer;
 import com.springrts.springls.util.ProtocolUtil;
@@ -454,14 +452,14 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 			// unknown command!
 			return false;
 		}
-		final CommandArguments cmdArgs = cmdProcessor.getArguments();
 
-		// parse command args
-		final ParsedCommandArguments parsedArgs
-				= cmdArgs.parse(client, commandClean, argsStartIndex);
+//		// parse command args
+//		final ParsedCommandArguments parsedArgs = cmdProcessor.parseArguments(
+//				client, commandClean, argsStartIndex);
 
 		try {
-			return executeCommand(client, msgId, cmdProcessor, parsedArgs);
+			return executeCommand(client, msgId, cmdProcessor, commandClean,
+					argsStartIndex);
 		} catch (final CommandProcessingException ex) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Failed to handle command from client \""
@@ -484,7 +482,11 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	 *   to logically group them together
 	 * @param commandName the plain text command name to be executed for the
 	 *   client, in all upper case
-	 * @param args the command arguments, in order
+//	 * @param args the command arguments, in order
+	 * @param commandClean the plain text command to be executed for the client,
+	 *   already trimmed
+	 * @param argsStartIndex the starting index of arguments in commandClean,
+	 *   or -1, if there are none
 	 * @return <code>true</code> if the command is valid and was executed
 	 *   successfully, <code>false</code> otherwise
 	 * @throws CommandProcessingException if the command failed to be processed
@@ -493,13 +495,17 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 			final Client client,
 			final int msgId,
 			final CommandProcessor cmdProcessor,
-			final ParsedCommandArguments parsedArgs)
+//			final ParsedCommandArguments parsedArgs,
+			final String commandClean,
+			final int argsStartIndex)
 			throws CommandProcessingException
 	{
 		client.setSendMsgId(msgId);
 
 		try {
-			return cmdProcessor.process(client, parsedArgs);
+			cmdProcessor.process(client, commandClean, argsStartIndex);
+			return true;
+//		} catch (final CommandProcessingException cpex) {
 		} finally {
 			client.setSendMsgId(Client.NO_MSG_ID);
 		}

@@ -35,7 +35,11 @@ public class CommandProcessingException extends Exception {
 			final String message,
 			final Throwable throwable)
 	{
-		super(String.format("Failed processing command \"%s\": %s", commandName,
-				message), throwable);
+		super(
+				String.format(
+						"Failed processing command \"%s\": %s",
+						commandName,
+						message),
+				throwable);
 	}
 }

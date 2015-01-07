@@ -47,16 +47,11 @@ public class ReInitializeIp2CountryCommandProcessor extends AbstractCommandProce
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String dataFileName = (String)args.getSentences().get(0);
 
 		final IP2Country service = getContext().getService(IP2Country.class);
@@ -70,7 +65,5 @@ public class ReInitializeIp2CountryCommandProcessor extends AbstractCommandProce
 				client.sendLine("SERVERMSG Error while initializing IP2Country database!");
 			}
 		}
-
-		return true;
 	}
 }

@@ -46,16 +46,11 @@ public class KickUserCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 
 		final Client target = getContext().getClients().getClient(username);
@@ -84,6 +79,5 @@ public class KickUserCommandProcessor extends AbstractCommandProcessor {
 				"SERVERMSG You have been kicked from the server by <%s>%s",
 				client.getAccount().getName(), reason));
 		getContext().getClients().killClient(target, "Quit: kicked from server");
-		return true;
 	}
 }

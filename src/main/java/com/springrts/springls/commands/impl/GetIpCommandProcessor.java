@@ -41,16 +41,11 @@ public class GetIpCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String username = (String)args.getWords().get(0);
 
 		final Client targetClient = getContext().getClients().getClient(username);
@@ -61,7 +56,5 @@ public class GetIpCommandProcessor extends AbstractCommandProcessor {
 		client.sendLine(String.format("SERVERMSG %s's IP is %s",
 				targetClient.getAccount().getName(),
 				targetClient.getIp().getHostAddress()));
-
-		return true;
 	}
 }

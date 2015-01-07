@@ -49,16 +49,11 @@ public class ForceTeamColorCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final Battle battle = getBattle(client);
 
 		final String username = (String)args.getWords().get(0);
@@ -74,7 +69,5 @@ public class ForceTeamColorCommandProcessor extends AbstractCommandProcessor {
 
 		target.setTeamColor(color);
 		battle.notifyClientsOfBattleStatus(target);
-
-		return true;
 	}
 }

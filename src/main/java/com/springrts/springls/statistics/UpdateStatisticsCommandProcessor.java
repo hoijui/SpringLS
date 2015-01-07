@@ -37,16 +37,11 @@ public class UpdateStatisticsCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final Statistics statistics = getService(Statistics.class);
 		final int taken = statistics.saveStatisticsToDisk();
 		if (taken == -1) {
@@ -56,7 +51,5 @@ public class UpdateStatisticsCommandProcessor extends AbstractCommandProcessor {
 					"SERVERMSG Statistics have been updated."
 					+ " Time taken to calculate: %d ms.", taken));
 		}
-
-		return true;
 	}
 }

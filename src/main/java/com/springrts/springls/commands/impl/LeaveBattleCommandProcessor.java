@@ -39,16 +39,11 @@ public class LeaveBattleCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		// If the client sent the LEAVEBATTLE command right after he was kicked
 		// from the battle, this might be <code>null</code>, but we already
 		// check for that earlier, in AbstractCommandProcessor
@@ -58,7 +53,5 @@ public class LeaveBattleCommandProcessor extends AbstractCommandProcessor {
 		// automatically checks if the client is the founder and in that case
 		// closes the battle
 		getContext().getBattles().leaveBattle(client, battle);
-
-		return true;
 	}
 }

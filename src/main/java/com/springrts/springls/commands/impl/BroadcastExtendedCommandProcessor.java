@@ -29,6 +29,8 @@ import com.springrts.springls.commands.SupportedCommand;
 import java.util.Collections;
 
 /**
+ * NOTE This command is SpringLS specific, not part of the official lobby protocol!
+ * TODO merge this class with {@link BroadcastCommandProcessor}
  * @author hoijui
  */
 @SupportedCommand("BROADCASTEX")
@@ -43,20 +45,13 @@ public class BroadcastExtendedCommandProcessor extends AbstractCommandProcessor 
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final String message = (String) args.getSentences().get(0);
 		getContext().getClients().sendToAllRegisteredUsers(
 				"SERVERMSG " + message);
-
-		return true;
 	}
 }

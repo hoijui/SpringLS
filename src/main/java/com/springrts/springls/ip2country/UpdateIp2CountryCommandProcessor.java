@@ -39,16 +39,11 @@ public class UpdateIp2CountryCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(
+	public void process(
 			final Client client,
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final boolean checksOk = super.process(client, args);
-		if (!checksOk) {
-			return false;
-		}
-
 		final IP2Country service = getContext().getService(IP2Country.class);
 		if (service == null) {
 			client.sendLine("SERVERMSG IP2Country service not available!");
@@ -64,7 +59,5 @@ public class UpdateIp2CountryCommandProcessor extends AbstractCommandProcessor {
 					+ " notification system.");
 			service.updateDatabase();
 		}
-
-		return true;
 	}
 }
