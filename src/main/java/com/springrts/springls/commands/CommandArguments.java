@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,9 +60,10 @@ public class CommandArguments {
 	 */
 	private final boolean supportingVariableSentences;
 	private final Set<NamedArgument> namedArgs;
-	
+	private final List<ParsingExceptionListener> parsingExceptionListeners;
+
 	public CommandArguments(final boolean usingNamedArguments) {
-		
+
 		this.usingNamedArguments = usingNamedArguments;
 		this.supportingVariableWords = false;
 		this.supportingVariableSentences = false;
@@ -74,8 +76,9 @@ public class CommandArguments {
 			this.sentences = Collections.EMPTY_LIST;
 			this.namedArgs = null;
 		}
+		this.parsingExceptionListeners = new LinkedList<ParsingExceptionListener>();
 	}
-	
+
 	public CommandArguments(
 			final boolean supportingVariableWords,
 			final IndexedArgument... words)
@@ -86,12 +89,13 @@ public class CommandArguments {
 		this.sentences = Collections.EMPTY_LIST;
 		this.supportingVariableSentences = false;
 		this.namedArgs = null;
+		this.parsingExceptionListeners = new LinkedList<ParsingExceptionListener>();
 	}
 
 	public CommandArguments(final IndexedArgument... words) {
 		this(false, words);
 	}
-	
+
 	public CommandArguments(
 			final List<IndexedArgument> words,
 			final boolean supportingVariableSentences,
@@ -115,6 +119,7 @@ public class CommandArguments {
 				}
 			}
 		}
+		this.parsingExceptionListeners = new LinkedList<ParsingExceptionListener>();
 	}
 
 	public CommandArguments(
@@ -123,9 +128,9 @@ public class CommandArguments {
 	{
 		this(words, false, sentences);
 	}
-	
+
 	public CommandArguments(final NamedArgument... namedArgs) {
-		
+
 		this.usingNamedArguments = true;
 		this.words = null;
 		this.supportingVariableWords = false;
@@ -133,6 +138,23 @@ public class CommandArguments {
 		this.supportingVariableSentences = false;
 		this.namedArgs = Collections.unmodifiableSet(new HashSet<NamedArgument>(
 				Arrays.asList(namedArgs)));
+		this.parsingExceptionListeners = new LinkedList<ParsingExceptionListener>();
+	}
+
+	public void addParsingExceptionListener(final ParsingExceptionListener lst) {
+		parsingExceptionListeners.add(lst);
+	}
+
+	public void removeParsingExceptionListener(final ParsingExceptionListener lst) {
+		parsingExceptionListeners.remove(lst);
+	}
+
+	private void fireParsingExceptionOccurred(final CommandParsingException exception) {
+
+		final ParsingExceptionEvent evt = new ParsingExceptionEvent(this, exception);
+		for (final ParsingExceptionListener lst : parsingExceptionListeners) {
+			lst.parsingExceptionOccurred(evt);
+		}
 	}
 
 	private static class StringToParse implements Iterator<String> {
@@ -151,23 +173,6 @@ public class CommandArguments {
 		public void setDelimiter(final char delimiter) {
 			this.delimiter = delimiter;
 		}
-
-//		public String getStr() {
-//			return str;
-//		}
-//
-//		public int getNextIndex() {
-//			return nextIndex;
-//		}
-//
-//		public void setIndex(final int index) {
-//
-//			if (index > str.length()) {
-//				throw new IllegalArgumentException("Index out of bounds: "
-//						+ index + ", max index is " + (str.length() - 1));
-//			}
-//			this.nextIndex = index;
-//		}
 
 		@Override
 		public String next() {
@@ -251,12 +256,13 @@ public class CommandArguments {
 				final String nameValuePair = input.next();
 				final String[] nameAndValue = nameValuePair.split("=", 2);
 				if (nameAndValue.length != 2) {
-					// not a valid named argument format
+					fireParsingExceptionOccurred(new CommandParsingException(
+							"Not a valid named argument format: \"" + nameValuePair + "\""));
 					return null;
 				}
 				parsedNamedArgs.put(nameAndValue[0].trim(), nameAndValue[1]);
 			}
-			
+
 			// check if (required) keys are present
 			final Set<String> parsedNamedArgsKeysCopy
 					= new HashSet<String>(parsedNamedArgs.keySet());
@@ -268,13 +274,17 @@ public class CommandArguments {
 					parsedNamedArgs.put(definedName, convertedValue);
 					parsedNamedArgsKeysCopy.remove(definedName);
 				} else if (!definedArgument.isOptional()) {
+					fireParsingExceptionOccurred(new CommandParsingException(String.format(
+							"Missing required named argument %s in command \"%s\"",
+							definedArgument.getName(),
+							command);
 					log.debug("Missing required named argument {} in command \"{}\"",
 							definedArgument.getName(),
 							command);
 					return null;
 				}
 			}
-			
+
 			// check if unknown keys are present
 			if (!parsedNamedArgsKeysCopy.isEmpty() && log.isDebugEnabled()) {
 				log.debug("Unknown named arguments {} in command \"{}\"",
@@ -314,10 +324,10 @@ public class CommandArguments {
 						command);
 				return null;
 			}
-			
+
 			// parse & convert sentences
 			input.setDelimiter('\t');
-			final int numSentences = supportingVariableWords
+			final int numSentences = supportingVariableSentences
 					? Integer.MAX_VALUE : getSentences().size();
 			final List<Object> parsedSentences
 					= new ArrayList<Object>(getSentences().size());
