@@ -278,12 +278,13 @@ public class Client extends TeamController implements ContextReceiver {
 			return false;
 		}
 		final Client other = (Client) obj;
-		if (this.getSockChan() != other.getSockChan()
-				&& (this.getSockChan() == null))
-		{
+		if (this.getSockChan() == other.getSockChan()) {
+			return true;
+		}
+		if (this.getSockChan() == null) {
 			return false;
 		}
-		return this.sockChan.equals(other.getSockChan());
+		return this.getSockChan().equals(other.getSockChan());
 	}
 
 	/**
