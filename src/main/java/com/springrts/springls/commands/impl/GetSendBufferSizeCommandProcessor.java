@@ -63,7 +63,7 @@ public class GetSendBufferSizeCommandProcessor extends AbstractCommandProcessor 
 			// this could perhaps happen if user just disconnected or something
 			processingError(client, String.format(
 					"Error while trying to get send buffer size for"
-					+ " <%s>!", username));
+					+ " <%s>!", username)); return;
 		}
 
 		client.sendLine(String.format(

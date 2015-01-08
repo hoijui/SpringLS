@@ -80,7 +80,7 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 		if (destinationBattle == null) {
 			processingError(client, String.format("%s %s", userName,
 					"Invalid destination battle ID (battle does not exist): "
-					+ destinationBattleIdStr));
+					+ destinationBattleId));
 		}
 		if (destinationBattle.restricted()) {
 			processingError(client, String.format("%s %s", userName,
@@ -115,7 +115,7 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 //			joinBattleArgs.add(destinationBattleIdStr);
 //			getContext().getServerThread().executeCommand(affectedClient, "JOINBATTLE", joinBattleArgs);
 			getContext().getServerThread().executeCommand(affectedClient,
-					"JOINBATTLE", destinationBattleIdStr);
+					"JOINBATTLE", String.valueOf(destinationBattleId));
 		}
 	}
 }

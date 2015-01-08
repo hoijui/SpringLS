@@ -42,7 +42,7 @@ public class JoinCommandProcessor extends AbstractCommandProcessor {
 				new CommandArguments(Arrays.asList(new IndexedArgument[] {
 						new Argument("channelName")
 						}),
-						new Argument("channelKey")
+						new Argument("channelKey", true)
 						),
 				Account.Access.NORMAL);
 		setToClientErrorCommandName("JOINFAILED");
@@ -55,7 +55,6 @@ public class JoinCommandProcessor extends AbstractCommandProcessor {
 			throws CommandProcessingException
 	{
 		final String channelName = (String)args.getWords().get(0);
-		final String channelKey = (String)args.getSentences().get(0);
 
 		// check if channel name is OK:
 		final String valid = getContext().getChannels().isChanNameValid(channelName);
@@ -69,18 +68,26 @@ public class JoinCommandProcessor extends AbstractCommandProcessor {
 		Channel chan = getContext().getChannels().getChannel(channelName);
 		if ((chan != null) && (chan.isLocked())
 				// we allow admins to join locked channels
-				&& client.getAccount().getAccess().isLessThen(Account.Access.ADMIN)
-				&& !channelKey.equals(chan.getKey()))
+				&& client.getAccount().getAccess().isLessThen(Account.Access.ADMIN))
 		{
-			processingError(client, String.format(
-					"%s Wrong key (this channel is locked)!",
-					channelName));
+			if (args.getSentences().isEmpty()) {
+				processingError(client, String.format(
+						"%s, missing key for locked channel",
+						channelName));
+			} else {
+				final String channelKey = (String)args.getSentences().get(0);
+				if (!channelKey.equals(chan.getKey())) {
+					processingError(client, String.format(
+							"%s, wrong key for locked channel",
+							channelName));
+				}
+			}
 		}
 
 		chan = client.joinChannel(channelName);
 		if (chan == null) {
 			processingError(client, String.format(
-					"%s Already in the channel!", channelName));
+					"%s, already in the channel", channelName));
 		}
 		client.sendLine(String.format("JOIN %s", channelName));
 		getContext().getChannels().sendChannelInfoToClient(chan, client);

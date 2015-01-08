@@ -70,7 +70,7 @@ public class UpdateBattleInfoCommandProcessor extends AbstractCommandProcessor {
 		try {
 			maphash = Integer.decode(mapHashStr);
 		} catch (final NumberFormatException ex) {
-			processingError(ex);
+			processingError(ex); return;
 		}
 
 		battle.setMapName(mapName);

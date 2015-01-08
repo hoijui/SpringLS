@@ -180,7 +180,7 @@ public class CommandArguments {
 				part = str.substring(nextIndex);
 				nextIndex = -1;
 			} else {
-				part = str.substring(nextIndex, endOfPart - 1);
+				part = str.substring(nextIndex, endOfPart);
 				nextIndex = endOfPart + 1;
 			}
 
@@ -378,7 +378,7 @@ public class CommandArguments {
 			IndexedArgument curSentence = null;
 			while ((parsedSentences.size() < numSentences) && input.hasNext()) {
 				final String parsedSentence = input.next();
-				if (wordsIt.hasNext()) {
+				if (sentenceIt.hasNext()) {
 					curSentence = sentenceIt.next();
 				}
 				final Object convertedValue = convert(commandName, curSentence, parsedSentence);
