@@ -43,6 +43,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	private final boolean battleRequired;
 	private final boolean battleFounderRequired;
 //	private boolean sendingServerMsgOnError;
+	private static final String DEFAULT_TO_CLIENT_ERROR_COMMAND_NAME = "SERVERMSG";
 	private String toClientErrorCommandName;
 	private final List<CommandProcessingExceptionListener> parsingExceptionListeners;
 
@@ -60,7 +61,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 		this.battleRequired = battleRequired;
 		this.battleFounderRequired = battleFounderRequired;
 //		this.sendingServerMsgOnError = false;
-		this.toClientErrorCommandName = "SERVERMSG";
+		this.toClientErrorCommandName = null;
 		this.parsingExceptionListeners
 				= new LinkedList<CommandProcessingExceptionListener>();
 //		this.argsNamed = new HashSet<NamedArgument>(Arrays.asList(argsNamed));
@@ -189,7 +190,11 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	}
 
 	protected String getToClientErrorCommandName() {
-		return this.toClientErrorCommandName;
+		return toClientErrorCommandName;
+	}
+
+	protected boolean isUsingCustomToClientErrorCommandName() {
+		return (toClientErrorCommandName != null);
 	}
 
 	/**
@@ -344,15 +349,36 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 			throws CommandProcessingException
 	{
 //		if (isSendingServerMsgOnError()) {
-			client.sendLine(toClientErrorCommandName + ' ' + message);
+			final String finalCmdName = isUsingCustomToClientErrorCommandName()
+					? toClientErrorCommandName
+					: DEFAULT_TO_CLIENT_ERROR_COMMAND_NAME;
+			client.sendLine(finalCmdName + ' ' + message);
 //		}
 		processingError(message);
+	}
+
+	protected void processingError(final Client client, final Throwable cause)
+			throws CommandProcessingException
+	{
+//		if (isSendingServerMsgOnError()) {
+			final String finalCmdName = isUsingCustomToClientErrorCommandName()
+					? toClientErrorCommandName
+					: DEFAULT_TO_CLIENT_ERROR_COMMAND_NAME;
+			client.sendLine(finalCmdName + ' ' + cause.getMessage());
+//		}
+		processingError(cause);
 	}
 
 	protected void processingError(final String message)
 			throws CommandProcessingException
 	{
 		throw new CommandProcessingException(getCommandName(), message);
+	}
+
+	protected void processingError(final Throwable cause)
+			throws CommandProcessingException
+	{
+		throw new CommandProcessingException(getCommandName(), "<NO-MESSAGE>", cause);
 	}
 
 	protected void processingError() throws CommandProcessingException {
@@ -381,16 +407,25 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 			final int argsStartIndex)
 			throws CommandProcessingException
 	{
+		final ParsedCommandArguments parsedArgs;
 		try {
 			// parse command args
-			final ParsedCommandArguments parsedArgs = getArguments().parse(
+			parsedArgs = getArguments().parse(
 					getCommandName(), commandClean, argsStartIndex);
 
 			runPreProcessChecks(client, parsedArgs);
+		} catch (final CommandProcessingException ex) {
+			if (isUsingCustomToClientErrorCommandName()) {
+				processingError(client, ex);
+			}
+			fireParsingExceptionOccurred(ex); // NOTE should be un-required by now...
+			throw ex;
+		}
 
+		try {
 			process(client, parsedArgs);
 		} catch (final CommandProcessingException ex) {
-			fireParsingExceptionOccurred(ex);
+			fireParsingExceptionOccurred(ex); // NOTE should be un-required by now...
 			throw ex;
 		}
 	}

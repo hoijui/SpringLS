@@ -60,15 +60,15 @@ public class ForceAllyNumberCommandProcessor extends AbstractCommandProcessor {
 		if ((alllyTeamNumber < 0) || (alllyTeamNumber
 				> getContext().getEngine().getMaxTeams() - 1))
 		{
-			return false;
+			processingError();
 		}
 
 		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
-			return false;
+			processingError();
 		}
 		if (!battle.isClientInBattle(target)) {
-			return false;
+			processingError();
 		}
 
 		target.setAllyTeam(alllyTeamNumber);

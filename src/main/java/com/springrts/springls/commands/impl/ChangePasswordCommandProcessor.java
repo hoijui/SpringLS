@@ -50,20 +50,6 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = false;
-		try {
-			checksOk = super.process(client, args);
-		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
-			client.sendLine(String.format(
-					"SERVERMSG Bad %s command:"
-					+ " Too many or too few parameters have been supplied",
-					getCommandName()));
-			throw ex;
-		}
-		if (!checksOk) {
-			return false;
-		}
-
 		final String oldPassword = (String)args.getWords().get(0);
 		final String newPassword = (String)args.getWords().get(1);
 

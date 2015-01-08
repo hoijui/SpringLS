@@ -26,7 +26,6 @@ import com.springrts.springls.commands.Argument;
 import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.IndexedArgument;
-import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
 import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.util.Arrays;
@@ -56,18 +55,6 @@ public class ForceLeaveChannelCommandProcessor
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = false;
-		try {
-			checksOk = super.process(client, args);
-		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
-			client.sendLine(String.format(
-					"SERVERMSG Bad arguments (command %s)", getCommandName()));
-			throw ex;
-		}
-		if (!checksOk) {
-			return false;
-		}
-
 		final String channelName = (String)args.getWords().get(0);
 		final String username = (String)args.getWords().get(1);
 

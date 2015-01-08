@@ -55,21 +55,12 @@ public class RemoveStartRectCommandProcessor extends AbstractCommandProcessor {
 		final Battle battle = getBattle(client);
 
 		final int allyno = (Integer)args.getWords().get(0);
-		try {
-			allyno = Integer.parseInt(args.get(0));
-		} catch (final NumberFormatException ex) {
-			client.sendLine(String.format(
-					"SERVERMSG Serious error: inconsistent data (%s command)",
-					getCommandName()));
-			return false;
-		}
 
 		final StartRect startRect = battle.getStartRects().get(allyno);
 		if (!startRect.isEnabled()) {
-			client.sendLine(String.format(
-					"SERVERMSG Serious error: inconsistent data (%s command)",
+			processingError(client, String.format(
+					"Serious error: inconsistent data (%s command)",
 					getCommandName()));
-			return false;
 		}
 
 		startRect.setEnabled(false);

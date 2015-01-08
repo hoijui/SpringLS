@@ -47,13 +47,10 @@ public class UpdateIp2CountryCommandProcessor extends AbstractCommandProcessor {
 		final IP2Country service = getContext().getService(IP2Country.class);
 		if (service == null) {
 			client.sendLine("SERVERMSG IP2Country service not available!");
+		} else if (service.updateInProgress()) {
+			client.sendLine("SERVERMSG IP2Country database update is"
+					+ " already in progress, try again later.");
 		} else {
-			if (service.updateInProgress()) {
-				client.sendLine("SERVERMSG IP2Country database update is"
-						+ " already in progress, try again later.");
-				return false;
-			}
-
 			client.sendLine("SERVERMSG Updating IP2Country database."
 					+ " The server will notify of success via the server"
 					+ " notification system.");

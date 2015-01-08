@@ -55,11 +55,11 @@ public class ChangeAccountPasswordCommandProcessor
 		final Account account
 				= getContext().getAccountsService().getAccount(username);
 		if (account == null) {
-			return false;
+			processingError();
 		}
 		// validate password:
 		if (Account.isPasswordValid(password) != null) {
-			return false;
+			processingError();
 		}
 
 		final String oldPasswd = account.getPassword();

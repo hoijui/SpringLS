@@ -51,17 +51,6 @@ public class AddNotificationCommandProcessor extends AbstractCommandProcessor {
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = false;
-		try {
-			checksOk = super.process(client, args);
-		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
-			client.sendLine("SERVERMSG Error: arguments missing (ADDNOTIFICATION command)");
-			throw ex;
-		}
-		if (!checksOk) {
-			return false;
-		}
-
 		final String message = (String)args.getSentences().get(0);
 
 		if (getContext().getServerNotifications().addNotification(

@@ -53,12 +53,6 @@ public class LongTimeToDateCommandProcessor extends AbstractCommandProcessor {
 			throws CommandProcessingException
 	{
 		final long time = (Long) args.getWords().get(0);
-		try {
-			time = Long.parseLong(args.get(0));
-		} catch (final Exception ex) {
-			processingError(client, getCommandName()
-					+ " failed: invalid argument."); // TODO remove final '.'
-		}
 
 		// As DateFormats are generally not-thread save,
 		// we always create a new one.

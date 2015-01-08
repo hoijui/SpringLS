@@ -52,19 +52,6 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = false;
-		try {
-			checksOk = super.process(client, args);
-		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
-			client.sendLine(String.format(
-					"SERVERMSG Bad %s command - too many or too few parameters",
-					getCommandName()));
-			throw ex;
-		}
-		if (!checksOk) {
-			return false;
-		}
-
 		final String newUsername = (String)args.getSentences().get(0);
 
 		if (getConfiguration().getBoolean(ServerConfiguration.LAN_MODE)) {

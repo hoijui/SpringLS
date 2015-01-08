@@ -24,9 +24,6 @@ import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Allows a user to "activate" his account after registration.
  * Updates a client temporary account. He is not logged in yet,
@@ -36,9 +33,6 @@ import org.slf4j.LoggerFactory;
  */
 @SupportedCommand("CONFIRMAGREEMENT")
 public class ConfirmAgreementCommandProcessor extends AbstractCommandProcessor {
-
-	private static final Logger LOG
-			= LoggerFactory.getLogger(ConfirmAgreementCommandProcessor.class);
 
 	public ConfirmAgreementCommandProcessor() {
 		super();
@@ -55,9 +49,9 @@ public class ConfirmAgreementCommandProcessor extends AbstractCommandProcessor {
 				.mergeAccountChanges(client.getAccount(),
 				client.getAccount().getName());
 		if (!mergeOk) {
-			LOG.debug("Failed saving 'agreement accepted' state to persistent"
-					+ " storage for user: {}", client.getAccount().getName());
-			return false;
+			processingError(
+					"Failed saving 'agreement accepted' state to persistent"
+					+ " storage for user: " + client.getAccount().getName());
 		}
 	}
 }

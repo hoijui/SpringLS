@@ -25,7 +25,6 @@ import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.Argument;
 import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
-import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
 import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 
@@ -51,17 +50,6 @@ public class SetLatestSpringVersionCommandProcessor extends AbstractCommandProce
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = false;
-		try {
-			checksOk = super.process(client, args);
-		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
-			client.sendLine("SERVERMSG Bad arguments to SETLATESTSPRINGVERSION command!");
-			throw ex;
-		}
-		if (!checksOk) {
-			return false;
-		}
-
 		final String engineVersion = (String)args.getWords().get(0);
 
 		getConfiguration().setProperty(ServerConfiguration.ENGINE_VERSION,

@@ -53,12 +53,6 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 			throws CommandProcessingException
 	{
 		final int battleID = (Integer)args.getWords().get(0);
-		final int battleID;
-		try {
-			battleID = Integer.parseInt(battleIdStr);
-		} catch (NumberFormatException e) {
-			processingError(client, "No battle ID!");
-		}
 
 		if (client.getBattleID() != Battle.NO_BATTLE_ID) {
 			// ca not join a battle if we are already participating in one

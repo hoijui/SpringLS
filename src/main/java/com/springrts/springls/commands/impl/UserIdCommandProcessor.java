@@ -40,7 +40,7 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 	public UserIdCommandProcessor() {
 		super(
 				new CommandArguments(
-						new Argument("userId", Integer.class, Argument.PARSER_TO_INTEGER)),
+						new Argument("userId")),
 				Account.Access.NORMAL);
 	}
 
@@ -50,24 +50,14 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = false;
-		try {
-			checksOk = super.process(client, args);
-		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
-			client.sendLine("SERVERMSG Bad USERID command - too many or too few parameters");
-			throw ex;
-		}
-		if (!checksOk) {
-			return false;
-		}
-
 		if (client.getCompatFlags().contains("cl")) { // NOTE lobby protocol "0.36+ cl"
 			processingError(client, "Command " + getCommandName()
 					+ " was removed after lobby protocol version 0.36"
 					+ " with the 'cl' flag");
 		}
 
-		final int userId = (Integer)args.getWords().get(0);
+		// TODO revise this parsing "algorithm", and see if it needs to be as complex, and how userId is parsed in other commands, and if it is differently defined (in the protocol spec.) for those other commands
+		final String userIdStr = (String)args.getWords().get(0);
 		int userId = Account.NO_USER_ID;
 		try {
 			final long tempUserId = Long.parseLong(userIdStr, 16);

@@ -50,10 +50,9 @@ public class RequestUpdateFileCommandProcessor extends AbstractCommandProcessor 
 			throws CommandProcessingException
 	{
 		if (client.getCompatFlags().contains("cl")) { // NOTE lobby protocol "0.36+ cl"
-			client.sendLine("SERVERMSG Command " + getCommandName()
+			processingError(client, "Command " + getCommandName()
 					+ " was removed after lobby protocol version 0.36"
 					+ " with the 'cl' flag");
-			return false;
 		}
 
 		final String version = (String)args.getSentences().get(0);

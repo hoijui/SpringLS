@@ -87,13 +87,6 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		final long minutes = (Long)args.getWords().get(2);
-		try {
-			minutes = Long.parseLong(args.get(2));
-		} catch (final NumberFormatException ex) {
-			processingError(client, String.format(
-					"%s failed: Invalid argument - should be an integer",
-					getCommandName()));
-		}
 
 		final InetAddress muteIp = muteByIP ? targetAccount.getLastIp() : null;
 		chan.getMuteList().mute(username, minutes * 60, muteIp);

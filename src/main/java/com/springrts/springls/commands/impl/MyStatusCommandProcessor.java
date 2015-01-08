@@ -104,7 +104,9 @@ public class MyStatusCommandProcessor extends AbstractCommandProcessor {
 						LOG.warn("Failed updating users in-game-time in"
 								+ " persistent storage: {}",
 								client.getAccount().getName());
-						return false;
+						processingError("Failed updating users in-game-time in"
+								+ " persistent storage: "
+								+ client.getAccount().getName());
 					}
 				}
 			}

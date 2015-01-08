@@ -20,7 +20,6 @@ package com.springrts.springls.ip2country;
 
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.Argument;
 import com.springrts.springls.commands.CommandArguments;
@@ -29,7 +28,6 @@ import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import com.springrts.springls.util.ProtocolUtil;
 import java.net.InetAddress;
-import java.util.Collections;
 
 /**
  * Lets an administrator convert an IP into a (2-chars wide) country code.
@@ -53,10 +51,6 @@ public class Ip2CountryCommandProcessor extends AbstractCommandProcessor {
 			throws CommandProcessingException
 	{
 		final InetAddress address = (InetAddress)args.getWords().get(0);
-		if (address == null) {
-			client.sendLine("SERVERMSG Invalid IP address/range: " + ipAddress);
-			return false;
-		}
 
 		String country = ProtocolUtil.COUNTRY_UNKNOWN;
 		final IP2Country service = getContext().getService(IP2Country.class);

@@ -25,7 +25,6 @@ import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.Argument;
 import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
-import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
 import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 
@@ -48,17 +47,6 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = false;
-		try {
-			checksOk = super.process(client, args);
-		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
-			processingError(client, "SERVERMSG MUTELIST failed: Invalid arguments!");
-			throw ex;
-		}
-		if (!checksOk) {
-			return false;
-		}
-
 		final String channelName = (String)args.getWords().get(0);
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);

@@ -32,7 +32,6 @@ import com.springrts.springls.commands.Argument;
 import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.IndexedArgument;
-import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
 import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import com.springrts.springls.motd.MessageOfTheDay;
@@ -103,17 +102,6 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = false;
-		try {
-			checksOk = super.process(client, args);
-		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
-			client.sendLine("DENIED Bad command arguments");
-			throw ex;
-		}
-		if (!checksOk) {
-			return false;
-		}
-
 		if (client.getAccount().getAccess() != Account.Access.NONE) {
 			// user with accessLevel > 0 can not re-login
 			processingError(client, "Already logged in");
@@ -179,12 +167,6 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 		final String password = (String)args.getWords().get(1);
 
 		final int cpu = (Integer)args.getWords().get(2);
-		try {
-			cpu = Integer.parseInt(args1.get(2));
-		} catch (final NumberFormatException ex) {
-			client.sendLine("DENIED <cpu> field should be an integer");
-			return false;
-		}
 
 		final String localIpStr = (String)args.getWords().get(3);
 
@@ -228,9 +210,9 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 				.mergeAccountChanges(client.getAccount(),
 				client.getAccount().getName());
 		if (!mergeOk) {
-			LOG.info("Failed saving login info to persistent storage for user:"
-					+ " {}", client.getAccount().getName());
-			return false;
+			processingError(
+					"Failed saving login info to persistent storage for user: "
+					+ client.getAccount().getName());
 		}
 
 		// do the notifying and all

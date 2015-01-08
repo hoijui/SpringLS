@@ -49,18 +49,14 @@ public class SetBotModeCommandProcessor extends AbstractCommandProcessor {
 			throws CommandProcessingException
 	{
 		final int mode = (Integer)args.getWords().get(1);
-		try {
-			mode = Integer.parseInt(args.get(1));
-		} catch (final NumberFormatException ex) {
-			processingError(client, "Invalid 'mode' parameter (has to be 0 or 1)!");
-		}
 		if ((mode != 0) && (mode != 1)) {
 			processingError(client, "Invalid 'mode' parameter (has to be 0 or 1)!");
 		}
 
 		final String userName = (String)args.getWords().get(0);
 
-		final Account acc = getContext().getAccountsService().getAccount(userName);
+		final Account acc
+				= getContext().getAccountsService().getAccount(userName);
 		if (acc == null) {
 			processingError(client, String.format("User <%s> not found!",
 					userName));

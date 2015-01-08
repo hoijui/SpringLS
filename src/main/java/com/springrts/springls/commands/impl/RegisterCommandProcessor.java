@@ -25,7 +25,6 @@ import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.Argument;
 import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
-import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
 import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 
@@ -50,17 +49,6 @@ public class RegisterCommandProcessor extends AbstractCommandProcessor {
 			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		boolean checksOk = false;
-		try {
-			checksOk = super.process(client, args);
-		} catch (final InvalidNumberOfArgumentsCommandProcessingException ex) {
-			client.sendLine("REGISTRATIONDENIED Bad command arguments");
-			throw ex;
-		}
-		if (!checksOk) {
-			return false;
-		}
-
 		if (!getContext().getAccountsService().isRegistrationEnabled()) {
 			processingError(client, "Sorry, account registration is currently disabled");
 		}
