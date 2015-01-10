@@ -110,9 +110,8 @@ public abstract class AbstractAccountsService implements AccountsService {
 	}
 
 	@Override
-	public boolean setRegistrationEnabled(final boolean registrationEnabled) {
+	public void setRegistrationEnabled(final boolean registrationEnabled) {
 		this.registrationEnabled = registrationEnabled;
-		return true;
 	}
 
 	@Override

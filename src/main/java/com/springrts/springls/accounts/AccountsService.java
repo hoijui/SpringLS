@@ -159,7 +159,7 @@ public interface AccountsService extends ContextReceiver, LiveStateListener,
 	 * Sets whether or not it is possible to register new accounts.
 	 * @return true if new value was successfully set
 	 */
-	boolean setRegistrationEnabled(boolean registrationEnabled);
+	void setRegistrationEnabled(boolean registrationEnabled);
 
 	/**
 	 * Checks if a pair of login credentials are valid.
