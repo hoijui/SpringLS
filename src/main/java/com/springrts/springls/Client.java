@@ -703,7 +703,7 @@ public class Client extends TeamController implements ContextReceiver {
 	 * The server can not figure out the clients local IP by himself of course.
 	 * @param localIp the local IP to set
 	 */
-	public void setLocalIP(final InetAddress localIp) {
+	public void setLocalIp(final InetAddress localIp) {
 		this.localIp = localIp;
 	}
 

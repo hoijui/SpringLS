@@ -211,7 +211,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 		client.getAccount().setLastLogin(System.currentTimeMillis());
 		client.getAccount().setLastCountry(client.getCountry());
 		client.getAccount().setLastIp(client.getIp());
-		client.setLocalIP(localIp);
+		client.setLocalIp(localIp);
 		client.setLobbyVersion(lobbyVersion);
 		client.getAccount().setLastUserId(userId);
 		final boolean mergeOk = getContext().getAccountsService()
