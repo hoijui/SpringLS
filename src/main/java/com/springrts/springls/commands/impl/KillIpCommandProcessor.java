@@ -59,6 +59,7 @@ public class KillIpCommandProcessor extends AbstractCommandProcessor {
 		final InetAddress addr = Misc.parseIp(ipAddress);
 		if (addr == null) {
 			processingError(client, "Invalid IP address: " + ipAddress);
+			return;
 		}
 
 		for (int i = 0; i < getContext().getClients().getClientsSize(); i++) {

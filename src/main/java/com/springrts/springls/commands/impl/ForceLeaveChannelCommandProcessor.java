@@ -63,18 +63,21 @@ public class ForceLeaveChannelCommandProcessor
 			processingError(client, String.format(
 					"Error: Channel does not exist: %s",
 					channelName));
+			return;
 		}
 
 		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
 			processingError(client, String.format(
 					"Error: <%s> not found!", username));
+			return;
 		}
 
 		if (!chan.isClientInThisChannel(target)) {
 			processingError(client, String.format(
 					"Error: <%s> is not in the channel #%s!",
 					username, chan.getName()));
+			return;
 		}
 
 		String reason = null;

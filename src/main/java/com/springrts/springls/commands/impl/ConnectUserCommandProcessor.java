@@ -59,12 +59,14 @@ public class ConnectUserCommandProcessor extends AbstractCommandProcessor {
 		if (affectedClient == null) {
 			processingError(client, String.format("%s %s", userName,
 					"An invalid user name was specified"));
+			return;
 		}
 
 		if (affectedClient.isInGame()) {
 			processingError(client, String.format("%s %s", userName,
 					"The affected client is currently in-game,"
 					+ " and can therefore not connect to an other game"));
+			return;
 		}
 
 		final boolean clientSupportsCmd = affectedClient.getCompatFlags().contains("cu"); // NOTE lobby protocol "0.35+ cu"
@@ -73,6 +75,7 @@ public class ConnectUserCommandProcessor extends AbstractCommandProcessor {
 					userName,
 					"The affected client does not support the command"
 					+ " CONNECTUSERFAILED (comp-flag \"cu\")"));
+			return;
 		}
 
 		final String ipAndPort = (String)args.getWords().get(1);

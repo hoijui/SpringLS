@@ -59,12 +59,14 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"%s failed: Channel #%s does not exist!",
 					getCommandName(), channelName));
+			return;
 		}
 
 		if (chan.getMuteList().isMuted(username)) {
 			processingError(client, String.format(
 					"%s failed: User <%s> is already muted. Unmute first!",
 					getCommandName(), username));
+			return;
 		}
 
 		final Account targetAccount = getContext().getAccountsService().getAccount(username);
@@ -72,6 +74,7 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"%s failed: User <%s> does not exist",
 					getCommandName(), username));
+			return;
 		}
 
 		boolean muteByIP = false;
@@ -83,6 +86,7 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 				processingError(client, String.format(
 						"%s failed: Invalid argument: \"%s\"",
 						getCommandName(), option));
+				return;
 			}
 		}
 

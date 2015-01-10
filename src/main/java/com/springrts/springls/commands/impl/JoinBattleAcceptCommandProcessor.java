@@ -53,6 +53,7 @@ public class JoinBattleAcceptCommandProcessor extends AbstractCommandProcessor {
 	{
 		if (client.getBattleID() == Battle.NO_BATTLE_ID) {
 			processingError();
+			return;
 		}
 
 		final Battle battle = getBattle(client);
@@ -63,10 +64,12 @@ public class JoinBattleAcceptCommandProcessor extends AbstractCommandProcessor {
 		final Client joiningClient = getContext().getClients().getClient(username);
 		if (joiningClient == null) {
 			processingError();
+			return;
 		} else if (joiningClient.getRequestedBattleID()
 				!= client.getBattleID())
 		{
 			processingError();
+			return;
 		}
 
 		battle.notifyClientJoined(joiningClient);

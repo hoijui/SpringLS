@@ -25,7 +25,6 @@ import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.Argument;
 import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
-import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
 import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 
@@ -58,12 +57,14 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 					"%s failed: You can not change your password"
 					+ " while the server is running in LAN mode!",
 					getCommandName()));
+			return;
 		}
 
 		if (!oldPassword.equals(client.getAccount().getPassword())) {
 			processingError(client, String.format(
 					"%s failed: The old password is incorrect!",
 					getCommandName()));
+			return;
 		}
 
 		// validate password:
@@ -72,6 +73,7 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"%s failed: Invalid password (reason: %s)",
 					getCommandName(), valid));
+			return;
 		}
 
 		final String oldPasswd = client.getAccount().getPassword();
@@ -84,6 +86,7 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"%s failed: Failed saving to persistent storage.",
 					getCommandName()));
+			return;
 		}
 
 		// let's save new accounts info to disk

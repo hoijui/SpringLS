@@ -54,6 +54,7 @@ public class MuteListCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"MUTELIST failed: Channel #%s does not exist!",
 					channelName));
+			return;
 		}
 
 		client.sendLine(String.format("MUTELISTBEGIN %s", chan.getName()));

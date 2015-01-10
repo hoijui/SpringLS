@@ -59,6 +59,7 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 			final Client target = getContext().getClients().getClient(username);
 			if (target == null) {
 				processingError();
+				return;
 			}
 
 			if (client.getBattleID() == Battle.NO_BATTLE_ID) {
@@ -66,6 +67,7 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 						"%s command failed: You can only ring players"
 						+ " participating in your own battle!",
 						getCommandName()));
+				return;
 			}
 
 			final Battle battle = getBattle(client);
@@ -76,6 +78,7 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 						"%s command failed: You do not have"
 						+ " permission to ring players other than those"
 						+ " participating in your battle!", getCommandName()));
+				return;
 			}
 
 			// only host can ring players participating in his own battle,
@@ -88,6 +91,7 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 						+ " host, or if you are the battle host, only players"
 						+ " participating in your own battle!",
 						getCommandName()));
+				return;
 			}
 
 			target.sendLine(String.format("RING %s",
@@ -97,6 +101,7 @@ public class RingCommandProcessor extends AbstractCommandProcessor {
 			final Client target = getContext().getClients().getClient(username);
 			if (target == null) {
 				processingError();
+				return;
 			}
 
 			target.sendLine(String.format("RING %s",

@@ -53,6 +53,7 @@ public class GetAccountAccessCommandProcessor extends AbstractCommandProcessor {
 		if (account == null) {
 			processingError(client, String.format("User <%s> not found!",
 					username));
+			return;
 		}
 
 		client.sendLine(String.format("SERVERMSG %s's access code is %d",

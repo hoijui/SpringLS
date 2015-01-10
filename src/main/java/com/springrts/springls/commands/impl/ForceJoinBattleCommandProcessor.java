@@ -57,6 +57,7 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 		if (affectedClient == null) {
 			processingError(client, String.format("%s %s", userName,
 					"Invalid user name was specified"));
+			return;
 		}
 
 		final int battleId = affectedClient.getBattleID();
@@ -64,6 +65,7 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 		if (battle == null) {
 			processingError(client, String.format("%s %s", userName,
 					"The user to be moved is not currently in any battle"));
+			return;
 		}
 
 		if (!battle.getFounder().equals(client)
@@ -72,23 +74,28 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format("%s %s", userName,
 					"The source client must be a lobby moderator or the host"
 					+ " of the affected client's current battle"));
+			return;
 		}
 
 		final int destinationBattleId = (Integer)args.getWords().get(1);
 
-		final Battle destinationBattle = getContext().getBattles().getBattleByID(destinationBattleId);
+		final Battle destinationBattle
+				= getContext().getBattles().getBattleByID(destinationBattleId);
 		if (destinationBattle == null) {
 			processingError(client, String.format("%s %s", userName,
 					"Invalid destination battle ID (battle does not exist): "
 					+ destinationBattleId));
+			return;
 		}
 		if (destinationBattle.restricted()) {
 			processingError(client, String.format("%s %s", userName,
 					"The destination battle is password-protected, so we can not move to it"));
+			return;
 		}
 		if (destinationBattle.isLocked()) {
 			processingError(client, String.format("%s %s", userName,
 					"The destination battle is locked, so we can not move to it"));
+			return;
 		}
 
 		String battlePassword = null;

@@ -54,6 +54,7 @@ public class GetSendBufferSizeCommandProcessor extends AbstractCommandProcessor 
 		if (c == null) {
 			processingError(client, String.format(
 					"Error: user <%s> not found online!", username));
+			return;
 		}
 
 		final int size;
@@ -63,7 +64,8 @@ public class GetSendBufferSizeCommandProcessor extends AbstractCommandProcessor 
 			// this could perhaps happen if user just disconnected or something
 			processingError(client, String.format(
 					"Error while trying to get send buffer size for"
-					+ " <%s>!", username)); return;
+					+ " <%s>!", username));
+			return;
 		}
 
 		client.sendLine(String.format(

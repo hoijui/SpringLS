@@ -105,6 +105,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 		if (client.getAccount().getAccess() != Account.Access.NONE) {
 			// user with accessLevel > 0 can not re-login
 			processingError(client, "Already logged in");
+			return;
 		}
 
 		final String username = (String)args.getWords().get(0);
@@ -114,6 +115,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 				.getAccess().isLessThen(Account.Access.PRIVILEGED))
 		{
 			processingError(client, "Sorry, logging in is currently disabled");
+			return;
 		}
 
 		processInner(client, args);
@@ -177,6 +179,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			localIp = Misc.parseIp(localIpStr);
 			if (localIp == null) {
 				processingError(client, "Invalid IP address: " + localIpStr);
+				return;
 			}
 		}
 
@@ -196,6 +199,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 		final boolean validAccount = validateAccount(client, userId, username, password);
 		if (!validAccount) {
 			processingError();
+			return;
 		}
 
 		// set client's status:
@@ -213,6 +217,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			processingError(
 					"Failed saving login info to persistent storage for user: "
 					+ client.getAccount().getName());
+			return;
 		}
 
 		// do the notifying and all

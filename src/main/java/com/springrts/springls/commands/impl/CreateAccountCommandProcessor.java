@@ -54,6 +54,7 @@ public class CreateAccountCommandProcessor extends AbstractCommandProcessor {
 		if (valid != null) {
 			processingError(client, String.format(
 					"Invalid username (reason: %s)", valid));
+			return;
 		}
 
 		// validate password:
@@ -61,15 +62,18 @@ public class CreateAccountCommandProcessor extends AbstractCommandProcessor {
 		if (valid != null) {
 			processingError(client, String.format(
 					"Invalid password (reason: %s)", valid));
+			return;
 		}
 		Account account
 				= getContext().getAccountsService().findAccountNoCase(username);
 		if (account != null) {
 			processingError(client, "Account already exists");
+			return;
 		}
 		if (Account.RESERVED_NAMES.contains(username)) {
 			processingError(client, "Invalid account name - you are trying"
 					+ " to register a reserved account name");
+			return;
 		}
 		account = new Account(username, password, client.getIp(),
 				client.getCountry());

@@ -25,7 +25,6 @@ import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.Argument;
 import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
-import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
 import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 
@@ -54,17 +53,19 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, "Command " + getCommandName()
 					+ " was removed after lobby protocol version 0.36"
 					+ " with the 'cl' flag");
+			return;
 		}
 
 		// TODO revise this parsing "algorithm", and see if it needs to be as complex, and how userId is parsed in other commands, and if it is differently defined (in the protocol spec.) for those other commands
 		final String userIdStr = (String)args.getWords().get(0);
-		int userId = Account.NO_USER_ID;
+		int userId;
 		try {
 			final long tempUserId = Long.parseLong(userIdStr, 16);
 			// we transform an unsigned 32 bit integer to a signed one
 			userId = (int) tempUserId;
 		} catch (final NumberFormatException ex) {
 			processingError(client, "Bad USERID command - userID field should be an integer");
+			return;
 		}
 
 		client.getAccount().setLastUserId(userId);
@@ -75,6 +76,7 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 		if (!mergeOk) {
 			// FIXME set back?
 			processingError(client, "Failed saving last User ID to persistent storage");
+			return;
 		}
 
 		// add server notification:

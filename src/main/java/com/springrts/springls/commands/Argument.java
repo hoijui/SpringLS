@@ -30,7 +30,7 @@ import java.net.InetAddress;
  * @author hoijui
  */
 public class Argument implements NamedArgument {
-	
+
 	private static final Parser<String, String> PARSER_NONE
 			= new Parser<String, String>() {
 		@Override
@@ -38,7 +38,7 @@ public class Argument implements NamedArgument {
 			return input;
 		}
 	};
-	
+
 	public static final Parser<String, String> PARSER_TO_UPPER_CASE
 			= new Parser<String, String>() {
 		@Override
@@ -86,7 +86,7 @@ public class Argument implements NamedArgument {
 			return Misc.parseIp(input);
 		}
 	};
-	
+
 	private final String name;
 	private final Class valueType;
 	private final Parser<String, ?> valueParser;

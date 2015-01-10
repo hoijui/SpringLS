@@ -62,14 +62,17 @@ public class ForceTeamNumberCommandProcessor extends AbstractCommandProcessor {
 				|| (teamNumber > getContext().getEngine().getMaxTeams() - 1))
 		{
 			processingError();
+			return;
 		}
 
 		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
 			processingError();
+			return;
 		}
 		if (!battle.isClientInBattle(target)) {
 			processingError();
+			return;
 		}
 
 		target.setTeam(teamNumber);

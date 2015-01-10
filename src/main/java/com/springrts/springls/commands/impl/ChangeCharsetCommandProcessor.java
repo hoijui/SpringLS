@@ -54,8 +54,10 @@ public class ChangeCharsetCommandProcessor extends AbstractCommandProcessor {
 			getContext().getServer().setCharset(charset);
 		} catch (final IllegalCharsetNameException ex) {
 			processingError(client, "Error: Illegal charset name: " + charset);
+			return;
 		} catch (final UnsupportedCharsetException ex) {
 			processingError(client, "Error: Unsupported charset: " + charset);
+			return;
 		}
 
 		client.sendLine("SERVERMSG Charset set to " + charset);

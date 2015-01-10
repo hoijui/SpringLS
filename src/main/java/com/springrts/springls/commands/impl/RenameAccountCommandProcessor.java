@@ -26,7 +26,6 @@ import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.Argument;
 import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
-import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
 import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.util.Collections;
@@ -59,6 +58,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 					"%s failed: You cannot rename your account while"
 					+ " the server is running in LAN mode, since you have no"
 					+ " persistent account!", getCommandName()));
+			return;
 		}
 
 		// validate new user name
@@ -67,6 +67,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"%s failed: Invalid username (reason: %s)",
 					getCommandName(), valid));
+			return;
 		}
 
 		final Account account = getContext().getAccountsService().findAccountNoCase(newUsername);
@@ -74,6 +75,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"%s failed: Account with same username already exists!",
 					getCommandName()));
+			return;
 		}
 
 		final String oldName = client.getAccount().getName();
@@ -87,6 +89,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 			client.setAccount(accountNew);
 		} else {
 			processingError(client, "Your account renaming failed.");
+			return;
 		}
 
 		// make sure all mutes are accordingly adjusted to the new userName:

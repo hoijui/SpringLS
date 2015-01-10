@@ -67,6 +67,7 @@ public class GetInGameTimeCommandProcessor extends AbstractCommandProcessor {
 				processingError(client, String.format(
 						"%s failed: user %s not found!",
 						getCommandName(), username));
+				return;
 			}
 
 			client.sendLine(String.format(

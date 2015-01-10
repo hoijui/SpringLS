@@ -55,6 +55,7 @@ public class ChangeAccountAccessCommandProcessor extends AbstractCommandProcesso
 				= getContext().getAccountsService().getAccount(username);
 		if (account == null) {
 			processingError("No account found for user-name \""+ username + "\"");
+			return;
 		}
 
 		final int oldAccessBitField = account.getAccessBitField();
@@ -70,6 +71,7 @@ public class ChangeAccountAccessCommandProcessor extends AbstractCommandProcesso
 			processingError(client, String.format(
 					"Changing ACCESS for account <%s> failed.",
 					account.getName()));
+			return;
 		}
 
 		getContext().getAccountsService().saveAccounts(false); // save changes

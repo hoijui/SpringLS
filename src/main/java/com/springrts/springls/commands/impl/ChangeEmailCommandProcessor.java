@@ -58,12 +58,14 @@ public class ChangeEmailCommandProcessor extends AbstractCommandProcessor {
 			if (toChange == null) {
 				processingError(client, String.format(
 						"Error: User <%s> not found!", username));
+				return;
 			}
 			if (!toChange.equals(client.getAccount())
 					&& !client.getAccount().getAccess().isAtLeast(Account.Access.PRIVILEGED))
 			{
 				processingError(client,
 						"Error: You need to be moderator to change the email of an other user!");
+				return;
 			}
 		}
 

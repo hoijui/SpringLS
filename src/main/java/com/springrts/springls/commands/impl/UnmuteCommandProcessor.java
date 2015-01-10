@@ -56,12 +56,14 @@ public class UnmuteCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"%s failed: Channel #%s does not exist!",
 					getCommandName(), channelName));
+			return;
 		}
 
 		if (!chan.getMuteList().isMuted(username)) {
 			processingError(client, String.format(
 					"%s failed: User <%s> is not on the mute list!",
 					getCommandName(), username));
+			return;
 		}
 
 		chan.getMuteList().unmute(username);

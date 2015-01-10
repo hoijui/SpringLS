@@ -70,6 +70,7 @@ public class RecoverAccountCommandProcessor extends AbstractCommandProcessor {
 					// the requested username does not exist,
 					// or does not have the given email address set
 					processingError();
+					return;
 				}
 				fittingAccounts.clear();
 				fittingAccounts.add(toRecover);
@@ -78,6 +79,7 @@ public class RecoverAccountCommandProcessor extends AbstractCommandProcessor {
 		} else {
 			// no account has the given email assigned to it
 			processingError();
+			return;
 		}
 	}
 

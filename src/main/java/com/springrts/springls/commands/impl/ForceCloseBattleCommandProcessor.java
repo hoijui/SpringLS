@@ -58,6 +58,7 @@ public class ForceCloseBattleCommandProcessor extends AbstractCommandProcessor {
 		final Battle battle = getContext().getBattles().getBattleByID(battleId);
 		if (battle == null) {
 			processingError(client, "Error: unknown BATTLE_ID!");
+			return;
 		}
 
 		getContext().getBattles().closeBattleAndNotifyAll(battle);

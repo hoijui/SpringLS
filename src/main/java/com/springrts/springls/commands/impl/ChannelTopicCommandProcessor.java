@@ -60,6 +60,7 @@ public class ChannelTopicCommandProcessor extends AbstractCommandProcessor {
 		if (chan == null) {
 			processingError(client, "Error: Channel does not exist: "
 					+ channelName);
+			return;
 		}
 
 		if (!chan.setTopic(channelTopic, client.getAccount().getName())) {

@@ -383,6 +383,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 
 	protected void processingError() throws CommandProcessingException {
 		processingError("<NO-MESSAGE>");
+		return;
 	}
 
 	/**
@@ -417,6 +418,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 		} catch (final CommandProcessingException ex) {
 			if (isUsingCustomToClientErrorCommandName()) {
 				processingError(client, ex);
+				return;
 			}
 			fireParsingExceptionOccurred(ex); // NOTE should be un-required by now...
 			throw ex;

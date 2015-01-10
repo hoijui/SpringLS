@@ -50,6 +50,7 @@ public class RemoveAccountCommandProcessor extends AbstractCommandProcessor {
 
 		if (!getContext().getAccountsService().removeAccount(username)) {
 			processingError();
+			return;
 		}
 
 		// if any user is connected to this account, kick him:

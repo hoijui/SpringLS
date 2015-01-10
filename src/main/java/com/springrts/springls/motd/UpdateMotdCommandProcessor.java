@@ -68,6 +68,7 @@ public class UpdateMotdCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"Error: unable to read MOTD from %s",
 					motdFileName));
+			return;
 		}
 	}
 }

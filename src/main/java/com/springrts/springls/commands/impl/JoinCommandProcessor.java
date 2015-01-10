@@ -62,6 +62,7 @@ public class JoinCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"Bad channel name (\"#%s\"). Reason: %s",
 					channelName, valid));
+			return;
 		}
 
 		// check if key is correct (if channel is locked):
@@ -74,12 +75,14 @@ public class JoinCommandProcessor extends AbstractCommandProcessor {
 				processingError(client, String.format(
 						"%s, missing key for locked channel",
 						channelName));
+				return;
 			} else {
 				final String channelKey = (String)args.getSentences().get(0);
 				if (!channelKey.equals(chan.getKey())) {
 					processingError(client, String.format(
 							"%s, wrong key for locked channel",
 							channelName));
+					return;
 				}
 			}
 		}
@@ -88,6 +91,7 @@ public class JoinCommandProcessor extends AbstractCommandProcessor {
 		if (chan == null) {
 			processingError(client, String.format(
 					"%s, already in the channel", channelName));
+			return;
 		}
 		client.sendLine(String.format("JOIN %s", channelName));
 		getContext().getChannels().sendChannelInfoToClient(chan, client);

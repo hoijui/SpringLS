@@ -58,28 +58,33 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 			// ca not join a battle if we are already participating in one
 			processingError(client, "Cannot participate in multiple"
 					+ " battles at the same time!");
+			return;
 		}
 
 		final Battle battle = getContext().getBattles().getBattleByID(battleID);
 
 		if (battle == null) {
 			processingError(client, "Invalid battle ID!");
+			return;
 		}
 
 		if (battle.restricted()) {
 			if (args.getWords().size() < 2) {
 				processingError(client, "Password required");
+				return;
 			}
 
 			final String password = (String)args.getWords().get(1);
 
 			if (!battle.getPassword().equals(password)) {
 				processingError(client, "Invalid password");
+				return;
 			}
 		}
 
 		if (battle.isLocked()) {
 			processingError(client, "You cannot join locked battles!");
+			return;
 		}
 
 		if (args.getWords().size() > 2) {

@@ -125,10 +125,12 @@ public class OpenBattleCommandProcessor extends AbstractCommandProcessor {
 	{
 		if (client.getBattleID() != Battle.NO_BATTLE_ID) {
 			processingError(client, "You are already hosting a battle!");
+			return;
 		}
 		final Battle battle = createBattleFromString(args, client);
 		if (battle == null) {
 			processingError(client, "Invalid command format or bad arguments");
+			return;
 		}
 		getContext().getBattles().addBattle(battle);
 		client.setDefaultBattleStatus();

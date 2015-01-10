@@ -54,6 +54,7 @@ public class GenerateUserIdCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, "Command " + getCommandName()
 					+ " was removed after lobby protocol version 0.36"
 					+ " with the 'cl' flag");
+			return;
 		}
 
 		final String username = (String)args.getWords().get(0);
@@ -64,6 +65,7 @@ public class GenerateUserIdCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"<%s> not found or is not currently online!",
 					username));
+			return;
 		}
 		targetClient.sendLine("ACQUIREUSERID");
 

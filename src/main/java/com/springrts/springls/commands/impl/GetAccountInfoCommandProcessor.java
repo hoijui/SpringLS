@@ -54,6 +54,7 @@ public class GetAccountInfoCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"Account <%s> does not exist.",
 					username));
+			return;
 		}
 
 		client.sendLine(String.format(

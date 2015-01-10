@@ -59,6 +59,7 @@ public class ForgeReverseMessageCommandProcessor extends AbstractCommandProcesso
 			processingError(client, "Command " + getCommandName()
 					+ " was removed after lobby protocol version 0.36"
 					+ " with the 'cl' flag");
+			return;
 		}
 
 		final String username = (String)args.getWords().get(0);
@@ -67,6 +68,7 @@ public class ForgeReverseMessageCommandProcessor extends AbstractCommandProcesso
 		final Client targetClient = getContext().getClients().getClient(username);
 		if (targetClient == null) {
 			processingError();
+			return;
 		}
 
 		getContext().getServerThread().executeCommand(message, targetClient);

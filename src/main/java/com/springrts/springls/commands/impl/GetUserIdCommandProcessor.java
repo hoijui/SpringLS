@@ -56,6 +56,7 @@ public class GetUserIdCommandProcessor extends AbstractCommandProcessor {
 		if (account == null) {
 			processingError(client, String.format("User <%s> not found!",
 					username));
+			return;
 		}
 
 		client.sendLine(String.format("SERVERMSG Last user ID for <%s> was %d",

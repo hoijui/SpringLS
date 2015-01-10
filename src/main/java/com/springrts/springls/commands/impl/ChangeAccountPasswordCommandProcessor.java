@@ -56,10 +56,12 @@ public class ChangeAccountPasswordCommandProcessor
 				= getContext().getAccountsService().getAccount(username);
 		if (account == null) {
 			processingError();
+			return;
 		}
 		// validate password:
 		if (Account.isPasswordValid(password) != null) {
 			processingError();
+			return;
 		}
 
 		final String oldPasswd = account.getPassword();
@@ -71,6 +73,7 @@ public class ChangeAccountPasswordCommandProcessor
 			processingError(client, String.format(
 					"%s failed: Failed saving to persistent storage.",
 					getCommandName()));
+			return;
 		}
 
 		getContext().getAccountsService().saveAccounts(false); // save changes

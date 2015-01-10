@@ -58,6 +58,7 @@ public class GetRegistrationDateCommandProcessor
 		if (account == null) {
 			processingError(client, String.format("User <%s> not found!",
 					userName));
+			return;
 		}
 
 		// As DateFormats are generally not-thread save,

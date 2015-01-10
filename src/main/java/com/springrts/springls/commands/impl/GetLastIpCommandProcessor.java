@@ -52,6 +52,7 @@ public class GetLastIpCommandProcessor extends AbstractCommandProcessor {
 		if (acc == null) {
 			processingError(client, String.format("User %s not found!",
 					username));
+			return;
 		}
 
 		final boolean online = getContext().getClients().isUserLoggedIn(acc);

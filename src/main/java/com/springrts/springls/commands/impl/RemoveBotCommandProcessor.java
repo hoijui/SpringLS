@@ -57,6 +57,7 @@ public class RemoveBotCommandProcessor extends AbstractCommandProcessor {
 		final Bot bot = battle.getBot(botName);
 		if (bot == null) {
 			processingError();
+			return;
 		}
 
 		battle.removeBot(bot);

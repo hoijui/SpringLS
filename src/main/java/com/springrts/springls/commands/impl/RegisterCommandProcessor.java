@@ -51,12 +51,14 @@ public class RegisterCommandProcessor extends AbstractCommandProcessor {
 	{
 		if (!getContext().getAccountsService().isRegistrationEnabled()) {
 			processingError(client, "Sorry, account registration is currently disabled");
+			return;
 		}
 
 		if (client.getAccount().getAccess() != Account.Access.NONE) {
 			// only clients which are not logged-in can register
 			processingError(client, "You are already logged-in,"
 					+ " no need to register a new account");
+			return;
 		}
 
 		if (getConfiguration().getBoolean(ServerConfiguration.LAN_MODE)) {
@@ -64,6 +66,7 @@ public class RegisterCommandProcessor extends AbstractCommandProcessor {
 			// userName
 			processingError(client, "Can not register in LAN-mode."
 					+ " Login with any username and password to proceed");
+			return;
 		}
 
 		final String username = (String)args.getWords().get(0);
@@ -73,23 +76,27 @@ public class RegisterCommandProcessor extends AbstractCommandProcessor {
 		String valid = Account.isOldUsernameValid(username);
 		if (valid != null) {
 			processingError(client, String.format("Invalid username (reason: %s)", valid));
+			return;
 		}
 
 		// validate password:
 		valid = Account.isPasswordValid(password);
 		if (valid != null) {
 			processingError(client, String.format("Invalid password (reason: %s)", valid));
+			return;
 		}
 		Account account = getContext().getAccountsService()
 				.findAccountNoCase(username);
 		if (account != null) {
 			processingError(client, "Account already exists");
+			return;
 		}
 
 		// check for reserved names:
 		if (Account.RESERVED_NAMES.contains(username)) {
 			processingError(client, "Invalid account name - you are"
 					+ " trying to register a reserved account name");
+			return;
 		}
 		/*if (!getContext().whiteList.contains(client.getIp())) {
 			if (registrationTimes.containsKey(client.ip)

@@ -62,9 +62,11 @@ public class ForceTeamColorCommandProcessor extends AbstractCommandProcessor {
 		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
 			processingError();
+			return;
 		}
 		if (!battle.isClientInBattle(target)) {
 			processingError();
+			return;
 		}
 
 		target.setTeamColor(color);

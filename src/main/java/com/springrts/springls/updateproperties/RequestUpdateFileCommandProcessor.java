@@ -53,6 +53,7 @@ public class RequestUpdateFileCommandProcessor extends AbstractCommandProcessor 
 			processingError(client, "Command " + getCommandName()
 					+ " was removed after lobby protocol version 0.36"
 					+ " with the 'cl' flag");
+			return;
 		}
 
 		final String version = (String)args.getSentences().get(0);

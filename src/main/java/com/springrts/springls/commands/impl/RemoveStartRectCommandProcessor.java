@@ -61,6 +61,7 @@ public class RemoveStartRectCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"Serious error: inconsistent data (%s command)",
 					getCommandName()));
+			return;
 		}
 
 		startRect.setEnabled(false);

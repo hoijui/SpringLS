@@ -59,6 +59,7 @@ public class ChannelMessageCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"%s failed: Channel #%s does not exist!",
 					getCommandName(), channelName));
+			return;
 		}
 
 		final String message = (String)args.getSentences().get(0);

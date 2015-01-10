@@ -58,6 +58,7 @@ public class SayExCommandProcessor extends AbstractSayCommandProcessor {
 		final Channel channel = client.getChannel(channelName);
 		if (channel == null) {
 			processingError();
+			return;
 		}
 
 		checkMuted(client, channel);

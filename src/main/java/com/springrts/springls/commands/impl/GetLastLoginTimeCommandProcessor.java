@@ -58,6 +58,7 @@ public class GetLastLoginTimeCommandProcessor extends AbstractCommandProcessor {
 					"%s failed: <%s> not found!",
 					getCommandName(),
 					username));
+			return;
 		}
 
 		if (getContext().getClients().getClient(acc.getName()) == null) {

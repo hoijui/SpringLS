@@ -58,12 +58,14 @@ public class SetChannelKeyCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"Error: Channel does not exist: %s",
 					channelName));
+			return;
 		}
 
 		if (key.equals("*")) {
 			if (!chan.isLocked()) {
 				processingError(client,
 						"Error: Unable to unlock channel - channel is not locked!");
+				return;
 			}
 			chan.setKey(Channel.KEY_NONE);
 			chan.broadcast(String.format("<%s> has just unlocked #%s",
@@ -73,6 +75,7 @@ public class SetChannelKeyCommandProcessor extends AbstractCommandProcessor {
 			if (!key.matches("^[A-Za-z0-9_]+$")) {
 				processingError(client, String.format("Error: Invalid key: %s",
 						key));
+				return;
 			}
 			chan.setKey(key);
 			chan.broadcast(String.format(

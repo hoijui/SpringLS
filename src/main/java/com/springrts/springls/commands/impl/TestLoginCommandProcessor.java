@@ -56,6 +56,7 @@ public class TestLoginCommandProcessor extends AbstractCommandProcessor {
 		{
 			client.sendLine("TESTLOGINDENY");
 			processingError();
+			return;
 		}
 
 		// We don't check here if agreement bit is set yet,

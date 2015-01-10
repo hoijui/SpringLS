@@ -51,6 +51,7 @@ public class KillCommandProcessor extends AbstractCommandProcessor {
 		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {
 			processingError();
+			return;
 		}
 		getContext().getClients().killClient(target);
 	}

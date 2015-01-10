@@ -53,6 +53,7 @@ public class GetLobbyVersionCommandProcessor extends AbstractCommandProcessor {
 		if (targetClient == null) {
 			processingError(client, String.format("<%s> not found!",
 					username));
+			return;
 		}
 
 		client.sendLine(String.format("SERVERMSG <%s> is using \"%s\"",

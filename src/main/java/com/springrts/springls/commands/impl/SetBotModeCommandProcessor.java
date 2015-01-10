@@ -51,6 +51,7 @@ public class SetBotModeCommandProcessor extends AbstractCommandProcessor {
 		final int mode = (Integer)args.getWords().get(1);
 		if ((mode != 0) && (mode != 1)) {
 			processingError(client, "Invalid 'mode' parameter (has to be 0 or 1)!");
+			return;
 		}
 
 		final String userName = (String)args.getWords().get(0);
@@ -60,6 +61,7 @@ public class SetBotModeCommandProcessor extends AbstractCommandProcessor {
 		if (acc == null) {
 			processingError(client, String.format("User <%s> not found!",
 					userName));
+			return;
 		}
 
 		final boolean wasBot = acc.isBot();
@@ -72,6 +74,7 @@ public class SetBotModeCommandProcessor extends AbstractCommandProcessor {
 			processingError(client, String.format(
 					"%s failed: Failed saving to persistent storage.",
 					getCommandName()));
+			return;
 		}
 
 		client.sendLine(String.format(

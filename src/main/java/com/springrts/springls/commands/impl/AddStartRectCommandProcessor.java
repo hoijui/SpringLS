@@ -83,6 +83,7 @@ public class AddStartRectCommandProcessor extends AbstractCommandProcessor {
 		final StartRect startRect = battle.getStartRects().get(allyno);
 		if (startRect.isEnabled()) {
 			processingError(client, "Error: inconsistent data (%s command)");
+			return;
 		}
 
 		startRect.setEnabled(true);

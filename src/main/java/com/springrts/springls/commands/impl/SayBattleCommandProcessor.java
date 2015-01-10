@@ -23,12 +23,10 @@ import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.Argument;
 import com.springrts.springls.commands.CommandArguments;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.util.Collections;
-import java.util.List;
 
 
 /**

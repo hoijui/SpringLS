@@ -66,11 +66,13 @@ public class AddBotCommandProcessor extends AbstractCommandProcessor {
 
 		if (!Bot.isValidName(botName)) {
 			processingError(client, "Bad bot name. Try another!");
+			return;
 		}
 
 		if (battle.getBot(botName) != null) {
 			processingError(client, "Bot name already assigned."
 					+ " Choose another!");
+			return;
 		}
 
 		final Bot bot = new Bot(botName, client.getAccount().getName(),
