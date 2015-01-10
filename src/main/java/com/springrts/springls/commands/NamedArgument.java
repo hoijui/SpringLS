@@ -25,9 +25,4 @@ package com.springrts.springls.commands;
  */
 public interface NamedArgument extends IndexedArgument {
 
-	/**
-	 * Returns the name of the argument.
-	 * @return the case sensitive name
-	 */
-	String getName();
 }

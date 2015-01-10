@@ -28,6 +28,13 @@ import com.springrts.springls.util.Parser;
 public interface IndexedArgument {
 
 	/**
+	 * Returns the name of the argument.
+	 * This should be a valid variable name matching "^[_a-zA-Z0-9]+$" (regex).
+	 * @return the case sensitive name
+	 */
+	String getName();
+
+	/**
 	 * Returns the type of the value of the argument.
 	 * Examples: String.class, Float.class, Integer.class
 	 * @return the value types class

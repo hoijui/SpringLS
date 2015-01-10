@@ -29,7 +29,7 @@ import java.net.InetAddress;
  * This is pretty much a reflection of the lobby protocol definition.
  * @author hoijui
  */
-public class Argument implements NamedArgument {
+public class Argument implements IndexedArgument {
 
 	private static final Parser<String, String> PARSER_NONE
 			= new Parser<String, String>() {
