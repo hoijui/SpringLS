@@ -765,12 +765,12 @@ public class Account implements Serializable, Cloneable {
 	 * only.
 	 * @see #setLastIp(InetAddress)
 	 */
-	public void setLastIpAsString(final String lastIp) {
+	public void setLastIpAsString(final String lastIpStr) {
 
-		if (lastIp.equals(NO_ACCOUNT_LAST_IP_STR)) {
+		if (lastIpStr.equals(NO_ACCOUNT_LAST_IP_STR)) {
 			this.lastIp = null;
 		} else {
-			this.lastIp = Misc.parseIp(lastIp);
+			this.lastIp = Misc.parseIp(lastIpStr);
 		}
 	}
 
