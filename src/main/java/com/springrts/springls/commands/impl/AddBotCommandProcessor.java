@@ -70,12 +70,12 @@ public class AddBotCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		if (!Bot.isValidName(botName)) {
-			client.sendLine("SERVERMSGBOX Bad bot name. Try another!");
+			client.sendLine("SERVERMSG Bad bot name. Try another!");
 			return false;
 		}
 
 		if (battle.getBot(botName) != null) {
-			client.sendLine("SERVERMSGBOX Bot name already assigned."
+			client.sendLine("SERVERMSG Bot name already assigned."
 					+ " Choose another!");
 			return false;
 		}

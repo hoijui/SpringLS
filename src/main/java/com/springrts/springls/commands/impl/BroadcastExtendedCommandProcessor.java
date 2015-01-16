@@ -46,7 +46,7 @@ public class BroadcastExtendedCommandProcessor extends AbstractCommandProcessor 
 		}
 
 		getContext().getClients().sendToAllRegisteredUsers(
-				"SERVERMSGBOX " + Misc.makeSentence(args, 0));
+				"SERVERMSG " + Misc.makeSentence(args, 0));
 
 		return true;
 	}
