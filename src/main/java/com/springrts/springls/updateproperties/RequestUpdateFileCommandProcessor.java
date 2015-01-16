@@ -19,11 +19,13 @@ package com.springrts.springls.updateproperties;
 
 
 import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * The client sends his current engine version, to request a suitable update
@@ -36,11 +38,15 @@ import java.util.List;
 public class RequestUpdateFileCommandProcessor extends AbstractCommandProcessor {
 
 	public RequestUpdateFileCommandProcessor() {
-		super(1, ARGS_MAX_NOCHECK);
+		super(new CommandArguments(
+				Collections.EMPTY_LIST, // words
+				new Argument("version")));
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -55,7 +61,7 @@ public class RequestUpdateFileCommandProcessor extends AbstractCommandProcessor 
 			return false;
 		}
 
-		final String version = Misc.makeSentence(args, 0);
+		final String version = (String)args.getSentences().get(0);
 		final UpdateProperties updateProperties = getService(UpdateProperties.class);
 		final String response = updateProperties.getResponse(version);
 

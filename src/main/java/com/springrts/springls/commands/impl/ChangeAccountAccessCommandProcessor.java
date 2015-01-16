@@ -22,9 +22,11 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.ServerNotification;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * @author hoijui
@@ -33,11 +35,17 @@ import java.util.List;
 public class ChangeAccountAccessCommandProcessor extends AbstractCommandProcessor {
 
 	public ChangeAccountAccessCommandProcessor() {
-		super(2, 2, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("username"),
+						new Argument("accessBits", Integer.class, Argument.PARSER_TO_INTEGER)),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -45,15 +53,8 @@ public class ChangeAccountAccessCommandProcessor extends AbstractCommandProcesso
 			return false;
 		}
 
-		final String username = args.get(0);
-		final String accessBitsString = args.get(1);
-
-		final int newAccessBifField;
-		try {
-			newAccessBifField = Integer.parseInt(accessBitsString);
-		} catch (NumberFormatException e) {
-			return false;
-		}
+		final String username = (String)args.getWords().get(0);
+		final int newAccessBifField = (Integer)args.getWords().get(1);
 
 		Account account
 				= getContext().getAccountsService().getAccount(username);

@@ -22,7 +22,10 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.accounts.AccountsService;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.util.List;
 import java.util.Properties;
@@ -40,12 +43,17 @@ import javax.mail.internet.MimeMessage;
 public class RecoverAccountCommandProcessor extends AbstractCommandProcessor {
 
 	public RecoverAccountCommandProcessor() {
-		super(1, 2, Account.Access.NONE);
-
+		super(
+				new CommandArguments(
+						new Argument("email"),
+						new Argument("username", true)),
+				Account.Access.NONE);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -53,15 +61,15 @@ public class RecoverAccountCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String email = args.get(0);
+		final String email = (String)args.getWords().get(0);
 		final String emailLower = email.toLowerCase();
 
 		final AccountsService accountsService = getContext().getAccountsService();
 		final List<Account> fittingAccounts = accountsService.findAccountsByEmail(emailLower);
 
 		if (!fittingAccounts.isEmpty()) {
-			if (args.size() > 1) {
-				final String username = args.get(1);
+			if (args.getWords().size() > 1) {
+				final String username = (String)args.getWords().get(1);
 				final Account toRecover = accountsService.getAccount(username);
 				if ((toRecover == null) || !fittingAccounts.contains(toRecover)) {
 					// the requested username does not exist,

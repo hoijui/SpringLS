@@ -20,11 +20,14 @@ package com.springrts.springls.commands.impl;
 
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.IndexedArgument;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * This command is used only for debugging purposes. It sends the string
@@ -35,11 +38,19 @@ import java.util.List;
 public class ForgeMessageCommandProcessor extends AbstractCommandProcessor {
 
 	public ForgeMessageCommandProcessor() {
-		super(2, ARGS_MAX_NOCHECK, Account.Access.ADMIN);
+		super(
+				new CommandArguments(Arrays.asList(new IndexedArgument[] {
+						new Argument("username")
+						}),
+						new Argument("message")
+						),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -47,10 +58,11 @@ public class ForgeMessageCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String username = args.get(0);
-		final String message = Misc.makeSentence(args, 1);
+		final String username = (String)args.getWords().get(0);
+		final String message = (String)args.getSentences().get(0);
 
-		final Client targetClient = getContext().getClients().getClient(username);
+		final Client targetClient
+				= getContext().getClients().getClient(username);
 		if (targetClient == null) {
 			return false;
 		}

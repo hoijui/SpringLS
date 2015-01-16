@@ -22,8 +22,11 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.util.List;
 
@@ -35,11 +38,18 @@ import java.util.List;
 public class RemoveScriptTagsCommandProcessor extends AbstractCommandProcessor {
 
 	public RemoveScriptTagsCommandProcessor() {
-		super(1, ARGS_MAX_NOCHECK, Account.Access.NORMAL, true, true);
+		super(
+				new CommandArguments(
+						new Argument("scriptTag")),
+				Account.Access.NORMAL,
+				true,
+				true);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
@@ -57,11 +67,12 @@ public class RemoveScriptTagsCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		final StringBuilder lowerKeyCommand = new StringBuilder("REMOVESCRIPTTAGS");
-		for (final String key : args) {
-			final String lowerKey = key.toLowerCase();
-			lowerKeyCommand.append(' ').append(lowerKey);
-			battle.getScriptTags().remove(lowerKey);
+		final StringBuilder lowerKeyCommand = new StringBuilder(getCommandName());
+		final List<String> scriptTags = (List<String>)args.getWords();
+		for (final String scriptTag : scriptTags) {
+			final String lowerKeyScriptTag = scriptTag.toLowerCase();
+			lowerKeyCommand.append(' ').append(lowerKeyScriptTag);
+			battle.getScriptTags().remove(lowerKeyScriptTag);
 		}
 
 		// relay the command

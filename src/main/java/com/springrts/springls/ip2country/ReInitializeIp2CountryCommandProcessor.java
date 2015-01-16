@@ -20,12 +20,14 @@ package com.springrts.springls.ip2country;
 
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.io.File;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * Lets an administrator re-initialize the internal IP2Country database from a
@@ -37,11 +39,17 @@ import java.util.List;
 public class ReInitializeIp2CountryCommandProcessor extends AbstractCommandProcessor {
 
 	public ReInitializeIp2CountryCommandProcessor() {
-		super(1, ARGS_MAX_NOCHECK, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						Collections.EMPTY_LIST,
+						new Argument("dataFileName")),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -49,7 +57,7 @@ public class ReInitializeIp2CountryCommandProcessor extends AbstractCommandProce
 			return false;
 		}
 
-		final String dataFileName = Misc.makeSentence(args, 0);
+		final String dataFileName = (String)args.getSentences().get(0);
 
 		final IP2Country service = getContext().getService(IP2Country.class);
 		if (service == null) {

@@ -23,9 +23,11 @@ import com.springrts.springls.Battle;
 import com.springrts.springls.Bot;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Removes a bot from the battle.
@@ -35,11 +37,17 @@ import java.util.List;
 public class RemoveBotCommandProcessor extends AbstractCommandProcessor {
 
 	public RemoveBotCommandProcessor() {
-		super(1, 1, Account.Access.NORMAL, true);
+		super(
+				new CommandArguments(
+						new Argument("botName")),
+				Account.Access.NORMAL,
+				true);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -49,7 +57,7 @@ public class RemoveBotCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		final String botName = args.get(0);
+		final String botName = (String)args.getWords().get(0);
 
 		final Bot bot = battle.getBot(botName);
 		if (bot == null) {

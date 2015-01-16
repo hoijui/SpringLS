@@ -22,10 +22,11 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Sent by a client that is battle host or lobby moderator,
@@ -36,11 +37,18 @@ import java.util.List;
 public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 
 	public ForceJoinBattleCommandProcessor() {
-		super(2, 3, Account.Access.NORMAL);
+		super(
+				new CommandArguments(
+						new Argument("userName"),
+						new Argument("destinationBattleId", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("battlePassword", true)),
+				Account.Access.NORMAL);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -48,7 +56,7 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String userName = args.get(0);
+		final String userName = (String)args.getWords().get(0);
 		final Client affectedClient = getContext().getClients().getClient(userName);
 		if (affectedClient == null) {
 			client.sendLine(String.format(
@@ -75,7 +83,8 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final int destinationBattleId;
+		final int destinationBattleId = (Integer)args.getWords().get(1);
+		TODO we need to send the below FORCEJOINBATTLEFAILED msg when parsing failes!;
 		final String destinationBattleIdStr = args.get(1);
 		try {
 			destinationBattleId = Integer.parseInt(destinationBattleIdStr);
@@ -107,8 +116,8 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		String battlePassword = null;
-		if (args.size() > 2) { // if optional battlePassword was set
-			battlePassword = args.get(2);
+		if (args.getWords().size() > 2) { // if optional battlePassword was set
+			battlePassword = (String)args.getWords().get(2);
 		}
 
 		final boolean clientSupportsCmd = affectedClient.getCompatFlags().contains("m"); // NOTE lobby protocol "0.35+ m"
@@ -126,9 +135,10 @@ public class ForceJoinBattleCommandProcessor extends AbstractCommandProcessor {
 			// Join the destination battle.
 			// We fake a JOINBATTLE command, as if it was sent
 			// by the affected client
-			final List<String> joinBattleArgs = new ArrayList<String>(1);
-			joinBattleArgs.add(destinationBattleIdStr);
-			getContext().getServerThread().executeCommand(affectedClient, "JOINBATTLE", joinBattleArgs);
+//			final List<String> joinBattleArgs = new ArrayList<String>(1);
+//			joinBattleArgs.add(destinationBattleIdStr);
+//			getContext().getServerThread().executeCommand(affectedClient, "JOINBATTLE", joinBattleArgs);
+			getContext().getServerThread().executeCommand(affectedClient, "JOINBATTLE", destinationBattleIdStr);
 		}
 
 		return true;

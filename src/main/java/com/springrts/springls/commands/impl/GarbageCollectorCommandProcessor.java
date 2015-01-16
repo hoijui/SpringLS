@@ -22,8 +22,8 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Allows an administrator to force-run the garbage collector, to possibly free
@@ -35,11 +35,13 @@ import java.util.List;
 public class GarbageCollectorCommandProcessor extends AbstractCommandProcessor {
 
 	public GarbageCollectorCommandProcessor() {
-		super(0, 0, Account.Access.ADMIN);
+		super(Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);

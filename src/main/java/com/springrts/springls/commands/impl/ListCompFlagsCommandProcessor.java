@@ -21,8 +21,8 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Sent by client after TASSERVER, to figure out which compatibility flags
@@ -36,7 +36,9 @@ public class ListCompFlagsCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -45,7 +47,9 @@ public class ListCompFlagsCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		final StringBuilder compFlagsCommand = new StringBuilder("COMPFLAGS");
-		for (final String compFlag : getContext().getServer().getSupportedCompFlags()) {
+		for (final String compFlag
+				: getContext().getServer().getSupportedCompFlags())
+		{
 			compFlagsCommand.append(' ').append(compFlag);
 		}
 

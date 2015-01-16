@@ -22,10 +22,12 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.net.InetAddress;
-import java.util.List;
 
 /**
  * Sent by a client trying to join a battle. Password is an optional parameter.
@@ -35,11 +37,18 @@ import java.util.List;
 public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 
 	public JoinBattleCommandProcessor() {
-		super(1, ARGS_MAX_NOCHECK, Account.Access.NORMAL);
+		super(
+				new CommandArguments(
+						new Argument("battleId", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("password", true),
+						new Argument("scriptPassword", true)),
+				Account.Access.NORMAL);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -47,8 +56,7 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String battleIdStr = args.get(0);
-
+		final int battleID = (Integer)args.getWords().get(0);
 		final int battleID;
 		try {
 			battleID = Integer.parseInt(battleIdStr);
@@ -72,12 +80,12 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		if (battle.restricted()) {
-			if (args.size() < 2) {
+			if (args.getWords().size() < 2) {
 				client.sendLine("JOINBATTLEFAILED Password required");
 				return false;
 			}
 
-			final String password = args.get(1);
+			final String password = (String)args.getWords().get(1);
 
 			if (!battle.getPassword().equals(password)) {
 				client.sendLine("JOINBATTLEFAILED Invalid password");
@@ -90,8 +98,8 @@ public class JoinBattleCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		if (args.size() > 2) {
-			final String scriptPassword = args.get(2);
+		if (args.getWords().size() > 2) {
+			final String scriptPassword = (String)args.getWords().get(2);
 			client.setScriptPassword(scriptPassword);
 		}
 

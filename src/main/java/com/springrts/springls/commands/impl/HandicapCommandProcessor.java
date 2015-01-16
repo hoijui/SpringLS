@@ -22,9 +22,11 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Sent by founder of the battle changing username's handicap value
@@ -37,12 +39,19 @@ import java.util.List;
 public class HandicapCommandProcessor extends AbstractCommandProcessor {
 
 	public HandicapCommandProcessor() {
-		// only the founder can change handicap value of another user
-		super(2, 2, Account.Access.NORMAL, true, true);
+		super(
+				new CommandArguments(
+						new Argument("username"),
+						new Argument("handicap", Integer.class, Argument.PARSER_TO_INTEGER)),
+				Account.Access.NORMAL,
+				true,
+				true); // only the founder can
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -52,15 +61,9 @@ public class HandicapCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		final String username = args.get(0);
-		final String handicapStr = args.get(1);
+		final String username = (String)args.getWords().get(0);
+		final int handicap = (Integer)args.getWords().get(1);
 
-		final int handicap;
-		try {
-			handicap = Integer.parseInt(handicapStr);
-		} catch (final NumberFormatException ex) {
-			return false;
-		}
 		// FIXME: handicap can be [-100, float_max], common: [-100, 100]
 		if ((handicap < 0) || (handicap > 100)) {
 			return false;

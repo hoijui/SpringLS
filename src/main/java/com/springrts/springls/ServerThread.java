@@ -19,9 +19,11 @@ package com.springrts.springls;
 
 
 import com.springrts.springls.accounts.AccountsService;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.CommandProcessor;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.floodprotection.FloodProtectionService;
 import com.springrts.springls.nat.NatHelpServer;
 import com.springrts.springls.util.ProtocolUtil;
@@ -38,13 +40,12 @@ import java.nio.channels.SocketChannel;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.PatternSyntaxException;
+import java.util.regex.Pattern;
 import org.apache.commons.configuration.Configuration;
 
 import org.slf4j.Logger;
@@ -113,6 +114,7 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	private final ByteBuffer readBuffer;
 	private final List<Updateable> updateables;
 	private UpdateableTracker updateableTracker;
+	private final Pattern messageIdCommandPattern;
 
 
 	public ServerThread() {
@@ -121,6 +123,8 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 		this.context = null;
 		this.readBuffer = ByteBuffer.allocateDirect(READ_BUFFER_SIZE);
 		this.updateables = new ArrayList<Updateable>();
+		this.messageIdCommandPattern = Pattern.compile("^#\\d+\\s[\\s\\S]*"); // XXX maybe matches too much, and should only check for the actual message ID part, to save CPU cycles?
+//		this.messageIdCommandPattern = Pattern.compile("^#\\d+ ");
 	}
 
 	private static void add(
@@ -321,6 +325,27 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 		}
 	}
 
+	private CommandProcessor fetchCommandProcessor(
+			final Client client,
+			final String commandName)
+			throws CommandProcessingException
+	{
+		final CommandProcessor cmdProcessor
+				= getContext().getCommandProcessors().get(commandName);
+		if (cmdProcessor == null) {
+			if (deprecatedCommands.containsKey(commandName)) {
+				final DeprecatedCommand deprecatedCommand
+						= deprecatedCommands.get(commandName);
+				client.sendLine(String.format(
+						"SERVERMSG Command %s is deprecated: %s",
+						deprecatedCommand.getName(),
+						deprecatedCommand.getMessage()));
+			} //else { /* unknown command! */ }
+		}
+
+		return cmdProcessor;
+	}
+
 	/**
 	 * Executes a command as if it was received from a certain client.
 	 * Note: this method is not synchronized!
@@ -334,49 +359,62 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	 */
 	public boolean executeCommand(final String command, final Client client) {
 
-		String commandClean = command.trim();
-		if (commandClean.isEmpty()) {
-			return false;
-		}
-
 		if (LOG.isTraceEnabled()) {
 			LOG.trace("[<-{}] \"{}\"",
 					(client.getAccount().getAccess() != Account.Access.NONE)
 						? client.getAccount().getName()
 						: client.getIp().getHostAddress(),
-					commandClean);
+					command);
 		}
 
-		int msgId = Client.NO_MSG_ID;
-		if (commandClean.charAt(0) == '#') {
+		final String commandClean = command.trim();
+		if (commandClean.isEmpty()) {
+			return false;
+		}
+
+		final boolean hasMsgId = (commandClean.charAt(0) == '#');
+		final int msgId;
+		final int nameStartIndex;
+		if (hasMsgId) {
+			final int msgEndIndex = commandClean.indexOf(' ');
+			if (msgEndIndex == -1) {
+				return false; // no command name after message ID
+			} else {
+				nameStartIndex = msgEndIndex + 1;
+			}
+			if (!messageIdCommandPattern.matcher(commandClean).matches()) {
+				return false; // malformed command
+			}
+
+			final String msgIdStr = commandClean.substring(1, msgEndIndex);
 			try {
-				if (!commandClean.matches("^#\\d+\\s[\\s\\S]*")) {
-					return false; // malformed command
-				}
-				msgId = Integer.parseInt(commandClean.substring(1).split("\\s")[0]);
-				// remove id field from the rest of command:
-				commandClean = commandClean.replaceFirst("#\\d+\\s", "");
+				msgId = Integer.parseInt(msgIdStr);
 			} catch (final NumberFormatException ex) {
 				return false; // this means that the command is malformed
-			} catch (final PatternSyntaxException ex) {
-				return false; // this means that the command is malformed
 			}
+		} else {
+			msgId = Client.NO_MSG_ID;
+			nameStartIndex = 0;
 		}
 
-		// parse command into tokens:
-		final String[] commands = commandClean.split(" ");
-		commands[0] = commands[0].toUpperCase();
-
-		final List<String> args = new ArrayList<String>(Arrays.asList(commands));
-		args.remove(0); // remvoe the command-name
+		int nameEndIndex = commandClean.indexOf(' ', nameStartIndex);
+		int argsStartIndex = nameEndIndex;
+		if (nameEndIndex == -1) { // no arguments
+			nameEndIndex = commandClean.length();
+		} else {
+			argsStartIndex++;
+		}
+		final String commandName
+				= commandClean.substring(nameStartIndex, nameEndIndex)
+						.toUpperCase();
 
 		try {
-			return executeCommand(client, msgId, commands[0], args);
+			return executeCommand(client, msgId, commandName, commandClean, argsStartIndex);
 		} catch (final CommandProcessingException ex) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Failed to handle command from client \""
 						+ client.toString() +"\": \""
-						+ Misc.makeSentence(commands) + "\"",
+						+ commandClean + "\"",
 						ex);
 			}
 			return false;
@@ -384,62 +422,113 @@ public class ServerThread implements ContextReceiver, LiveStateListener, Updatea
 	}
 
 	/**
+	 * Executes an already half-way parsed command,
+	 * as if it was received from a certain client.
+	 * Note: this method is not synchronized!
+	 * Note2: this method may be called recursively!
+	 * @param client the client for which the command should be executed
+	 *   /which sent the command
+	 * @param msgId an ID associated to a consecutive few commands,
+	 *   to logically group them together
+	 * @param commandName the plain text command name to be executed for the
+	 *   client, in all upper case
+	 * @param commandClean the plain text command to be executed for the client,
+	 *   already trimmed
+	 * @param argsStartIndex the starting index of arguments in commandClean,
+	 *   or -1, if there are none
+	 * @return <code>true</code> if the command is valid and was executed
+	 *   successfully, <code>false</code> otherwise
+	 * @throws CommandProcessingException if the command failed to be processed
+	 */
+	private boolean executeCommand(
+			final Client client,
+			final int msgId,
+			final String commandName,
+			final String commandClean,
+			final int argsStartIndex)
+			throws CommandProcessingException
+	{
+		final CommandProcessor cmdProcessor
+				= fetchCommandProcessor(client, commandName);
+		if (cmdProcessor == null) {
+			// unknown command!
+			return false;
+		}
+		final CommandArguments cmdArgs = cmdProcessor.getArguments();
+
+		// parse command args
+		final ParsedCommandArguments parsedArgs
+				= cmdArgs.parse(client, commandClean, argsStartIndex);
+
+		try {
+			return executeCommand(client, msgId, cmdProcessor, parsedArgs);
+		} catch (final CommandProcessingException ex) {
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("Failed to handle command from client \""
+						+ client.toString() +"\": \""
+						+ commandClean + "\"",
+						ex);
+			}
+			return false;
+		}
+	}
+
+
+	/**
 	 * Executes a command for a certain client.
 	 * Note: this method is not synchronized!
 	 * Note2: this method may be called recursively!
 	 * @param client the client for which the command should be executed
 	 *   /which sent the command
+	 * @param msgId an ID associated to a consecutive few commands,
+	 *   to logically group them together
 	 * @param commandName the plain text command name to be executed for the
-	 *   client
+	 *   client, in all upper case
 	 * @param args the command arguments, in order
 	 * @return <code>true</code> if the command is valid and was executed
 	 *   successfully, <code>false</code> otherwise
+	 * @throws CommandProcessingException if the command failed to be processed
 	 */
-	public boolean executeCommand(
+	private boolean executeCommand(
 			final Client client,
 			final int msgId,
-			final String commandName,
-			final List<String> args)
+			final CommandProcessor cmdProcessor,
+			final ParsedCommandArguments parsedArgs)
 			throws CommandProcessingException
 	{
 		client.setSendMsgId(msgId);
 
 		try {
-			final CommandProcessor cmdProcessor
-					= getContext().getCommandProcessors().get(commandName);
-			if (cmdProcessor != null) {
-				final boolean ret = cmdProcessor.process(client, args);
-				if (!ret) {
-					return false;
-				}
-			} else if (deprecatedCommands.containsKey(commandName)) {
-				final DeprecatedCommand deprecatedCommand
-						= deprecatedCommands.get(commandName);
-				client.sendLine(String.format(
-						"SERVERMSG Command %s is deprecated: %s",
-						deprecatedCommand.getName(),
-						deprecatedCommand.getMessage()));
-			} else {
-				// unknown command!
-				return false;
-			}
+			return cmdProcessor.process(client, parsedArgs);
 		} finally {
 			client.setSendMsgId(Client.NO_MSG_ID);
 		}
-
-		return true;
 	}
 
-	/**
-	 * @see #executeCommand(Client, int, String, List)
-	 */
+//	/**
+//	 * @see #executeCommand(Client, int, String, List)
+//	 */
+//	public boolean executeCommand(
+//			final Client client,
+//			final String commandName,
+//			final List<String> args)
+//			throws CommandProcessingException
+//	{
+//		return executeCommand(client, Client.NO_MSG_ID, commandName, args);
+//	}
+
 	public boolean executeCommand(
 			final Client client,
 			final String commandName,
-			final List<String> args)
+			final String args)
 			throws CommandProcessingException
 	{
-		return executeCommand(client, Client.NO_MSG_ID, commandName, args);
+		return executeCommand(
+				client,
+				Client.NO_MSG_ID, // XXX maybe this should be client.getSendMsgId() instead?
+				commandName,
+				args,
+				0);
 	}
 
 	@Override

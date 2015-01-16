@@ -21,9 +21,11 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Will change or, in case there was none previously associated,
@@ -34,11 +36,17 @@ import java.util.List;
 public class ChangeEmailCommandProcessor extends AbstractCommandProcessor {
 
 	public ChangeEmailCommandProcessor() {
-		super(1, 2, Account.Access.NORMAL);
+		super(
+				new CommandArguments(
+						new Argument("newEmail"),
+						new Argument("username", true)),
+				Account.Access.NORMAL);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -46,11 +54,11 @@ public class ChangeEmailCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String newEmail = args.get(0);
+		final String newEmail = (String)args.getWords().get(0);
 
 		Account toChange = client.getAccount();
-		if (args.size() > 1) {
-			final String username = args.get(1);
+		if (args.getWords().size() > 1) {
+			final String username = (String)args.getWords().get(1);
 			toChange = getContext().getAccountsService().getAccount(username);
 			if (toChange == null) {
 				client.sendLine(String.format(

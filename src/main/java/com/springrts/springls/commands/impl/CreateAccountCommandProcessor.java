@@ -21,10 +21,12 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * @author hoijui
@@ -33,11 +35,17 @@ import java.util.List;
 public class CreateAccountCommandProcessor extends AbstractCommandProcessor {
 
 	public CreateAccountCommandProcessor() {
-		super(2, 2, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("userName"),
+						new Argument("password")),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
@@ -51,8 +59,8 @@ public class CreateAccountCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String username = args.get(0);
-		final String password = args.get(1);
+		final String username = (String)args.getWords().get(0);
+		final String password = (String)args.getWords().get(1);
 
 		String valid = Account.isOldUsernameValid(username);
 		if (valid != null) {

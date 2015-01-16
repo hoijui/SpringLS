@@ -21,9 +21,11 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * @author hoijui
@@ -32,11 +34,16 @@ import java.util.List;
 public class GetLastIpCommandProcessor extends AbstractCommandProcessor {
 
 	public GetLastIpCommandProcessor() {
-		super(1, 1, Account.Access.PRIVILEGED);
+		super(
+				new CommandArguments(
+						new Argument("username")),
+				Account.Access.PRIVILEGED);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -44,7 +51,7 @@ public class GetLastIpCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String username = args.get(0);
+		final String username = (String)args.getWords().get(0);
 
 		final Account acc = getContext().getAccountsService().getAccount(username);
 		if (acc == null) {

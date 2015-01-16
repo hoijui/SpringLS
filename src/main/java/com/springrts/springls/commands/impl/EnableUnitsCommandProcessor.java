@@ -22,7 +22,10 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.util.List;
 
@@ -36,12 +39,19 @@ import java.util.List;
 public class EnableUnitsCommandProcessor extends AbstractCommandProcessor {
 
 	public EnableUnitsCommandProcessor() {
-		// only the founder can disable/enable units
-		super(1, ARGS_MAX_NOCHECK, Account.Access.NORMAL, true, true);
+		super(
+				new CommandArguments(
+						true,
+						new Argument("unitName")),
+				Account.Access.NORMAL,
+				true,
+				true); // only the founder can
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -51,12 +61,13 @@ public class EnableUnitsCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		for (final String unit : args) {
+		final List<String> unitNames = (List<String>)args.getWords();
+		for (final String unit : unitNames) {
 			// will ignore it if string is not found in the list
 			battle.getDisabledUnits().remove(unit);
 		}
 
-		battle.sendToAllExceptFounder(reconstructFullCommand(args));
+		battle.sendToAllExceptFounder(args.getFullCommand());
 
 		return true;
 	}

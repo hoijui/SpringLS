@@ -21,9 +21,13 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -41,7 +45,12 @@ public class SayBattleCommandProcessor extends AbstractSayCommandProcessor {
 	private final String returnCommandName;
 
 	protected SayBattleCommandProcessor(final String returnCommandName) {
-		super(1, ARGS_MAX_NOCHECK, Account.Access.NORMAL, true);
+		super(
+				new CommandArguments(
+						Collections.EMPTY_LIST,
+						new Argument("message")),
+				Account.Access.NORMAL,
+				true);
 
 		this.returnCommandName = returnCommandName;
 	}
@@ -51,7 +60,9 @@ public class SayBattleCommandProcessor extends AbstractSayCommandProcessor {
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -61,7 +72,7 @@ public class SayBattleCommandProcessor extends AbstractSayCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		final String message = Misc.makeSentence(args, 0);
+		final String message = (String)args.getSentences().get(0);
 
 		checkFlooding(client, message);
 

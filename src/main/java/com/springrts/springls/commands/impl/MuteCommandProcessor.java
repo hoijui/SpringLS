@@ -22,10 +22,12 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Channel;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.net.InetAddress;
-import java.util.List;
 
 /**
  * @author hoijui
@@ -34,11 +36,19 @@ import java.util.List;
 public class MuteCommandProcessor extends AbstractCommandProcessor {
 
 	public MuteCommandProcessor() {
-		super(3, ARGS_MAX_NOCHECK, Account.Access.PRIVILEGED);
+		super(
+				new CommandArguments(
+						new Argument("chanelName"),
+						new Argument("username"),
+						new Argument("minutes", Long.class, Argument.PARSER_TO_LONG),
+						new Argument("option", true)),
+				Account.Access.PRIVILEGED);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -46,8 +56,8 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String chanelName = args.get(0);
-		final String username = args.get(1);
+		final String chanelName = (String)args.getWords().get(0);
+		final String username = (String)args.getWords().get(1);
 
 		final Channel chan = getContext().getChannels().getChannel(chanelName);
 		if (chan == null) {
@@ -73,8 +83,8 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 		}
 
 		boolean muteByIP = false;
-		if (args.size() > 3) {
-			final String option = args.get(3);
+		if (args.getWords().size() > 3) {
+			final String option = (String)args.getWords().get(3);
 			if (option.toUpperCase().equals("IP")) {
 				muteByIP = true;
 			} else {
@@ -85,7 +95,7 @@ public class MuteCommandProcessor extends AbstractCommandProcessor {
 			}
 		}
 
-		final long minutes;
+		final long minutes = (Long)args.getWords().get(2);
 		try {
 			minutes = Long.parseLong(args.get(2));
 		} catch (final NumberFormatException ex) {

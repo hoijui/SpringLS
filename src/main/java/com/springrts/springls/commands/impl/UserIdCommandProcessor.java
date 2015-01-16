@@ -22,10 +22,12 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.ServerNotification;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Allows a user to set a new user ID for himself.
@@ -36,11 +38,16 @@ import java.util.List;
 public class UserIdCommandProcessor extends AbstractCommandProcessor {
 
 	public UserIdCommandProcessor() {
-		super(1, 1, Account.Access.NORMAL);
+		super(
+				new CommandArguments(
+						new Argument("userId", Integer.class, Argument.PARSER_TO_INTEGER)),
+				Account.Access.NORMAL);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
@@ -61,8 +68,7 @@ public class UserIdCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String userIdStr = args.get(0);
-
+		final int userId = (Integer)args.getWords().get(0);
 		int userId = Account.NO_USER_ID;
 		try {
 			final long tempUserId = Long.parseLong(userIdStr, 16);

@@ -22,9 +22,11 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.ServerNotification;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * @author hoijui
@@ -34,11 +36,17 @@ public class ChangeAccountPasswordCommandProcessor
 		extends AbstractCommandProcessor
 {
 	public ChangeAccountPasswordCommandProcessor() {
-		super(2, 2, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("username"),
+						new Argument("password")),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -46,8 +54,8 @@ public class ChangeAccountPasswordCommandProcessor
 			return false;
 		}
 
-		final String username = args.get(0);
-		final String password = args.get(1);
+		final String username = (String)args.getWords().get(0);
+		final String password = (String)args.getWords().get(1);
 
 		final Account account
 				= getContext().getAccountsService().getAccount(username);

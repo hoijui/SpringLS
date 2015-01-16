@@ -22,10 +22,12 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.net.InetAddress;
-import java.util.List;
 
 /**
  * Disconnects a currently online client (specified by IP) from the server
@@ -36,11 +38,16 @@ import java.util.List;
 public class KillIpCommandProcessor extends AbstractCommandProcessor {
 
 	public KillIpCommandProcessor() {
-		super(1, 1, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("ipAddress")),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -52,7 +59,7 @@ public class KillIpCommandProcessor extends AbstractCommandProcessor {
 		//   by specifying a radix like "192.168.*.*".
 		//   Support for this has been removed.
 		//   You now have to explicitly specify the IP.
-		final String ipAddress = args.get(0);
+		final String ipAddress = (String)args.getWords().get(0);
 
 		final InetAddress addr = Misc.parseIp(ipAddress);
 		if (addr == null) {

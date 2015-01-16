@@ -37,15 +37,13 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	private static final Account.Access ACCESS_NOCHECK = null;
 	private Context context;
 	private final String commandName;
-	private final int argsMin;
-	private final int argsMax;
+	private final CommandArguments arguments;
 	private final Account.Access accessMin;
 	private final boolean battleRequired;
 	private final boolean battleFounderRequired;
 
 	protected AbstractCommandProcessor(
-			final int argsMin,
-			final int argsMax,
+			final CommandArguments arguments,
 			final Account.Access accessMin,
 			final boolean battleRequired,
 			final boolean battleFounderRequired)
@@ -53,50 +51,95 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 		this.context = null;
 		this.commandName
 				= CommandProcessors.extractCommandName(this.getClass());
-		this.argsMin = argsMin;
-		this.argsMax = argsMax;
+		this.arguments = arguments;
 		this.accessMin = accessMin;
 		this.battleRequired = battleRequired;
 		this.battleFounderRequired = battleFounderRequired;
-		if (battleFounderRequired && !battleRequired) {
-			throw new IllegalArgumentException("The client can never be founder"
-					+ " of a battle but not in a battle");
-		}
+//		this.argsNamed = new HashSet<NamedArgument>(Arrays.asList(argsNamed));
+//		if (battleFounderRequired && !battleRequired) {
+//			throw new IllegalArgumentException("The client can never be founder"
+//					+ " of a battle but not in a battle");
+//		}
+//		if ((argsWordMin > argsWordMax) && (argsWordMax != ARGS_MAX_NOCHECK)) {
+//			throw new IllegalArgumentException("The minimium amount of word"
+//					+ " arguments can not be bigger then the maximum");
+//		}
+//		if ((argsSentenceMin > argsSentenceMax)
+//				&& (argsSentenceMax != ARGS_MAX_NOCHECK))
+//		{
+//			throw new IllegalArgumentException("The minimium amount of sentence"
+//					+ " arguments can not be bigger then the maximum");
+//		}
+//		if ((argsWordMin != argsWordMax) && (argsSentenceMax != 0)) {
+//			throw new IllegalArgumentException("Due to arguments separators"
+//					+ " (SPACE for words, TAB for sentences),"
+//					+ " it is not possible to use sentence arguments together"
+//					+ " with a variable ammount of word arguments");
+//		}
+//		if (!this.argsNamed.isEmpty() && !usingNamedArguments) {
+//			throw new IllegalArgumentException("Named arguments are given,"
+//					+ " but we are told to not use named arguments");
+//		}
+//		if (usingNamedArguments && ((argsWordMax > 0) || (argsSentenceMax > 0)))
+//		{
+//			throw new IllegalArgumentException("Named arguments can not be"
+//					+ " mixed with indexed (word and/or sentence) arguments");
+//		}
 	}
 	protected AbstractCommandProcessor(
-			final int argsMin,
-			final int argsMax,
+			final CommandArguments arguments,
 			final Account.Access accessMin,
 			final boolean battleRequired)
 	{
-		this(argsMin, argsMax, accessMin, battleRequired, false);
+		this(
+				arguments,
+				accessMin,
+				battleRequired,
+				false);
 	}
 	protected AbstractCommandProcessor(
-			final int argsMin,
-			final int argsMax,
+			final Account.Access accessMin,
+			final boolean battleRequired,
+			final boolean battleFounderRequired)
+	{
+		this(
+				new CommandArguments(false),
+				accessMin,
+				battleRequired,
+				battleFounderRequired);
+	}
+	protected AbstractCommandProcessor(
+			final CommandArguments arguments,
 			final Account.Access accessMin)
 	{
-		this(argsMin, argsMax, accessMin, false);
+		this(
+				arguments,
+				accessMin,
+				false,
+				false);
 	}
 	protected AbstractCommandProcessor(
 			final Account.Access accessMin,
 			final boolean battleRequired)
 	{
-		this(ARGS_MIN_NOCHECK, ARGS_MAX_NOCHECK, accessMin, battleRequired);
+		this(
+				accessMin,
+				battleRequired,
+				false);
 	}
-	protected AbstractCommandProcessor(final int argsMin, final int argsMax) {
-		this(argsMin, argsMax, ACCESS_NOCHECK);
+	protected AbstractCommandProcessor(final CommandArguments arguments) {
+		this(arguments, ACCESS_NOCHECK);
 	}
 	protected AbstractCommandProcessor(final Account.Access accessMin) {
-		this(ARGS_MIN_NOCHECK, ARGS_MAX_NOCHECK, accessMin);
+		this(new CommandArguments(false), accessMin);
 	}
 	protected AbstractCommandProcessor() {
-		this(ARGS_MIN_NOCHECK, ARGS_MAX_NOCHECK);
+		this(new CommandArguments(false));
 	}
 
 	@Override
-	public boolean isUsingNamedArguments() {
-		return false;
+	public CommandArguments getArguments() {
+		return this.arguments;
 	}
 
 	@Override
@@ -119,6 +162,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	/**
 	 * Returns the name of the command supported by this processor.
 	 * @see SupportedCommand
+	 * @return command name extracted from the {@link SupportedCommand} annotation
 	 */
 	public String getCommandName() {
 		return this.commandName;
@@ -126,7 +170,9 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 
 	/**
 	 * Returns the command as it was given to the server.
+	 * @param args the arguments of the command
 	 * @return command-name + " " + arg0 + " " + arg1 ...
+	 * @deprecated unused
 	 */
 	public String reconstructFullCommand(final List<String> args) {
 
@@ -139,14 +185,46 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 		return fullCommand.toString();
 	}
 
-	/** Returns the minimum number of arguments supported by the command */
-	public int getArgsMin() {
-		return this.argsMin;
-	}
-	/** Returns the maximum number of arguments supported by the command */
-	public int getArgsMax() {
-		return this.argsMax;
-	}
+//	/**
+//	 * Returns the minimum number of word arguments required by the command.
+//	 * @return
+//	 */
+//	public int getArgsWordMin() {
+//		return this.argsWordMin;
+//	}
+//
+//	/**
+//	 * Returns the maximum number of word arguments supported by the command.
+//	 * @return
+//	 */
+//	public int getArgsWordMax() {
+//		return this.argsWordMax;
+//	}
+//
+//	/**
+//	 * Returns the minimum number of sentence arguments required by the command.
+//	 * @return
+//	 */
+//	public int getArgsSentenceMin() {
+//		return this.argsSentenceMin;
+//	}
+//
+//	/**
+//	 * Returns the maximum number of sentence arguments supported by the command.
+//	 * @return
+//	 */
+//	public int getArgsSentenceMax() {
+//		return this.argsSentenceMax;
+//	}
+//
+//	/**
+//	 * Returns the named arguments supported by this command, though there can be others,
+//	 * which will be ignored.
+//	 * @return all named arguments supported by this command
+//	 */
+//	public Set<NamedArgument> getArgsNamed() {
+//		return this.argsNamed;
+//	}
 
 	/**
 	 * Returns the minimum access right required to execute the command.
@@ -178,6 +256,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 
 	/**
 	 * Returns whether the client is currently in a battle.
+	 * @param client to find the battle for
 	 * @return true if the client is currently in a battle.
 	 */
 	protected Battle getBattle(final Client client) {
@@ -185,7 +264,8 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 	}
 
 	/**
-	 * Returns whether the client is currently in a battle.
+	 * Checks whether the client is currently in a battle.
+	 * @param client to check if it is currently in a battle
 	 * @return true if the client is currently in a battle.
 	 */
 	protected boolean isInBattle(final Client client) {
@@ -194,6 +274,7 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 
 	/**
 	 * Returns whether the client is currently founder of a battle.
+	 * @param client to check if it is the battles founder
 	 * @return true if the client is currently founder of a battle.
 	 */
 	protected boolean isBattleFounder(final Client client) {
@@ -205,9 +286,13 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 
 	/**
 	 * Perform common checks.
+	 * @param client
+	 * @param args
 	 */
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		if ((getAccessMin() != ACCESS_NOCHECK)
@@ -219,22 +304,22 @@ public abstract class AbstractCommandProcessor implements CommandProcessor {
 					client.getAccount().getAccess());
 		}
 
-		if ((getArgsMin() != ARGS_MIN_NOCHECK)
-				&& (args.size() < getArgsMin()))
-		{
-			throw new TooFewArgumentsCommandProcessingException(
-					getCommandName(),
-					getArgsMin(),
-					args.size());
-		}
-		if ((getArgsMax() != ARGS_MAX_NOCHECK)
-				&& (args.size() > getArgsMax()))
-		{
-			throw new TooManyArgumentsCommandProcessingException(
-					getCommandName(),
-					getArgsMax(),
-					args.size());
-		}
+//		if ((getArgsMin() != ARGS_MIN_NOCHECK)
+//				&& (args.size() < getArgsMin()))
+//		{
+//			throw new TooFewArgumentsCommandProcessingException(
+//					getCommandName(),
+//					getArgsMin(),
+//					args.size());
+//		}
+//		if ((getArgsMax() != ARGS_MAX_NOCHECK)
+//				&& (args.size() > getArgsMax()))
+//		{
+//			throw new TooManyArgumentsCommandProcessingException(
+//					getCommandName(),
+//					getArgsMax(),
+//					args.size());
+//		}
 
 		if (isBattleFounderRequired() && !isBattleFounder(client)) {
 			throw new CommandProcessingException(getCommandName(),

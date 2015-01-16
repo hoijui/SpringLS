@@ -22,11 +22,12 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import com.springrts.springls.util.ProtocolUtil;
 import java.awt.Color;
-import java.util.List;
 
 /**
  * Sent by the founder of the battle when he is trying to force some other
@@ -38,12 +39,19 @@ import java.util.List;
 public class ForceTeamColorCommandProcessor extends AbstractCommandProcessor {
 
 	public ForceTeamColorCommandProcessor() {
-		// only the founder can force the team color
-		super(2, 2, Account.Access.NORMAL, true, true);
+		super(
+				new CommandArguments(
+						new Argument("username"),
+						new Argument("color", Color.class, Argument.PARSER_TO_COLOR)),
+				Account.Access.NORMAL,
+				true,
+				true); // only the founder can
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -53,13 +61,8 @@ public class ForceTeamColorCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		final String username = args.get(0);
-		final String colorStr = args.get(1);
-
-		final Color color = ProtocolUtil.colorSpringStringToJava(colorStr);
-		if (color == null) {
-			return false;
-		}
+		final String username = (String)args.getWords().get(0);
+		final Color color = (Color)args.getWords().get(1);
 
 		final Client target = getContext().getClients().getClient(username);
 		if (target == null) {

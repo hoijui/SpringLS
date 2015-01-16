@@ -23,11 +23,13 @@ import com.springrts.springls.Battle;
 import com.springrts.springls.Bot;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import com.springrts.springls.util.ProtocolUtil;
 import java.awt.Color;
-import java.util.List;
 
 /**
  * Sent by client when he is trying to update status of one of his own bots
@@ -38,11 +40,19 @@ import java.util.List;
 public class UpdateBotCommandProcessor extends AbstractCommandProcessor {
 
 	public UpdateBotCommandProcessor() {
-		super(3, 3, Account.Access.NORMAL, true);
+		super(
+				new CommandArguments(
+						new Argument("botName"),
+						new Argument("battleStatus", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("teamColor", Color.class, Argument.PARSER_TO_COLOR)),
+				Account.Access.NORMAL,
+				true);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -52,26 +62,14 @@ public class UpdateBotCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		final String botName = args.get(0);
-		final String battleStatusStr = args.get(1);
-		final String teamColorStr = args.get(2);
+		final String botName = (String)args.getWords().get(0);
+		final int battleStatus = (Integer)args.getWords().get(1);
+		final Color teamColor = (Color)args.getWords().get(2);
 		// TODO needs protocol change
-		//final String specifier = Misc.makeSentence(args, 3);
+		//final String specifier = (String)args.getSentence().get(0);
 
 		final Bot bot = battle.getBot(botName);
 		if (bot == null) {
-			return false;
-		}
-
-		final int battleStatus;
-		try {
-			battleStatus = Integer.parseInt(battleStatusStr);
-		} catch (final NumberFormatException ex) {
-			return false;
-		}
-
-		final Color teamColor = ProtocolUtil.colorSpringStringToJava(teamColorStr);
-		if (teamColor == null) {
 			return false;
 		}
 

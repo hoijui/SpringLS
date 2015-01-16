@@ -23,7 +23,7 @@ import com.springrts.springls.ContextReceiver;
 import java.util.List;
 
 /**
- * A Command processor is responsible to handle a single type of command,
+ * A Command processor is responsible for handling a single type of command,
  * specified by {@link SupportedCommand}.
  * @author hoijui
  */
@@ -34,18 +34,24 @@ public interface CommandProcessor extends ContextReceiver {
 	 */
 	String NAME_PROPERTY = "Command-Name";
 
+//	/**
+//	 * Indicates whether this command uses named or indexed arguments.
+//	 * Only some of the newer commands use named arguments,
+//	 * and usually only the ones not used very frequently.
+//	 * Named arguments cost a bit of extra bandwidth,
+//	 * but make it easier for protocol changes to be backwards compatible.
+//	 * For more details about named arguments,
+//	 * please see the protocol description.
+//	 * @return true if the command uses named arguments,
+//	 *   false if it uses indexed arguments
+//	 */
+//	boolean isUsingNamedArguments();
+
 	/**
-	 * Indicates whether this command uses named or indexed arguments.
-	 * Only some of the newer commands use named arguments,
-	 * and usually only the ones not used very frequently.
-	 * Named arguments cost a bit of extra bandwidth,
-	 * but make it easier for protocol changes to be backwards compatible.
-	 * For more details about named arguments,
-	 * please see the protocol description.
-	 * @return true if the command uses named arguments,
-	 *   false if it uses indexed arguments
+	 * Returns a description of the arguments supported by this command.
+	 * @return supported arguments constellation
 	 */
-	boolean isUsingNamedArguments();
+	CommandArguments getArguments();
 
 	/**
 	 * Process one call of the command.
@@ -55,6 +61,6 @@ public interface CommandProcessor extends ContextReceiver {
 	 *   name its self
 	 * @return true, if the command was valid and successfully executed
 	 */
-	boolean process(Client client, List<String> args)
+	boolean process(Client client, ParsedCommandArguments args)
 			throws CommandProcessingException;
 }

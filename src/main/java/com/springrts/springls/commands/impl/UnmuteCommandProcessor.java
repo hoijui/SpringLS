@@ -22,9 +22,11 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Channel;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * @author hoijui
@@ -33,11 +35,17 @@ import java.util.List;
 public class UnmuteCommandProcessor extends AbstractCommandProcessor {
 
 	public UnmuteCommandProcessor() {
-		super(2, 2, Account.Access.PRIVILEGED);
+		super(
+				new CommandArguments(
+						new Argument("chanelName"),
+						new Argument("username")),
+				Account.Access.PRIVILEGED);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -45,8 +53,8 @@ public class UnmuteCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String chanelName = args.get(0);
-		final String username = args.get(1);
+		final String chanelName = (String)args.getWords().get(0);
+		final String username = (String)args.getWords().get(1);
 
 		final Channel chan = getContext().getChannels().getChannel(chanelName);
 		if (chan == null) {

@@ -22,6 +22,7 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Channel;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
 
 import org.slf4j.Logger;
@@ -37,19 +38,17 @@ public abstract class AbstractSayCommandProcessor
 			= LoggerFactory.getLogger(AbstractSayCommandProcessor.class);
 
 	protected AbstractSayCommandProcessor(
-			final int argsMin,
-			final int argsMax,
+			final CommandArguments arguments,
 			final Account.Access accessMin,
 			final boolean battleRequired)
 	{
-		super(argsMin, argsMax, accessMin, battleRequired);
+		super(arguments, accessMin, battleRequired);
 	}
 	protected AbstractSayCommandProcessor(
-			final int argsMin,
-			final int argsMax,
+			final CommandArguments arguments,
 			final Account.Access accessMin)
 	{
-		super(argsMin, argsMax, accessMin);
+		super(arguments, accessMin);
 	}
 
 	protected void checkFlooding(final Client client, final String message)

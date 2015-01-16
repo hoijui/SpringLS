@@ -21,9 +21,11 @@ package com.springrts.springls.motd;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +42,15 @@ public class UpdateMotdCommandProcessor extends AbstractCommandProcessor {
 			= LoggerFactory.getLogger(UpdateMotdCommandProcessor.class);
 
 	public UpdateMotdCommandProcessor() {
-		super(1, 1, Account.Access.ADMIN);
+		super(
+				new CommandArguments(new Argument("motdFileName")),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -52,7 +58,7 @@ public class UpdateMotdCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String motdFileName = args.get(0);
+		final String motdFileName = (String)args.getWords().get(0);
 
 		final MessageOfTheDay messageOfTheDay
 				= getContext().getService(MessageOfTheDay.class);

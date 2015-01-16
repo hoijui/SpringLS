@@ -23,9 +23,11 @@ import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.StartRect;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Sent by host of the battle removing a start rectangle for 'allyno' ally team.
@@ -36,11 +38,18 @@ import java.util.List;
 public class RemoveStartRectCommandProcessor extends AbstractCommandProcessor {
 
 	public RemoveStartRectCommandProcessor() {
-		super(1, 1, Account.Access.NORMAL, true, true);
+		super(
+				new CommandArguments(
+						new Argument("allyNumber", Integer.class, Argument.PARSER_TO_INTEGER)),
+				Account.Access.NORMAL,
+				true,
+				true);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -50,7 +59,7 @@ public class RemoveStartRectCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		final int allyno;
+		final int allyno = (Integer)args.getWords().get(0);
 		try {
 			allyno = Integer.parseInt(args.get(0));
 		} catch (final NumberFormatException ex) {

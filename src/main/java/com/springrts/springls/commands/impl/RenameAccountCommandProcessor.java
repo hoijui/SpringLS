@@ -21,13 +21,15 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.ServerConfiguration;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.ServerNotification;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * Allows a user to change his username.
@@ -37,11 +39,17 @@ import java.util.List;
 public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 
 	public RenameAccountCommandProcessor() {
-		super(1, 1, Account.Access.NORMAL);
+		super(
+				new CommandArguments(
+						Collections.EMPTY_LIST,
+						new Argument("newUsername")),
+				Account.Access.NORMAL);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
@@ -57,7 +65,7 @@ public class RenameAccountCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String newUsername = Misc.makeSentence(args, 0);
+		final String newUsername = (String)args.getSentences().get(0);
 
 		if (getConfiguration().getBoolean(ServerConfiguration.LAN_MODE)) {
 			client.sendLine(String.format(

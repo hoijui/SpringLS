@@ -22,8 +22,8 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Lets an administrator save the statistics from memory to persistent storage.
@@ -33,11 +33,13 @@ import java.util.List;
 public class UpdateStatisticsCommandProcessor extends AbstractCommandProcessor {
 
 	public UpdateStatisticsCommandProcessor() {
-		super(0, 0, Account.Access.ADMIN);
+		super(Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);

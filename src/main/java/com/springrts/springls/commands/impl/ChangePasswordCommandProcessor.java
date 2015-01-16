@@ -22,10 +22,12 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.ServerConfiguration;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Allows a user to change his password.
@@ -35,11 +37,17 @@ import java.util.List;
 public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 
 	public ChangePasswordCommandProcessor() {
-		super(2, 2, Account.Access.NORMAL);
+		super(
+				new CommandArguments(
+						new Argument("oldPassword"),
+						new Argument("newPassword")),
+				Account.Access.NORMAL);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
@@ -56,8 +64,8 @@ public class ChangePasswordCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String oldPassword = args.get(0);
-		final String newPassword = args.get(1);
+		final String oldPassword = (String)args.getWords().get(0);
+		final String newPassword = (String)args.getWords().get(1);
 
 		if (getConfiguration().getBoolean(ServerConfiguration.LAN_MODE)) {
 			client.sendLine(String.format(

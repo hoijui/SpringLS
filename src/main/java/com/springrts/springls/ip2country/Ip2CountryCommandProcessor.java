@@ -22,11 +22,14 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import com.springrts.springls.util.ProtocolUtil;
 import java.net.InetAddress;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * Lets an administrator convert an IP into a (2-chars wide) country code.
@@ -37,11 +40,16 @@ import java.util.List;
 public class Ip2CountryCommandProcessor extends AbstractCommandProcessor {
 
 	public Ip2CountryCommandProcessor() {
-		super(1, 1, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("inetAddress", InetAddress.class, Argument.PARSER_TO_INET_ADDRESS)),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -49,10 +57,8 @@ public class Ip2CountryCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String ipAddress = args.get(0);
-
-		final InetAddress addr = Misc.parseIp(ipAddress);
-		if (addr == null) {
+		final InetAddress address = (InetAddress)args.getWords().get(0);
+		if (address == null) {
 			client.sendLine("SERVERMSG Invalid IP address/range: " + ipAddress);
 			return false;
 		}
@@ -60,7 +66,7 @@ public class Ip2CountryCommandProcessor extends AbstractCommandProcessor {
 		String country = ProtocolUtil.COUNTRY_UNKNOWN;
 		final IP2Country service = getContext().getService(IP2Country.class);
 		if (service != null) {
-			country = service.getCountryCode(addr);
+			country = service.getCountryCode(address);
 		}
 
 		client.sendLine("SERVERMSG Country = " + country);

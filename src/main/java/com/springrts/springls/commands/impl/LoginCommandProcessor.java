@@ -28,8 +28,12 @@ import com.springrts.springls.ServerNotification;
 import com.springrts.springls.agreement.Agreement;
 import com.springrts.springls.bans.BanService;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.IndexedArgument;
 import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import com.springrts.springls.motd.MessageOfTheDay;
 import com.springrts.springls.util.ProtocolUtil;
@@ -73,7 +77,17 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 	private final List<FailedLoginAttempt> failedLoginAttempts;
 
 	public LoginCommandProcessor() {
-		super(5, ARGS_MAX_NOCHECK);
+		super(
+				new CommandArguments(Arrays.asList(new IndexedArgument[] {
+						new Argument("username"),
+						new Argument("password"),
+						new Argument("cpu", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("localIp")
+						}),
+						new Argument("lobbyVersion"),
+						new Argument("userId"/*, Long.class, Argument.PARSER_TO_LONG*/, true),
+						new Argument("compFlags", true)
+						));
 
 		// TODO cleanup nicely at server shutdown?
 		failedLoginsPurger = new Timer("Failed Login Purger");
@@ -83,7 +97,9 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
@@ -102,7 +118,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			return false; // user with accessLevel > 0 can not re-login
 		}
 
-		final String username = args.get(0);
+		final String username = (String)args.getWords().get(0);
 
 		if (!getContext().getServer().isLoginEnabled()
 				&& getContext().getAccountsService().getAccount(username)
@@ -112,29 +128,25 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String args2str = Misc.makeSentence(args, 4);
-
-		final List<String> args2 =  Arrays.asList(args2str.split("\t"));
-
-		return processInner(client, args, args2);
+		return processInner(client, args);
 	}
 
 	private boolean processInner(
 			final Client client,
-			final List<String> args1,
-			final List<String> args2)
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
-		final String username = args1.get(0);
-		final String lobbyVersion = args2.get(0);
+		final String username = (String)args.getWords().get(0);
+		final String lobbyVersion = (String)args.getSentences().get(0);
 
 		int compFlagsIndex = 2;
 
 		int userId = Account.NO_USER_ID;
-		if (args2.size() > 1) {
+		if (args.getSentences().size() > 1) {
 			try {
+				final String userIdStr = (String)args.getSentences().get(1);
 				// we transform unsigned 32 bit integer to a signed one
-				userId = (int) Long.parseLong(args2.get(1), 16);
+				userId = (int) Long.parseLong(userIdStr, 16);
 			} catch (NumberFormatException ex) {
 				// We assume that the userID field was left out,
 				// as it is optional, and consider compFlags to be at index 1.
@@ -144,9 +156,9 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 
 		// NOTE even if the login attempt fails later on, the compatibility
 		//   flags will have an effect
-		if (args2.size() > compFlagsIndex) {
+		if (args.getSentences().size() > compFlagsIndex) {
 			// prepare the compatibility flags (space separated)
-			final String compatFlagsStr = Misc.makeSentence(args2, compFlagsIndex);
+			final String compatFlagsStr = (String)args.getSentences().get(2);
 			final String[] compatFlagsSplit = compatFlagsStr.split(" ");
 			final List<String> compatFlags
 					= new ArrayList<String>(compatFlagsSplit.length + 1);
@@ -164,9 +176,9 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			client.setCompatFlags(compatFlags);
 		}
 
-		final String password = args1.get(1);
+		final String password = (String)args.getWords().get(1);
 
-		final int cpu;
+		final int cpu = (Integer)args.getWords().get(2);
 		try {
 			cpu = Integer.parseInt(args1.get(2));
 		} catch (final NumberFormatException ex) {
@@ -174,7 +186,7 @@ public class LoginCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String localIpStr = args1.get(3);
+		final String localIpStr = (String)args.getWords().get(3);
 
 		final InetAddress localIp;
 		if (localIpStr.equals("*")) {

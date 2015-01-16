@@ -22,9 +22,11 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Sent by the founder the of the battle when he is trying to force some other
@@ -36,12 +38,19 @@ import java.util.List;
 public class ForceTeamNumberCommandProcessor extends AbstractCommandProcessor {
 
 	public ForceTeamNumberCommandProcessor() {
-		// only the founder can force the team number
-		super(2, 2, Account.Access.NORMAL, true, true);
+		super(
+				new CommandArguments(
+						new Argument("username"),
+						new Argument("teamNumber", Integer.class, Argument.PARSER_TO_INTEGER)),
+				Account.Access.NORMAL,
+				true,
+				true); // only the founder can
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -51,15 +60,9 @@ public class ForceTeamNumberCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		final String username = args.get(0);
-		final String teamNumberStr = args.get(1);
+		final String username = (String)args.getWords().get(0);
+		final int teamNumber = (Integer)args.getWords().get(1);
 
-		final int teamNumber;
-		try {
-			teamNumber = Integer.parseInt(teamNumberStr);
-		} catch (NumberFormatException ex) {
-			return false;
-		}
 		if ((teamNumber < 0)
 				|| (teamNumber > getContext().getEngine().getMaxTeams() - 1))
 		{

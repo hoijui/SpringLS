@@ -21,11 +21,13 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.List;
 
 /**
  * Lets an administrator set the server-wide char-set.
@@ -35,11 +37,15 @@ import java.util.List;
 public class ChangeCharsetCommandProcessor extends AbstractCommandProcessor {
 
 	public ChangeCharsetCommandProcessor() {
-		super(1, 1, Account.Access.ADMIN);
+		super(
+				new CommandArguments(new Argument("charset")),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -47,7 +53,7 @@ public class ChangeCharsetCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String charset = args.get(0);
+		final String charset = (String)args.getWords().get(0);
 
 		try {
 			getContext().getServer().setCharset(charset);

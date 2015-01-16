@@ -20,9 +20,12 @@ package com.springrts.springls.commands.impl;
 
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * @author hoijui
@@ -31,10 +34,16 @@ import java.util.List;
 public class ExitCommandProcessor extends AbstractCommandProcessor {
 
 	public ExitCommandProcessor() {
+		super(
+				new CommandArguments(
+						Collections.EMPTY_LIST,
+						new Argument("reason", true)));
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -42,7 +51,10 @@ public class ExitCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String reason = args.isEmpty() ? "Clean exit" : args.get(0);
+		final String reason
+				= args.getSentences().isEmpty()
+				? "Clean exit"
+				: (String)args.getSentences().get(0);
 
 		getContext().getClients().killClient(client, reason);
 

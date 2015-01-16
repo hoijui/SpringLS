@@ -21,27 +21,35 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Lets an administrator convert a long representing a date into a human
  * readable form.
+ * NOTE This command is SpringLS specific, not part of the official lobby protocol!
  * @author hoijui
  */
 @SupportedCommand("LONGTIMETODATE")
 public class LongTimeToDateCommandProcessor extends AbstractCommandProcessor {
 
 	public LongTimeToDateCommandProcessor() {
-		super(1, 1, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("time", Long.class, Argument.PARSER_TO_LONG)),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -49,11 +57,12 @@ public class LongTimeToDateCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final long time;
+		final long time = (Long) args.getWords().get(0);
 		try {
 			time = Long.parseLong(args.get(0));
 		} catch (final Exception ex) {
-			client.sendLine("SERVERMSG LONGTIMETODATE failed: invalid argument.");
+			client.sendLine("SERVERMSG " + getCommandName()
+					+ " failed: invalid argument."); // TODO remove final '.'
 			return false;
 		}
 
@@ -62,7 +71,9 @@ public class LongTimeToDateCommandProcessor extends AbstractCommandProcessor {
 		final DateFormat dateTimeFormat
 				= new SimpleDateFormat("d MMM yyyy HH:mm:ss z");
 
-		client.sendLine(String.format("SERVERMSG LONGTIMETODATE result: %s",
+		client.sendLine(String.format(
+				"SERVERMSG %s result: %s",
+				getCommandName(),
 				dateTimeFormat.format(new Date(time))));
 
 		return true;

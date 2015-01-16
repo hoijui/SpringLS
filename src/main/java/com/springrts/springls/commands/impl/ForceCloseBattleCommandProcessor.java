@@ -22,9 +22,11 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * @author hoijui
@@ -33,11 +35,16 @@ import java.util.List;
 public class ForceCloseBattleCommandProcessor extends AbstractCommandProcessor {
 
 	public ForceCloseBattleCommandProcessor() {
-		super(1, 1, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("battleId", Integer.class, Argument.PARSER_TO_INTEGER)),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -45,15 +52,15 @@ public class ForceCloseBattleCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final int battleID;
-		try {
-			battleID = Integer.parseInt(args.get(0));
-		} catch (final NumberFormatException ex) {
-			client.sendLine("SERVERMSG Invalid BattleID!");
-			return false;
-		}
+		final int battleId = (Integer)args.getWords().get(0);
+//		try {
+//			battleId = Integer.parseInt(args.get(0));
+//		} catch (final NumberFormatException ex) {
+//			client.sendLine("SERVERMSG Invalid BattleID!");
+//			return false;
+//		}
 
-		final Battle battle = getContext().getBattles().getBattleByID(battleID);
+		final Battle battle = getContext().getBattles().getBattleByID(battleId);
 		if (battle == null) {
 			client.sendLine("SERVERMSG Error: unknown BATTLE_ID!");
 			return false;

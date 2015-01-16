@@ -21,12 +21,14 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Allows an administrator fetch the date of registration of an account.
@@ -37,11 +39,16 @@ public class GetRegistrationDateCommandProcessor
 		extends AbstractCommandProcessor
 {
 	public GetRegistrationDateCommandProcessor() {
-		super(1, 1, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("username")),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -49,7 +56,7 @@ public class GetRegistrationDateCommandProcessor
 			return false;
 		}
 
-		final String userName = args.get(0);
+		final String userName = (String)args.getWords().get(0);
 
 		final Account account
 				= getContext().getAccountsService().getAccount(userName);

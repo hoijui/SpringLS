@@ -24,11 +24,12 @@ import com.springrts.springls.Client;
 import com.springrts.springls.util.Processor;
 import com.springrts.springls.TeamController;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import com.springrts.springls.util.ProtocolUtil;
 import java.awt.Color;
-import java.util.List;
 
 /**
  * Sent by a client to the server telling him his status in the battle changed.
@@ -38,11 +39,18 @@ import java.util.List;
 public class MyBattleStatusCommandProcessor extends AbstractCommandProcessor {
 
 	public MyBattleStatusCommandProcessor() {
-		super(2, 2, Account.Access.NORMAL, true);
+		super(
+				new CommandArguments(
+						new Argument("newBattleStatus", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("teamColor", Color.class, Argument.PARSER_TO_COLOR)),
+				Account.Access.NORMAL,
+				true);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -52,20 +60,8 @@ public class MyBattleStatusCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		final String newBattleStatusStr = args.get(0);
-		final String teamColorStr = args.get(1);
-
-		final int newBattleStatus;
-		try {
-			newBattleStatus = Integer.parseInt(newBattleStatusStr);
-		} catch (NumberFormatException ex) {
-			return false;
-		}
-
-		final Color newTeamColor = ProtocolUtil.colorSpringStringToJava(teamColorStr);
-		if (newTeamColor == null) {
-			return false;
-		}
+		final int newBattleStatus = (Integer)args.getWords().get(0);
+		final Color newTeamColor = (Color)args.getWords().get(1);
 
 		return setBattleStatus(client, battle, newBattleStatus, newTeamColor);
 	}

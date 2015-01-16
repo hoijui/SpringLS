@@ -20,10 +20,13 @@ package com.springrts.springls.commands.impl;
 
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.IndexedArgument;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
+import java.util.Arrays;
 
 
 /**
@@ -37,7 +40,12 @@ public class SayPrivateCommandProcessor extends AbstractSayCommandProcessor {
 	private final String returnCommandName;
 
 	protected SayPrivateCommandProcessor(final String returnCommandName) {
-		super(2, ARGS_MAX_NOCHECK, Account.Access.NORMAL);
+		super(
+				new CommandArguments(Arrays.asList(new IndexedArgument[] {
+						new Argument("channelName")
+						}),
+						new Argument("message")),
+				Account.Access.NORMAL);
 
 		this.returnCommandName = returnCommandName;
 	}
@@ -47,7 +55,9 @@ public class SayPrivateCommandProcessor extends AbstractSayCommandProcessor {
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -55,8 +65,8 @@ public class SayPrivateCommandProcessor extends AbstractSayCommandProcessor {
 			return false;
 		}
 
-		final String channelName = args.get(0);
-		final String message = Misc.makeSentence(args, 1);
+		final String channelName = (String)args.getWords().get(0);
+		final String message = (String)args.getSentences().get(0);
 
 		final Client target = getContext().getClients().getClient(channelName);
 		if (target == null) {
@@ -70,7 +80,7 @@ public class SayPrivateCommandProcessor extends AbstractSayCommandProcessor {
 				client.getAccount().getName(),
 				message));
 		// echo the command. See protocol description!
-		client.sendLine(getCommandName() + " " + Misc.makeSentence(args, 0));
+		client.sendLine(args.getFullCommand());
 
 		return true;
 	}

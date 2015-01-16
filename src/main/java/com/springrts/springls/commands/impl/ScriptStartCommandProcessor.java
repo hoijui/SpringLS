@@ -23,8 +23,8 @@ import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Sent by client who is hosting a battle replay game indicating he is now
@@ -43,11 +43,13 @@ import java.util.List;
 public class ScriptStartCommandProcessor extends AbstractCommandProcessor {
 
 	public ScriptStartCommandProcessor() {
-		super(0, 0, Account.Access.NORMAL, true);
+		super(Account.Access.NORMAL, true);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);

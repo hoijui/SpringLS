@@ -22,9 +22,11 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +44,16 @@ public class MyStatusCommandProcessor extends AbstractCommandProcessor {
 			= LoggerFactory.getLogger(MyStatusCommandProcessor.class);
 
 	public MyStatusCommandProcessor() {
-		super(1, 1, Account.Access.NORMAL);
+		super(
+				new CommandArguments(
+						new Argument("newStatus", Integer.class, Argument.PARSER_TO_INTEGER)),
+				Account.Access.NORMAL);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -54,14 +61,7 @@ public class MyStatusCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String newStatusStr = args.get(0);
-
-		final int newStatus;
-		try {
-			newStatus = Integer.parseInt(newStatusStr);
-		} catch (final NumberFormatException ex) {
-			return false;
-		}
+		final int newStatus = (Integer)args.getWords().get(0);
 
 		final boolean oldInGame = client.isInGame();
 

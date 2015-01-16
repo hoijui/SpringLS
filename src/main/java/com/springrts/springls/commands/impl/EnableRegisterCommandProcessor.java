@@ -21,10 +21,11 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import com.springrts.springls.util.ProtocolUtil;
-import java.util.List;
 
 /**
  * @author hoijui
@@ -33,11 +34,16 @@ import java.util.List;
 public class EnableRegisterCommandProcessor extends AbstractCommandProcessor {
 
 	public EnableRegisterCommandProcessor() {
-		super(Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("enableRegistration", Boolean.class, Argument.PARSER_TO_BOOLEAN, true)),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -45,9 +51,8 @@ public class EnableRegisterCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		if (args.size() == 1) {
-			final boolean enableRegistration
-					= ProtocolUtil.numberToBool(Byte.parseByte(args.get(0)));
+		if (!args.getWords().isEmpty()) {
+			final boolean enableRegistration = (Boolean)args.getWords().get(0);
 			getContext().getAccountsService()
 					.setRegistrationEnabled(enableRegistration);
 		}

@@ -21,12 +21,15 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.IndexedArgument;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import com.springrts.springls.util.ProtocolUtil;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * Sent by server to all registered clients telling them some of the parameters
@@ -38,12 +41,22 @@ import java.util.List;
 public class UpdateBattleInfoCommandProcessor extends AbstractCommandProcessor {
 
 	public UpdateBattleInfoCommandProcessor() {
-		// only the founder may change battle parameters!
-		super(4, ARGS_MAX_NOCHECK, Account.Access.NORMAL, true, true);
+		super(
+				new CommandArguments(Arrays.asList(new IndexedArgument[] {
+						new Argument("spectatorCount", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("locked", Boolean.class, Argument.PARSER_TO_BOOLEAN),
+						new Argument("mapHash")
+						}),
+						new Argument("mapName")),
+				Account.Access.NORMAL,
+				true,
+				true); // only the founder can
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -53,17 +66,13 @@ public class UpdateBattleInfoCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		final String spectatorCountStr = args.get(0);
-		final String lockedStr = args.get(1);
-		final String mapHashStr = args.get(2);
-		final String mapName = Misc.makeSentence(args, 3);
+		final int spectatorCount = (Integer)args.getWords().get(0);
+		final boolean locked = (Boolean)args.getWords().get(1);
+		final String mapHashStr = (String)args.getWords().get(2);
+		final String mapName = (String)args.getSentences().get(0);
 
-		int spectatorCount = 0;
-		boolean locked;
 		int maphash;
 		try {
-			spectatorCount = Integer.parseInt(spectatorCountStr);
-			locked = ProtocolUtil.numberToBool(Byte.parseByte(lockedStr));
 			maphash = Integer.decode(mapHashStr);
 		} catch (NumberFormatException ex) {
 			return false;

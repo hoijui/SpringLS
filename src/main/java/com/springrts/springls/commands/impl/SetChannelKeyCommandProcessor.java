@@ -22,9 +22,11 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Channel;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Lets a moderator set the key of a channel.
@@ -35,11 +37,17 @@ import java.util.List;
 public class SetChannelKeyCommandProcessor extends AbstractCommandProcessor {
 
 	public SetChannelKeyCommandProcessor() {
-		super(2, 2, Account.Access.PRIVILEGED);
+		super(
+				new CommandArguments(
+						new Argument("channelName"),
+						new Argument("key")),
+				Account.Access.PRIVILEGED);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -47,8 +55,8 @@ public class SetChannelKeyCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String channelName = args.get(0);
-		final String key = args.get(1);
+		final String channelName = (String)args.getWords().get(0);
+		final String key = (String)args.getWords().get(1);
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {

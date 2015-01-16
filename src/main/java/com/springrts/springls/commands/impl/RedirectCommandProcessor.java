@@ -23,10 +23,12 @@ import com.springrts.springls.Client;
 import com.springrts.springls.util.Misc;
 import com.springrts.springls.ServerNotification;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
 import java.net.InetAddress;
-import java.util.List;
 
 /**
  * @author hoijui
@@ -35,11 +37,16 @@ import java.util.List;
 public class RedirectCommandProcessor extends AbstractCommandProcessor {
 
 	public RedirectCommandProcessor() {
-		super(1, 1, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("redirectIp")),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -47,7 +54,7 @@ public class RedirectCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String redirectIpStr = args.get(0);
+		final String redirectIpStr = (String)args.getWords().get(0);
 		final InetAddress redirectIp = Misc.parseIp(redirectIpStr);
 		if (redirectIp == null) {
 			return false;

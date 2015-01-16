@@ -21,12 +21,15 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Channel;
 import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.IndexedArgument;
 import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * Lets a moderator kick a client from a channel.
@@ -37,11 +40,20 @@ public class ForceLeaveChannelCommandProcessor
 		extends AbstractCommandProcessor
 {
 	public ForceLeaveChannelCommandProcessor() {
-		super(2, ARGS_MAX_NOCHECK, Account.Access.PRIVILEGED);
+		super(
+				new CommandArguments(Arrays.asList(new IndexedArgument[] {
+						new Argument("channelName"),
+						new Argument("username")
+						}),
+						new Argument("reason", true)
+						),
+				Account.Access.PRIVILEGED);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
@@ -56,8 +68,8 @@ public class ForceLeaveChannelCommandProcessor
 			return false;
 		}
 
-		final String channelName = args.get(0);
-		final String username = args.get(1);
+		final String channelName = (String)args.getWords().get(0);
+		final String username = (String)args.getWords().get(1);
 
 		final Channel chan = getContext().getChannels().getChannel(channelName);
 		if (chan == null) {
@@ -82,8 +94,8 @@ public class ForceLeaveChannelCommandProcessor
 		}
 
 		String reason = null;
-		if (args.size() > 2) {
-			reason = Misc.makeSentence(args, 2);
+		if (!args.getSentences().isEmpty()) {
+			reason = (String)args.getSentences().get(0);
 		}
 
 		chan.broadcast(String.format("<%s> has kicked <%s> from the channel%s",

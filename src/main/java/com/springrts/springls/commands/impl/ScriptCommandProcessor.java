@@ -21,11 +21,13 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
+import java.util.Collections;
 
 /**
  * Sent by client who previously sent SCRIPTSTART command.
@@ -39,11 +41,18 @@ import java.util.List;
 public class ScriptCommandProcessor extends AbstractCommandProcessor {
 
 	public ScriptCommandProcessor() {
-		super(Account.Access.NORMAL, true);
+		super(
+				new CommandArguments(
+						Collections.EMPTY_LIST,
+						new Argument("scriptLine")),
+				Account.Access.NORMAL,
+				true);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -53,7 +62,8 @@ public class ScriptCommandProcessor extends AbstractCommandProcessor {
 
 		final Battle battle = getBattle(client);
 
-		battle.getTempReplayScript().add(Misc.makeSentence(args, 0));
+		final String scriptLine = (String)args.getSentences().get(0);
+		battle.getTempReplayScript().add(scriptLine);
 
 		return true;
 	}

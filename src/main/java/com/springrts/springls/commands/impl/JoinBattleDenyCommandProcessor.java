@@ -21,11 +21,14 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.IndexedArgument;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * Sent by client in response to a JOINBATTLEREQUEST command in order to prevent
@@ -36,12 +39,21 @@ import java.util.List;
 public class JoinBattleDenyCommandProcessor extends AbstractCommandProcessor {
 
 	public JoinBattleDenyCommandProcessor() {
-		// only the founder can deny a battle join
-		super(1, ARGS_MAX_NOCHECK, Account.Access.NORMAL, true, true);
+		super(
+				new CommandArguments(Arrays.asList(new IndexedArgument[] {
+						new Argument("username")
+						}),
+						new Argument("reason", true)
+						),
+				Account.Access.NORMAL,
+				true,
+				true); // only the founder can
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -49,7 +61,7 @@ public class JoinBattleDenyCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String username = args.get(0);
+		final String username = (String)args.getWords().get(0);
 		final Client joiningClient = getContext().getClients().getClient(username);
 		if (joiningClient == null) {
 			return false;
@@ -58,8 +70,8 @@ public class JoinBattleDenyCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 		joiningClient.setRequestedBattleID(Battle.NO_BATTLE_ID);
-		if (args.size() > 1) {
-			final String reason = Misc.makeSentence(args, 1);
+		if (!args.getSentences().isEmpty()) {
+			final String reason = (String)args.getSentences().get(0);
 			joiningClient.sendLine("JOINBATTLEFAILED Denied by battle founder"
 					+ " - " + reason);
 		} else {

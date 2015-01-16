@@ -22,10 +22,16 @@ import com.springrts.springls.Account;
 import com.springrts.springls.Battle;
 import com.springrts.springls.Client;
 import com.springrts.springls.Clients;
+import com.springrts.springls.ServerConfiguration;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.IndexedArgument;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
+import java.util.Arrays;
+import org.apache.commons.configuration.Configuration;
 
 /**
  * @author hoijui
@@ -34,11 +40,86 @@ import java.util.List;
 public class OpenBattleCommandProcessor extends AbstractCommandProcessor {
 
 	public OpenBattleCommandProcessor() {
-		super(Account.Access.NORMAL);
+		super(
+				new CommandArguments(Arrays.asList(new IndexedArgument[] {
+						new Argument("type", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("natType", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("password"),
+						new Argument("port", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("maxPlayers", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("hash", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("rank", Integer.class, Argument.PARSER_TO_INTEGER),
+						new Argument("maphash", Integer.class, Argument.PARSER_TO_INTEGER)
+						}),
+						new Argument("engineName", true),
+						new Argument("engineVersion", true),
+						new Argument("mapName"),
+						new Argument("title"),
+						new Argument("gameName")
+						),
+				Account.Access.NORMAL);
+	}
+
+	/**
+	 * Creates new Battle object from a command that client sent to server.
+	 * This method parses the command 's', and tries to read
+	 * battle attributes from it.
+	 * @return the created battle or 'null' on failure
+	 */
+	private Battle createBattleFromString(final ParsedCommandArguments args, final Client founder) {
+
+		final String pass = (String)args.getWords().get(2);
+		if (!pass.equals("*") && !pass.matches("^[A-Za-z0-9_]+$")) {
+			// invalid characters in the password
+			return null;
+		}
+
+		final int type = (Integer)args.getWords().get(0);
+		final int natType = (Integer)args.getWords().get(1);
+		// args.getWords().get(2) is password
+		final int port = (Integer)args.getWords().get(3);
+		final int maxPlayers = (Integer)args.getWords().get(4);
+		final int hash = (Integer)args.getWords().get(5);
+		final int rank = (Integer)args.getWords().get(6);
+		final int maphash = (Integer)args.getWords().get(7);
+
+		final boolean engineArgs = founder.getCompatFlags().contains("cl"); // NOTE lobby protocol "0.36+ cl"
+
+		final int requiredSentences = engineArgs ? 5 : 3; // NOTE lobby protocol "0.36+ cl"
+		if (args.getSentences().size() != requiredSentences) {
+			return null;
+		}
+		int sentenceIndex = 0;
+		final String engineName;
+		final String engineVersion;
+		if (engineArgs) {
+			engineName = (String)args.getSentences().get(sentenceIndex++); // For example: 'my spring'
+			engineVersion = (String)args.getSentences().get(sentenceIndex++); // For example: '94.1.1-1062-g9d16c2d develop'
+		} else {
+			engineName = "spring"; // default; the same value uberserver uses
+			final Configuration conf = getContext().getService(Configuration.class);
+			engineVersion = conf.getString(ServerConfiguration.ENGINE_VERSION);
+		}
+		final String mapName = (String)args.getSentences().get(sentenceIndex++);
+		final String title = (String)args.getSentences().get(sentenceIndex++);
+		final String gameName = (String)args.getSentences().get(sentenceIndex++);
+
+		if ((type < 0) || (type > 1)) {
+			return null;
+		}
+		if ((natType < 0) || (natType > 2)) {
+			return null;
+		}
+
+		return new Battle(type, natType, founder, pass, port,
+				maxPlayers, hash, rank, maphash, mapName, title, gameName,
+				engineName, engineVersion);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -51,8 +132,7 @@ public class OpenBattleCommandProcessor extends AbstractCommandProcessor {
 					);
 			return false;
 		}
-		final Battle battle = getContext().getBattles().createBattleFromString(
-				args, client);
+		final Battle battle = createBattleFromString(args, client);
 		if (battle == null) {
 			client.sendLine("OPENBATTLEFAILED Invalid command format or bad"
 					+ " arguments");

@@ -21,9 +21,11 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Sent by a client that is battle host or lobby moderator,
@@ -36,11 +38,18 @@ import java.util.List;
 public class ConnectUserCommandProcessor extends AbstractCommandProcessor {
 
 	public ConnectUserCommandProcessor() {
-		super(2, 3, Account.Access.NORMAL);
+		super(
+				new CommandArguments(
+						new Argument("userName"),
+						new Argument("ipAndPort"),
+						new Argument("scriptPassword", true)),
+				Account.Access.NORMAL);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -48,7 +57,7 @@ public class ConnectUserCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String userName = args.get(0);
+		final String userName = (String)args.getWords().get(0);
 		final Client affectedClient
 				= getContext().getClients().getClient(userName);
 		if (affectedClient == null) {
@@ -76,9 +85,12 @@ public class ConnectUserCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String ipAndPort = args.get(1);
+		final String ipAndPort = (String)args.getWords().get(1);
 
-		final String scriptPassword = (args.size() > 1) ? args.get(2) : null;
+		final String scriptPassword
+				= (args.getWords().size() > 1)
+				? (String)args.getWords().get(2)
+				: null;
 
 		final String successResponseMessage = (scriptPassword == null)
 				? String.format("CONNECTUSER %s", ipAndPort)

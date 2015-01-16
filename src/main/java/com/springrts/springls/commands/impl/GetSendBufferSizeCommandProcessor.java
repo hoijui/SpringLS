@@ -21,10 +21,12 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Client;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
 import com.springrts.springls.commands.InvalidNumberOfArgumentsCommandProcessingException;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
 
 /**
  * Lets an administrator fetch the size of the send-buffer for a specific
@@ -35,11 +37,16 @@ import java.util.List;
 public class GetSendBufferSizeCommandProcessor extends AbstractCommandProcessor {
 
 	public GetSendBufferSizeCommandProcessor() {
-		super(1, 1, Account.Access.ADMIN);
+		super(
+				new CommandArguments(
+						new Argument("username")),
+				Account.Access.ADMIN);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		boolean checksOk = false;
@@ -53,7 +60,7 @@ public class GetSendBufferSizeCommandProcessor extends AbstractCommandProcessor 
 			return false;
 		}
 
-		final String username = args.get(0);
+		final String username = (String)args.getWords().get(0);
 
 		final Client c = getContext().getClients().getClient(username);
 		if (c == null) {

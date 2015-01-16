@@ -21,11 +21,14 @@ package com.springrts.springls.commands.impl;
 import com.springrts.springls.Account;
 import com.springrts.springls.Channel;
 import com.springrts.springls.Client;
-import com.springrts.springls.util.Misc;
 import com.springrts.springls.commands.AbstractCommandProcessor;
+import com.springrts.springls.commands.Argument;
+import com.springrts.springls.commands.CommandArguments;
 import com.springrts.springls.commands.CommandProcessingException;
+import com.springrts.springls.commands.IndexedArgument;
+import com.springrts.springls.commands.ParsedCommandArguments;
 import com.springrts.springls.commands.SupportedCommand;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * Allows a user to join a channel.
@@ -35,11 +38,19 @@ import java.util.List;
 public class JoinCommandProcessor extends AbstractCommandProcessor {
 
 	public JoinCommandProcessor() {
-		super(1, ARGS_MAX_NOCHECK, Account.Access.NORMAL);
+		super(
+				new CommandArguments(Arrays.asList(new IndexedArgument[] {
+						new Argument("channelName")
+						}),
+						new Argument("channelKey")
+						),
+				Account.Access.NORMAL);
 	}
 
 	@Override
-	public boolean process(final Client client, final List<String> args)
+	public boolean process(
+			final Client client,
+			final ParsedCommandArguments args)
 			throws CommandProcessingException
 	{
 		final boolean checksOk = super.process(client, args);
@@ -47,8 +58,8 @@ public class JoinCommandProcessor extends AbstractCommandProcessor {
 			return false;
 		}
 
-		final String channelName = args.get(0);
-		final String channelKey = Misc.makeSentence(args, 1);
+		final String channelName = (String)args.getWords().get(0);
+		final String channelKey = (String)args.getSentences().get(0);
 
 		// check if channel name is OK:
 		final String valid = getContext().getChannels().isChanNameValid(channelName);
